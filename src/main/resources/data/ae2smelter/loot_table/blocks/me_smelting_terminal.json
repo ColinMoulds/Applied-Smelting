@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "ae2smelter:me_smelting_terminal"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "ae2smelter:blocks/me_smelting_terminal"
+}

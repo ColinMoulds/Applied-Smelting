@@ -1,0 +1,40 @@
+Applied Smelting
+Copyright (c) 2026 Colin Moulds
+
+LICENSE SCOPE
+
+Source code, build scripts, and data files that are primarily functional in
+nature are licensed under the GNU Lesser General Public License, version 3.0
+only (SPDX: LGPL-3.0-only). See LICENSE. The incorporated GNU General Public
+License, version 3.0, is also provided in COPYING.
+
+Original textures, models, logos, previews, and other visual artwork are
+licensed under Creative Commons Attribution-NonCommercial-ShareAlike 3.0
+Unported (SPDX: CC-BY-NC-SA-3.0). See LICENSE-ASSETS.
+
+APPLIED ENERGISTICS 2
+
+Applied Smelting is an independent add-on for Applied Energistics 2 (AE2).
+AE2 is developed by the Applied Energistics team and is distributed under its
+own licenses. AE2 is a separate runtime dependency and is not included in the
+Applied Smelting JAR.
+
+The ME Smelting Terminal model geometry is adapted from AE2's ME Terminal
+monitor model (assets/ae2/models/part/monitor_base.json in AE2 26.1.10-beta).
+The original model is copyright the Applied Energistics contributors and is
+licensed under CC BY-NC-SA 3.0. Applied Smelting's modified model and original
+smelting-specific textures are distributed under the same license.
+
+The ME Smelter and ME Smelting Terminal recipes are adapted from AE2's ME Drive
+and ME Crafting Terminal recipes respectively. They are modified to incorporate
+a Minecraft furnace and are distributed under Applied Smelting's code/data
+license.
+
+Any exact, unmodified AE2 files retained locally for development reference are
+not part of Applied Smelting and are excluded from version control.
+
+Applied Energistics 2:
+https://github.com/AppliedEnergistics/Applied-Energistics-2
+
+Creative Commons license deed:
+https://creativecommons.org/licenses/by-nc-sa/3.0/

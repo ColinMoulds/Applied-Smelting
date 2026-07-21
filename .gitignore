@@ -1,0 +1,18 @@
+.gradle/
+.idea/
+.vscode/
+build/
+run/
+out/
+*.iml
+
+# Local design sources and third-party visual references are not release assets.
+art/
+blockbench/
+
+# Editor, operating-system, and runtime leftovers.
+*.log
+logs/
+crash-reports/
+.DS_Store
+Thumbs.db

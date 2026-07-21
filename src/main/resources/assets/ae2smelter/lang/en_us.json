@@ -1,0 +1,15 @@
+{
+  "block.ae2smelter.me_smelter": "ME Smelter",
+  "block.ae2smelter.me_smelting_terminal": "ME Smelting Terminal",
+  "gui.ae2smelter.pause_all": "Pause All",
+  "gui.ae2smelter.paused": "Network state: Paused",
+  "gui.ae2smelter.resume_all": "Resume All",
+  "gui.ae2smelter.running": "Network state: Running",
+  "gui.ae2smelter.smelters": "Connected smelters: %s",
+  "gui.ae2smelter.terminal": "ME Smelting Terminal",
+  "gui.ae2smelter.working": "Currently processing: %s",
+  "itemGroup.ae2smelter": "Applied Smelting",
+  "message.ae2smelter.paused": "ME Smelter paused",
+  "message.ae2smelter.progress": "ME Smelter progress: %s/%s ticks",
+  "message.ae2smelter.waiting": "ME Smelter waiting for a valid input"
+}
