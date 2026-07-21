@@ -1,0 +1,79 @@
+{
+  "$schema": "../schema.json",
+  "includes": ["../common/common.json"],
+  "generatedBackground": {
+    "width": 176,
+    "height": 154
+  },
+  "text": {
+    "dialog_title": {
+      "text": {
+        "translate": "gui.appliedsmelting.settings"
+      },
+      "position": {
+        "left": 8,
+        "top": 6
+      }
+    },
+    "power_label": {
+      "text": {
+        "translate": "gui.appliedsmelting.network_power"
+      },
+      "position": {
+        "left": 20,
+        "top": 32
+      }
+    },
+    "power_status": {
+      "text": "",
+      "position": {
+        "left": 143,
+        "top": 32
+      }
+    },
+    "target_label": {
+      "text": {
+        "translate": "gui.appliedsmelting.storage_target"
+      },
+      "position": {
+        "left": 20,
+        "top": 57
+      }
+    },
+    "target_hint": {
+      "text": {
+        "translate": "gui.appliedsmelting.zero_unlimited"
+      },
+      "position": {
+        "left": 8,
+        "top": 139
+      }
+    }
+  },
+  "widgets": {
+    "back": {
+      "left": 152,
+      "top": -5,
+      "width": 20,
+      "height": 20
+    },
+    "power": {
+      "left": 122,
+      "top": 28,
+      "width": 16,
+      "height": 16
+    },
+    "target": {
+      "left": 20,
+      "top": 69,
+      "width": 138,
+      "height": 62
+    },
+    "targetInput": {
+      "left": 60,
+      "top": 94,
+      "width": 61,
+      "height": 12
+    }
+  }
+}

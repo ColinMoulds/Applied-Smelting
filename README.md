@@ -6,7 +6,7 @@ Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds
 
 ## Beta scope
 
-Version `0.1.1` is an early beta. Smelters process selected furnace inputs from their AE2 network, consume selected fuel and AE power, and return completed outputs directly to storage. The terminal supports input and fuel selection, target stock levels, network-wide pause/resume controls, active-machine status, and live aggregate progress. ME Smelters accept up to four acceleration cards for speeds up to 16x.
+Version `0.1.2` is an early beta. Smelters process selected furnace inputs from their AE2 network, consume selected fuel and AE power, and return completed outputs directly to storage. The terminal supports input and fuel selection, priority-style target stock controls, stored-output reporting, network-wide power controls, active-machine status, and live aggregate progress. ME Smelters accept up to four acceleration cards for speeds up to 16x.
 
 Recipe-browser integration, expanded upgrades, and advanced parallel job controls are planned for later beta releases.
 

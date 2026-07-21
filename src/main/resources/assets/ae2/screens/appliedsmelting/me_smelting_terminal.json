@@ -14,16 +14,24 @@
     "smelters": {
       "text": "",
       "position": {
-        "left": 78,
-        "bottom": 155
+        "left": 64,
+        "bottom": 158
       },
       "scale": 0.75
     },
     "active": {
       "text": "",
       "position": {
-        "left": 78,
-        "bottom": 145
+        "left": 64,
+        "bottom": 148
+      },
+      "scale": 0.75
+    },
+    "stored": {
+      "text": "",
+      "position": {
+        "left": 64,
+        "bottom": 140
       },
       "scale": 0.75
     },

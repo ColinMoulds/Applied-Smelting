@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2
+
+- Centred the furnace input, flame, and fuel layout with additional vertical spacing.
+- Replaced the custom flame artwork with Minecraft's standard animated furnace flame sprite.
+- Fixed the furnace panel rendering order so status and progress information remain visible.
+- Added current stored output reporting and configurable output targets.
+- Moved power and target controls to a dedicated AE2-style settings screen inspired by the ME Drive priority screen.
+- Replaced Pause/Run with AE2's native redstone ON/OFF toggle and added priority-style target adjustment controls.
+
 ## 0.1.1
 
 - Added live smelting progress to the ME Smelting Terminal.

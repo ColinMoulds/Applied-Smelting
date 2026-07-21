@@ -1,10 +1,12 @@
 package dev.excal1bur.appliedsmelting.client.screen;
 
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
+import java.util.Locale;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
@@ -12,19 +14,25 @@ import appeng.client.api.AEKeyRendering;
 import appeng.client.gui.me.common.MEStorageScreen;
 import appeng.client.gui.me.common.RepoSlot;
 import appeng.client.gui.style.ScreenStyle;
+import appeng.client.gui.widgets.TabButton;
 import appeng.helpers.InventoryAction;
+import appeng.util.Icon;
 
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 
 public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTerminalMenu> {
     private static final int INPUT_X = 42;
+    private static final int INPUT_Y = 3;
     private static final int FUEL_X = 42;
+    private static final int FUEL_Y = 45;
     private static final int OUTPUT_X = 130;
-
-    private Button toggleButton;
-    private EditBox targetAmountField;
-    private boolean updatingTargetField;
+    private static final int OUTPUT_Y = 23;
+    private static final int FLAME_X = INPUT_X + 2;
+    private static final int FLAME_Y = 25;
+    private static final Identifier FURNACE_FLAME_SPRITE =
+            Identifier.withDefaultNamespace("container/furnace/lit_progress");
+    private TabButton settingsButton;
     private long draggedSerial = -1;
     private appeng.api.stacks.AEItemKey draggedKey;
     private double dragStartX;
@@ -38,23 +46,13 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     @Override
     public void init() {
         super.init();
-        toggleButton = addRenderableWidget(Button.builder(
-                        Component.empty(), button -> menu.requestNetworkEnabled(!menu.enabled))
-                .bounds(leftPos + 10, topPos + panelTop() + 48, 72, 16)
-                .build());
-
-        targetAmountField = new EditBox(
-                font,
-                leftPos + 126,
-                topPos + panelTop() + 48,
-                34,
-                16,
-                Component.translatable("gui.appliedsmelting.target_amount"));
-        targetAmountField.setMaxLength(12);
-        targetAmountField.setFilter(value -> value.isEmpty() || value.chars().allMatch(Character::isDigit));
-        targetAmountField.setValue(Long.toString(menu.targetAmount));
-        targetAmountField.setResponder(this::targetAmountChanged);
-        addRenderableWidget(targetAmountField);
+        settingsButton = new TabButton(
+                Icon.COG,
+                Component.translatable("gui.appliedsmelting.open_settings"),
+                button -> switchToScreen(new SmeltingSettingsScreen(this)));
+        settingsButton.setX(leftPos + imageWidth - 24);
+        settingsButton.setY(topPos + panelTop() + 4);
+        addRenderableWidget(settingsButton);
     }
 
     @Override
@@ -64,48 +62,45 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
                 SmelterStatus.fromId(menu.statusId).translationKey()));
         setTextContent("active", Component.translatable(
                 "gui.appliedsmelting.smelters_compact", menu.workingCount, menu.smelterCount));
-        if (toggleButton != null) {
-            toggleButton.setMessage(Component.translatable(
-                    menu.enabled ? "gui.appliedsmelting.pause_all" : "gui.appliedsmelting.resume_all"));
-        }
-        if (targetAmountField != null && !targetAmountField.isFocused()) {
-            var targetText = Long.toString(menu.targetAmount);
-            if (!targetText.equals(targetAmountField.getValue())) {
-                updatingTargetField = true;
-                targetAmountField.setValue(targetText);
-                updatingTargetField = false;
-            }
-        }
+        setTextContent("stored", Component.translatable(
+                "gui.appliedsmelting.stored_target",
+                formatCompactAmount(menu.storedOutputAmount),
+                menu.targetAmount == 0
+                        ? Component.translatable("gui.appliedsmelting.unlimited")
+                        : Component.literal(formatCompactAmount(menu.targetAmount))));
+        settingsButton.active = menu.smelterCount > 0;
+    }
+
+    @Override
+    public void drawBG(
+            GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY, int mouseX, int mouseY, float partialTick) {
+        super.drawBG(guiGraphics, offsetX, offsetY, mouseX, mouseY, partialTick);
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(offsetX, offsetY);
+        int top = panelTop();
+        // Cover the crafting grid inherited from AE2's terminal texture and replace it with a furnace layout.
+        guiGraphics.fill(9, top, 168, top + 66, 0xffa9adc2);
+        drawInset(guiGraphics, 9, top, 159, 66);
+        drawSlot(guiGraphics, INPUT_X, top + INPUT_Y);
+        drawSlot(guiGraphics, FUEL_X, top + FUEL_Y);
+        drawSlot(guiGraphics, OUTPUT_X, top + OUTPUT_Y);
+
+        // Furnace flame and processing progress.
+        drawFlame(guiGraphics, top);
+        drawProgress(guiGraphics, top);
+
+        guiGraphics.pose().popMatrix();
     }
 
     @Override
     public void drawFG(
             GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY, int mouseX, int mouseY) {
         int top = panelTop();
-        // Cover the crafting grid inherited from AE2's terminal texture and replace it with a furnace layout.
-        guiGraphics.fill(9, top, 168, top + 66, 0xffa9adc2);
-        drawInset(guiGraphics, 9, top, 159, 66);
-        drawSlot(guiGraphics, INPUT_X, top + 8);
-        drawSlot(guiGraphics, FUEL_X, top + 38);
-        drawSlot(guiGraphics, OUTPUT_X, top + 23);
-
-        // Furnace flame and processing progress.
-        drawFlame(guiGraphics, top);
-        drawProgress(guiGraphics, top);
-
-        renderSelection(guiGraphics, menu.selectedInput, INPUT_X + 1, top + 9);
-        renderSelection(guiGraphics, menu.selectedFuel, FUEL_X + 1, top + 39);
-        renderSelection(guiGraphics, menu.outputPreview, OUTPUT_X + 1, top + 24);
-        guiGraphics.text(
-                font,
-                Component.translatable("gui.appliedsmelting.target"),
-                86,
-                top + 52,
-                0xff30323d,
-                false);
-
-        // Render AE2's styled labels after the replacement panel so status text remains visible.
         super.drawFG(guiGraphics, offsetX, offsetY, mouseX, mouseY);
+
+        renderSelection(guiGraphics, menu.selectedInput, INPUT_X + 1, top + INPUT_Y + 1);
+        renderSelection(guiGraphics, menu.selectedFuel, FUEL_X + 1, top + FUEL_Y + 1);
+        renderSelection(guiGraphics, menu.outputPreview, OUTPUT_X + 1, top + OUTPUT_Y + 1);
 
         if (draggedKey != null) {
             AEKeyRendering.drawInGui(minecraft, guiGraphics, mouseX - leftPos - 8, mouseY - topPos - 8, draggedKey);
@@ -132,9 +127,9 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     public boolean mouseReleased(MouseButtonEvent event) {
         if (event.button() == 0 && draggedSerial != -1) {
             int top = panelTop();
-            if (isHovering(FUEL_X, top + 38, 18, 18, event.x(), event.y())) {
+            if (isHovering(FUEL_X, top + FUEL_Y, 18, 18, event.x(), event.y())) {
                 menu.handleInteraction(draggedSerial, InventoryAction.SPLIT_OR_PLACE_SINGLE);
-            } else if (isHovering(INPUT_X, top + 8, 18, 18, event.x(), event.y())
+            } else if (isHovering(INPUT_X, top + INPUT_Y, 18, 18, event.x(), event.y())
                     || Math.hypot(event.x() - dragStartX, event.y() - dragStartY) < 4.0) {
                 // Dropping on the input slot, or a normal left-click, selects the input.
                 menu.handleInteraction(draggedSerial, InventoryAction.PICKUP_OR_SET_DOWN);
@@ -149,15 +144,15 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     @Override
     protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         int top = panelTop();
-        if (showSelectionTooltip(guiGraphics, x, y, INPUT_X, top + 8, menu.selectedInput,
+        if (showSelectionTooltip(guiGraphics, x, y, INPUT_X, top + INPUT_Y, menu.selectedInput,
                 "gui.appliedsmelting.selected_input")) {
             return;
         }
-        if (showSelectionTooltip(guiGraphics, x, y, FUEL_X, top + 38, menu.selectedFuel,
+        if (showSelectionTooltip(guiGraphics, x, y, FUEL_X, top + FUEL_Y, menu.selectedFuel,
                 "gui.appliedsmelting.selected_fuel")) {
             return;
         }
-        if (showSelectionTooltip(guiGraphics, x, y, OUTPUT_X, top + 23, menu.outputPreview,
+        if (showSelectionTooltip(guiGraphics, x, y, OUTPUT_X, top + OUTPUT_Y, menu.outputPreview,
                 "gui.appliedsmelting.output_preview")) {
             return;
         }
@@ -168,15 +163,17 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         return imageHeight - 161;
     }
 
-    private void targetAmountChanged(String value) {
-        if (updatingTargetField) {
-            return;
+    private static String formatCompactAmount(long amount) {
+        if (amount >= 1_000_000_000) {
+            return String.format(Locale.ROOT, "%.1fB", amount / 1_000_000_000.0);
         }
-        try {
-            menu.requestTargetAmount(value.isEmpty() ? 0 : Long.parseLong(value));
-        } catch (NumberFormatException ignored) {
-            // The length filter keeps normal input in range; ignore pasted values that exceed a long.
+        if (amount >= 1_000_000) {
+            return String.format(Locale.ROOT, "%.1fM", amount / 1_000_000.0);
         }
+        if (amount >= 1_000) {
+            return String.format(Locale.ROOT, "%.1fk", amount / 1_000.0);
+        }
+        return Long.toString(amount);
     }
 
     private static void drawInset(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
@@ -206,20 +203,20 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     }
 
     private void drawFlame(GuiGraphicsExtractor graphics, int top) {
-        // Ten pixel-art rows, from the pointed tip down to the broad base.
-        int[] left = {53, 52, 51, 50, 50, 49, 49, 50, 51, 52};
-        int[] right = {55, 56, 57, 58, 59, 59, 59, 58, 57, 56};
         int fuel = Math.max(0, Math.min(100, menu.fuelPercent));
-        int litRows = (fuel * left.length + 99) / 100;
-        int firstLitRow = left.length - litRows;
-
-        for (int row = 0; row < left.length; row++) {
-            int y = top + 27 + row;
-            int color = row >= firstLitRow ? 0xffe88416 : 0xff5f6378;
-            graphics.fill(left[row], y, right[row], y + 1, color);
-            if (row >= firstLitRow && right[row] - left[row] >= 5) {
-                graphics.fill(left[row] + 2, y, right[row] - 1, y + 1, 0xffffc83d);
-            }
+        if (fuel > 0) {
+            int litHeight = Math.min(14, (int) Math.ceil(fuel * 13 / 100.0) + 1);
+            graphics.blitSprite(
+                    RenderPipelines.GUI_TEXTURED,
+                    FURNACE_FLAME_SPRITE,
+                    14,
+                    14,
+                    0,
+                    14 - litHeight,
+                    FLAME_X,
+                    top + FLAME_Y + 14 - litHeight,
+                    14,
+                    litHeight);
         }
     }
 
