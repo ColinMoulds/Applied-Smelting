@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "appliedsmelting:block/me_smelting_terminal"
+    },
+    "facing=east": {
+      "model": "appliedsmelting:block/me_smelting_terminal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "appliedsmelting:block/me_smelting_terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "appliedsmelting:block/me_smelting_terminal",
+      "y": 270
+    }
+  }
+}

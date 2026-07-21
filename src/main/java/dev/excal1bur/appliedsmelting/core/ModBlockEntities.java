@@ -9,13 +9,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import appeng.blockentity.AEBaseBlockEntity;
 
-import dev.excal1bur.appliedsmelting.AE2Smelter;
+import dev.excal1bur.appliedsmelting.AppliedSmelting;
 import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 import dev.excal1bur.appliedsmelting.blockentity.SmeltingTerminalBlockEntity;
 
 public final class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> REGISTER =
-            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, AE2Smelter.MOD_ID);
+            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, AppliedSmelting.MOD_ID);
 
     public static final Supplier<BlockEntityType<MESmelterBlockEntity>> ME_SMELTER = REGISTER.register(
             "me_smelter",
@@ -39,7 +39,6 @@ public final class ModBlockEntities {
                 reference.set(type);
                 ModBlocks.SMELTING_TERMINAL.get()
                         .setBlockEntity(SmeltingTerminalBlockEntity.class, type, null, null);
-                AEBaseBlockEntity.registerBlockEntityItem(type, ModBlocks.SMELTING_TERMINAL_ITEM.get());
                 return type;
             });
 

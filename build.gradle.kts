@@ -3,9 +3,10 @@ plugins {
     id("net.neoforged.moddev")
 }
 
-val modId = "ae2smelter"
+val modId = "appliedsmelting"
+val minecraftVersion = providers.gradleProperty("minecraftVersion").get()
 
-base.archivesName = modId
+base.archivesName = "AppliedSmelting-$minecraftVersion"
 version = providers.gradleProperty("modVersion").get()
 group = "dev.excal1bur.appliedsmelting"
 

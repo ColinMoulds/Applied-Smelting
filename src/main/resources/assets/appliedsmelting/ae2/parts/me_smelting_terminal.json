@@ -1,0 +1,23 @@
+{
+  "model": {
+    "type": "ae2:composite",
+    "models": [
+      {
+        "type": "ae2:model",
+        "model": "ae2:part/display_base"
+      },
+      {
+        "type": "ae2:status_indicator",
+        "active": "appliedsmelting:part/me_smelting_terminal",
+        "powered": "appliedsmelting:part/me_smelting_terminal",
+        "unpowered": "appliedsmelting:part/me_smelting_terminal"
+      },
+      {
+        "type": "ae2:status_indicator",
+        "active": "ae2:part/display_status_has_channel",
+        "powered": "ae2:part/display_status_on",
+        "unpowered": "ae2:part/display_status_off"
+      }
+    ]
+  }
+}

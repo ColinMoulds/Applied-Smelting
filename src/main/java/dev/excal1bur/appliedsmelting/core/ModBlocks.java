@@ -11,13 +11,15 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import appeng.block.AEBaseBlock;
 import appeng.block.AEBaseBlockItem;
+import appeng.items.parts.PartItem;
 
-import dev.excal1bur.appliedsmelting.AE2Smelter;
+import dev.excal1bur.appliedsmelting.AppliedSmelting;
 import dev.excal1bur.appliedsmelting.block.MESmelterBlock;
 import dev.excal1bur.appliedsmelting.block.SmeltingTerminalBlock;
+import dev.excal1bur.appliedsmelting.part.SmeltingTerminalPart;
 
 public final class ModBlocks {
-    public static final DeferredRegister.Blocks REGISTER = DeferredRegister.createBlocks(AE2Smelter.MOD_ID);
+    public static final DeferredRegister.Blocks REGISTER = DeferredRegister.createBlocks(AppliedSmelting.MOD_ID);
 
     public static final DeferredBlock<MESmelterBlock> ME_SMELTER = REGISTER.registerBlock(
             "me_smelter", MESmelterBlock::new, ModBlocks::machineProperties);
@@ -26,9 +28,9 @@ public final class ModBlocks {
 
     public static final DeferredBlock<SmeltingTerminalBlock> SMELTING_TERMINAL = REGISTER.registerBlock(
             "me_smelting_terminal", SmeltingTerminalBlock::new, ModBlocks::machineProperties);
-    public static final DeferredItem<BlockItem> SMELTING_TERMINAL_ITEM = ModItems.REGISTER.registerItem(
+    public static final DeferredItem<PartItem<SmeltingTerminalPart>> SMELTING_TERMINAL_ITEM = ModItems.REGISTER.registerItem(
             "me_smelting_terminal",
-            properties -> new AEBaseBlockItem(SMELTING_TERMINAL.get(), properties.useBlockDescriptionPrefix()));
+            properties -> new PartItem<>(properties, SmeltingTerminalPart.class, SmeltingTerminalPart::new));
 
     private ModBlocks() {
     }
