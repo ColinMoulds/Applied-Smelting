@@ -43,7 +43,48 @@ public final class SmeltingService implements IGridService, IGridServiceProvider
     }
 
     public int getWorkingCount() {
-        return (int) smelters.stream().filter(MESmelterBlockEntity::isWorking).count();
+        return (int) smelters.stream().filter(MESmelterBlockEntity::isActivelySmelting).count();
+    }
+
+    public int getAverageProgressPercent() {
+        return (int) Math.round(smelters.stream()
+                .filter(MESmelterBlockEntity::isWorking)
+                .mapToInt(MESmelterBlockEntity::getProgressPercent)
+                .average()
+                .orElse(0));
+    }
+
+    public int getAverageFuelPercent() {
+        return (int) Math.round(smelters.stream()
+                .mapToInt(MESmelterBlockEntity::getFuelPercent)
+                .filter(percent -> percent > 0)
+                .average()
+                .orElse(0));
+    }
+
+    public SmelterStatus getOverallStatus() {
+        if (smelters.isEmpty()) {
+            return SmelterStatus.NO_SMELTERS;
+        }
+
+        var priority = new SmelterStatus[] {
+            SmelterStatus.SMELTING,
+            SmelterStatus.OUTPUT_FULL,
+            SmelterStatus.MISSING_POWER,
+            SmelterStatus.MISSING_FUEL,
+            SmelterStatus.MISSING_INPUT,
+            SmelterStatus.INVALID_RECIPE,
+            SmelterStatus.TARGET_REACHED,
+            SmelterStatus.WAITING_FOR_SELECTION,
+            SmelterStatus.PAUSED,
+            SmelterStatus.OFFLINE
+        };
+        for (var candidate : priority) {
+            if (smelters.stream().anyMatch(smelter -> smelter.getMachineStatus() == candidate)) {
+                return candidate;
+            }
+        }
+        return SmelterStatus.OFFLINE;
     }
 
     public boolean isEnabled() {

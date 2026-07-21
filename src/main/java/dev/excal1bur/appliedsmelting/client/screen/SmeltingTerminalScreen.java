@@ -15,6 +15,7 @@ import appeng.client.gui.style.ScreenStyle;
 import appeng.helpers.InventoryAction;
 
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
+import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 
 public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTerminalMenu> {
     private static final int INPUT_X = 42;
@@ -60,6 +61,8 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     protected void updateBeforeRender() {
         super.updateBeforeRender();
         setTextContent("smelters", Component.translatable(
+                SmelterStatus.fromId(menu.statusId).translationKey()));
+        setTextContent("active", Component.translatable(
                 "gui.appliedsmelting.smelters_compact", menu.workingCount, menu.smelterCount));
         if (toggleButton != null) {
             toggleButton.setMessage(Component.translatable(
@@ -78,8 +81,6 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     @Override
     public void drawFG(
             GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY, int mouseX, int mouseY) {
-        super.drawFG(guiGraphics, offsetX, offsetY, mouseX, mouseY);
-
         int top = panelTop();
         // Cover the crafting grid inherited from AE2's terminal texture and replace it with a furnace layout.
         guiGraphics.fill(9, top, 168, top + 66, 0xffa9adc2);
@@ -88,12 +89,9 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         drawSlot(guiGraphics, FUEL_X, top + 38);
         drawSlot(guiGraphics, OUTPUT_X, top + 23);
 
-        // Furnace flame and processing arrow.
-        guiGraphics.fill(51, top + 30, 57, top + 35, 0xff5f6378);
-        guiGraphics.fill(49, top + 32, 59, top + 37, 0xff5f6378);
-        guiGraphics.fill(78, top + 31, 119, top + 34, 0xff62667b);
-        guiGraphics.fill(116, top + 27, 122, top + 38, 0xff62667b);
-        guiGraphics.fill(119, top + 29, 124, top + 36, 0xff62667b);
+        // Furnace flame and processing progress.
+        drawFlame(guiGraphics, top);
+        drawProgress(guiGraphics, top);
 
         renderSelection(guiGraphics, menu.selectedInput, INPUT_X + 1, top + 9);
         renderSelection(guiGraphics, menu.selectedFuel, FUEL_X + 1, top + 39);
@@ -105,6 +103,9 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
                 top + 52,
                 0xff30323d,
                 false);
+
+        // Render AE2's styled labels after the replacement panel so status text remains visible.
+        super.drawFG(guiGraphics, offsetX, offsetY, mouseX, mouseY);
 
         if (draggedKey != null) {
             AEKeyRendering.drawInGui(minecraft, guiGraphics, mouseX - leftPos - 8, mouseY - topPos - 8, draggedKey);
@@ -189,6 +190,37 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         graphics.fill(x, y, x + 18, y + 18, 0xff686c81);
         graphics.fill(x + 1, y + 1, x + 18, y + 18, 0xffd4d8ea);
         graphics.fill(x + 2, y + 2, x + 17, y + 17, 0xffaeb2c8);
+    }
+
+    private void drawProgress(GuiGraphicsExtractor graphics, int top) {
+        int progress = Math.max(0, Math.min(100, menu.progressPercent));
+        graphics.fill(78, top + 28, 124, top + 37, 0xff686c81);
+        graphics.fill(79, top + 29, 123, top + 36, 0xff969aaf);
+        int fillWidth = 42 * progress / 100;
+        if (fillWidth > 0) {
+            graphics.fill(80, top + 30, 80 + fillWidth, top + 35, 0xffe6a728);
+        }
+
+        var progressText = Component.literal(progress + "%");
+        graphics.text(font, progressText, 101 - font.width(progressText) / 2, top + 39, 0xff30323d, false);
+    }
+
+    private void drawFlame(GuiGraphicsExtractor graphics, int top) {
+        // Ten pixel-art rows, from the pointed tip down to the broad base.
+        int[] left = {53, 52, 51, 50, 50, 49, 49, 50, 51, 52};
+        int[] right = {55, 56, 57, 58, 59, 59, 59, 58, 57, 56};
+        int fuel = Math.max(0, Math.min(100, menu.fuelPercent));
+        int litRows = (fuel * left.length + 99) / 100;
+        int firstLitRow = left.length - litRows;
+
+        for (int row = 0; row < left.length; row++) {
+            int y = top + 27 + row;
+            int color = row >= firstLitRow ? 0xffe88416 : 0xff5f6378;
+            graphics.fill(left[row], y, right[row], y + 1, color);
+            if (row >= firstLitRow && right[row] - left[row] >= 5) {
+                graphics.fill(left[row] + 2, y, right[row] - 1, y + 1, 0xffffc83d);
+            }
+        }
     }
 
     private void renderSelection(GuiGraphicsExtractor graphics, appeng.api.stacks.GenericStack stack, int x, int y) {

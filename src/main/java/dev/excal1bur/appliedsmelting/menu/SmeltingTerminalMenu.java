@@ -47,6 +47,15 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
     @GuiSync(7)
     public long targetAmount;
 
+    @GuiSync(8)
+    public int statusId;
+
+    @GuiSync(9)
+    public int progressPercent;
+
+    @GuiSync(10)
+    public int fuelPercent;
+
     public SmeltingTerminalMenu(int id, Inventory playerInventory, SmeltingTerminalHost terminal) {
         super(ModMenus.SMELTING_TERMINAL.get(), id, playerInventory, terminal);
         this.terminal = terminal;
@@ -67,6 +76,9 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             selectedFuel = fuel == null ? null : new GenericStack(fuel, 1);
             outputPreview = getOutputPreview(input);
             targetAmount = service == null ? 0 : service.getTargetAmount();
+            statusId = service == null ? 0 : service.getOverallStatus().id();
+            progressPercent = service == null ? 0 : service.getAverageProgressPercent();
+            fuelPercent = service == null ? 0 : service.getAverageFuelPercent();
         }
         super.broadcastChanges();
     }

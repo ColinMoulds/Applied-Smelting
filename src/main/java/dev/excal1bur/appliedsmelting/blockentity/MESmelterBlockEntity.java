@@ -35,6 +35,7 @@ import appeng.me.helpers.MachineSource;
 import appeng.util.inv.AppEngInternalInventory;
 
 import dev.excal1bur.appliedsmelting.service.SmeltingService;
+import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
 
 public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
@@ -47,7 +48,9 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     private final IActionSource actionSource = new MachineSource(this);
     private int progress;
     private int fuelTicksRemaining;
+    private int fuelTicksTotal;
     private boolean enabled = true;
+    private SmelterStatus status = SmelterStatus.WAITING_FOR_SELECTION;
     private AEItemKey pendingOutputKey;
     private int pendingOutputAmount;
 
@@ -103,6 +106,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         super.saveAdditional(output);
         output.putInt("progress", progress);
         output.putInt("fuelTicksRemaining", fuelTicksRemaining);
+        output.putInt("fuelTicksTotal", fuelTicksTotal);
         output.putBoolean("enabled", enabled);
         upgrades.writeToNBT(output, "upgrades");
     }
@@ -112,6 +116,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         super.loadTag(input);
         progress = input.getIntOr("progress", 0);
         fuelTicksRemaining = input.getIntOr("fuelTicksRemaining", 0);
+        fuelTicksTotal = input.getIntOr("fuelTicksTotal", fuelTicksRemaining);
         enabled = input.getBooleanOr("enabled", true);
         upgrades.readFromNBT(input, "upgrades");
     }
@@ -123,7 +128,12 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
 
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        if (!enabled || !node.isActive()) {
+        if (!enabled) {
+            setStatus(SmelterStatus.PAUSED);
+            return TickRateModulation.SLOWER;
+        }
+        if (!node.isActive()) {
+            setStatus(SmelterStatus.OFFLINE);
             return TickRateModulation.SLOWER;
         }
 
@@ -135,13 +145,20 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var storage = grid.getStorageService().getInventory();
 
         if (selectedInput == null || selectedFuel == null) {
-            returnInputToNetwork(storage);
+            if (!returnInputToNetwork(storage)) {
+                setStatus(SmelterStatus.OUTPUT_FULL);
+                return TickRateModulation.SLOWER;
+            }
+            setStatus(SmelterStatus.WAITING_FOR_SELECTION);
             return TickRateModulation.SLOWER;
         }
 
         var bufferedInput = AEItemKey.of(inventory.getStackInSlot(0));
         if (bufferedInput != null && !bufferedInput.equals(selectedInput)) {
-            returnInputToNetwork(storage);
+            if (!returnInputToNetwork(storage)) {
+                setStatus(SmelterStatus.OUTPUT_FULL);
+                return TickRateModulation.SLOWER;
+            }
         }
 
         if (inventory.getStackInSlot(0).isEmpty()
@@ -154,6 +171,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var recipe = level.recipeAccess().getRecipeFor(RecipeType.SMELTING, recipeInput, level);
         if (recipe.isEmpty()) {
             returnInputToNetwork(grid.getStorageService().getInventory());
+            setStatus(SmelterStatus.INVALID_RECIPE);
             return TickRateModulation.SLOWER;
         }
 
@@ -172,9 +190,11 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
                     progress = 0;
                     clearPendingOutput();
                     saveChanges();
+                    setStatus(SmelterStatus.SMELTING);
                     return TickRateModulation.URGENT;
                 }
             }
+            setStatus(SmelterStatus.OUTPUT_FULL);
             return TickRateModulation.SLOWER;
         }
 
@@ -187,12 +207,14 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var energy = grid.getEnergyService();
         if (energy.extractAEPower(energyNeeded, Actionable.SIMULATE, PowerMultiplier.CONFIG) + 0.001
                 < energyNeeded) {
+            setStatus(SmelterStatus.MISSING_POWER);
             return TickRateModulation.SLOWER;
         }
 
         energy.extractAEPower(energyNeeded, Actionable.MODULATE, PowerMultiplier.CONFIG);
         progress += workTicks;
         fuelTicksRemaining -= workTicks;
+        setStatus(SmelterStatus.SMELTING);
         saveChanges();
         return TickRateModulation.URGENT;
     }
@@ -206,6 +228,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var recipeInput = new SingleRecipeInput(stack);
         var recipe = level.recipeAccess().getRecipeFor(RecipeType.SMELTING, recipeInput, level);
         if (recipe.isEmpty()) {
+            setStatus(SmelterStatus.INVALID_RECIPE);
             return false;
         }
 
@@ -214,11 +237,13 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         if (resultKey == null
                 || storage.insert(resultKey, result.getCount(), Actionable.SIMULATE, actionSource)
                         != result.getCount()) {
+            setStatus(SmelterStatus.OUTPUT_FULL);
             return false;
         }
 
         var storedAmount = storage.getAvailableStacks().get(resultKey);
         if (!service.canStartJob(this, resultKey, result.getCount(), storedAmount)) {
+            setStatus(SmelterStatus.TARGET_REACHED);
             return false;
         }
 
@@ -227,9 +252,11 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
             progress = 0;
             pendingOutputKey = resultKey;
             pendingOutputAmount = result.getCount();
+            setStatus(SmelterStatus.SMELTING);
             saveChanges();
             return true;
         }
+        setStatus(SmelterStatus.MISSING_INPUT);
         return false;
     }
 
@@ -237,6 +264,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var fuelStack = fuelKey.toStack();
         var burnDuration = level.fuelValues().burnDuration(fuelStack);
         if (burnDuration <= 0) {
+            setStatus(SmelterStatus.MISSING_FUEL);
             return false;
         }
 
@@ -246,29 +274,38 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         if (remainderKey != null
                 && storage.insert(remainderKey, remainder.getCount(), Actionable.SIMULATE, actionSource)
                         != remainder.getCount()) {
+            setStatus(SmelterStatus.OUTPUT_FULL);
             return false;
         }
 
         if (storage.extract(fuelKey, 1, Actionable.MODULATE, actionSource) != 1) {
+            setStatus(SmelterStatus.MISSING_FUEL);
             return false;
         }
         if (remainderKey != null) {
             storage.insert(remainderKey, remainder.getCount(), Actionable.MODULATE, actionSource);
         }
         fuelTicksRemaining = burnDuration;
+        fuelTicksTotal = burnDuration;
         saveChanges();
         return true;
     }
 
-    private void returnInputToNetwork(appeng.api.storage.MEStorage storage) {
+    private boolean returnInputToNetwork(appeng.api.storage.MEStorage storage) {
         var stack = inventory.getStackInSlot(0);
         var key = AEItemKey.of(stack);
+        if (key == null) {
+            clearPendingOutput();
+            return true;
+        }
         if (key != null && storage.insert(key, 1, Actionable.MODULATE, actionSource) == 1) {
             inventory.setItemDirect(0, ItemStack.EMPTY);
             progress = 0;
             clearPendingOutput();
             saveChanges();
+            return true;
         }
+        return false;
     }
 
     private void clearPendingOutput() {
@@ -286,6 +323,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+        setStatus(enabled ? SmelterStatus.WAITING_FOR_SELECTION : SmelterStatus.PAUSED);
         saveChanges();
         getMainNode().ifPresent((grid, node) -> grid.getTickManager().wakeDevice(node));
     }
@@ -312,13 +350,39 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         return !inventory.getStackInSlot(0).isEmpty();
     }
 
-    public Component getStatusMessage() {
-        if (!enabled) {
-            return Component.translatable("message.appliedsmelting.paused");
+    public boolean isActivelySmelting() {
+        return getMachineStatus() == SmelterStatus.SMELTING;
+    }
+
+    public int getProgressPercent() {
+        return Math.max(0, Math.min(100, progress * 100 / PROCESSING_TICKS));
+    }
+
+    public int getFuelPercent() {
+        if (fuelTicksRemaining <= 0 || fuelTicksTotal <= 0) {
+            return 0;
         }
-        if (isWorking()) {
+        return Math.max(1, Math.min(100, (int) ((long) fuelTicksRemaining * 100 / fuelTicksTotal)));
+    }
+
+    public SmelterStatus getMachineStatus() {
+        if (!enabled) {
+            return SmelterStatus.PAUSED;
+        }
+        if (!getMainNode().isActive()) {
+            return SmelterStatus.OFFLINE;
+        }
+        return status;
+    }
+
+    private void setStatus(SmelterStatus status) {
+        this.status = status;
+    }
+
+    public Component getStatusMessage() {
+        if (getMachineStatus() == SmelterStatus.SMELTING) {
             return Component.translatable("message.appliedsmelting.progress", progress, PROCESSING_TICKS);
         }
-        return Component.translatable("message.appliedsmelting.waiting");
+        return Component.translatable(getMachineStatus().translationKey());
     }
 }

@@ -14,9 +14,18 @@
     "smelters": {
       "text": "",
       "position": {
-        "left": 88,
-        "bottom": 153
-      }
+        "left": 78,
+        "bottom": 155
+      },
+      "scale": 0.75
+    },
+    "active": {
+      "text": "",
+      "position": {
+        "left": 78,
+        "bottom": 145
+      },
+      "scale": 0.75
     },
     "crafting_grid_title": {
       "text": {
