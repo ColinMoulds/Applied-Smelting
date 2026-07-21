@@ -1,0 +1,35 @@
+{
+  "$schema": "../schema.json",
+  "includes": ["../me_chest.json"],
+  "slots": {
+    "STORAGE_CELL": {
+      "left": -100,
+      "top": -100
+    }
+  },
+  "text": {
+    "dialog_title": {
+      "text": {
+        "translate": "gui.appliedsmelting.smelter"
+      },
+      "position": {
+        "left": 8,
+        "top": 6
+      }
+    },
+    "cards": {
+      "text": "",
+      "position": {
+        "left": 12,
+        "top": 31
+      }
+    },
+    "speed": {
+      "text": "",
+      "position": {
+        "left": 12,
+        "top": 45
+      }
+    }
+  }
+}

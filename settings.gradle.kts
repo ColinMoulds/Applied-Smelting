@@ -21,4 +21,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AE2Smelter"
+rootProject.name = "AppliedSmelting"

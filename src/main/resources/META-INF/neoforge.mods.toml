@@ -4,29 +4,29 @@ license = "LGPL-3.0-only"
 logoFile = "logo.png"
 
 [[mods]]
-modId = "ae2smelter"
+modId = "appliedsmelting"
 version = "$version"
 displayName = "Applied Smelting"
-authors = "Colin Moulds"
+authors = "Excal1bur"
 description = '''
 Smelt items directly from an Applied Energistics 2 network using the ME Smelter and ME Smelting Terminal.
 '''
 
-[[dependencies.ae2smelter]]
+[[dependencies.appliedsmelting]]
 modId = "neoforge"
 type = "required"
 versionRange = "[26.1.2.80,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.ae2smelter]]
+[[dependencies.appliedsmelting]]
 modId = "minecraft"
 type = "required"
 versionRange = "[26.1.2,26.2)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.ae2smelter]]
+[[dependencies.appliedsmelting]]
 modId = "ae2"
 type = "required"
 versionRange = "[26.1.10-beta,)"

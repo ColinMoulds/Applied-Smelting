@@ -1,0 +1,9 @@
+{
+  "parent": "ae2:item/display_base",
+  "textures": {
+    "front": "appliedsmelting:block/me_smelting_terminal_front",
+    "front_bright": "appliedsmelting:block/me_smelting_terminal_front",
+    "front_medium": "appliedsmelting:block/me_smelting_terminal_front",
+    "front_dark": "appliedsmelting:block/me_smelting_terminal_front"
+  }
+}

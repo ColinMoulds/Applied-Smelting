@@ -1,0 +1,85 @@
+package dev.excal1bur.appliedsmelting.part;
+
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import appeng.api.parts.IPartItem;
+import appeng.api.stacks.AEItemKey;
+import appeng.api.stacks.GenericStack;
+import appeng.parts.reporting.AbstractTerminalPart;
+
+import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
+import dev.excal1bur.appliedsmelting.service.SmeltingService;
+
+public final class SmeltingTerminalPart extends AbstractTerminalPart implements SmeltingTerminalHost {
+    private AEItemKey selectedInput;
+    private AEItemKey selectedFuel;
+    private long targetAmount;
+
+    public SmeltingTerminalPart(IPartItem<?> partItem) {
+        super(partItem);
+    }
+
+    @Override
+    public MenuType<?> getMenuType(Player player) {
+        return ModMenus.SMELTING_TERMINAL.get();
+    }
+
+    @Nullable
+    @Override
+    public SmeltingService getSmeltingService() {
+        var grid = getMainNode().getGrid();
+        if (grid == null) {
+            return null;
+        }
+        var service = grid.getService(SmeltingService.class);
+        service.adoptSelections(selectedInput, selectedFuel);
+        service.adoptTargetAmount(targetAmount);
+        return service;
+    }
+
+    @Override
+    public void setSelections(@Nullable AEItemKey input, @Nullable AEItemKey fuel) {
+        selectedInput = input;
+        selectedFuel = fuel;
+        saveChanges();
+    }
+
+    @Override
+    public void setTargetAmount(long targetAmount) {
+        this.targetAmount = Math.max(0, targetAmount);
+        saveChanges();
+    }
+
+    @Override
+    public void readFromNBT(ValueInput input) {
+        super.readFromNBT(input);
+        selectedInput = readItemKey(input.childOrEmpty("selectedInput"));
+        selectedFuel = readItemKey(input.childOrEmpty("selectedFuel"));
+        targetAmount = input.getLongOr("targetAmount", 0);
+    }
+
+    @Override
+    public void writeToNBT(ValueOutput output) {
+        super.writeToNBT(output);
+        writeItemKey(output.child("selectedInput"), selectedInput);
+        writeItemKey(output.child("selectedFuel"), selectedFuel);
+        output.putLong("targetAmount", targetAmount);
+    }
+
+    private static AEItemKey readItemKey(ValueInput input) {
+        var stack = GenericStack.readTag(input);
+        return stack != null && stack.what() instanceof AEItemKey itemKey ? itemKey : null;
+    }
+
+    private static void writeItemKey(ValueOutput output, @Nullable AEItemKey key) {
+        if (key != null) {
+            GenericStack.writeTag(output, new GenericStack(key, 1));
+        }
+    }
+}

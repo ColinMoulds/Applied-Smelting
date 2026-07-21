@@ -3,11 +3,12 @@ plugins {
     id("net.neoforged.moddev")
 }
 
-val modId = "ae2smelter"
+val modId = "appliedsmelting"
+val minecraftVersion = providers.gradleProperty("minecraftVersion").get()
 
-base.archivesName = modId
+base.archivesName = "AppliedSmelting-$minecraftVersion"
 version = providers.gradleProperty("modVersion").get()
-group = "com.colinmoulds.ae2smelter"
+group = "dev.excal1bur.appliedsmelting"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
