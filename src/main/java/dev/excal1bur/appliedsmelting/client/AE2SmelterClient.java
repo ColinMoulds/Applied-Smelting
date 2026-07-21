@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.client;
+package dev.excal1bur.appliedsmelting.client;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -7,9 +7,9 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import appeng.client.InitScreens;
 
-import com.colinmoulds.ae2smelter.AE2Smelter;
-import com.colinmoulds.ae2smelter.client.screen.SmeltingTerminalScreen;
-import com.colinmoulds.ae2smelter.core.ModMenus;
+import dev.excal1bur.appliedsmelting.AE2Smelter;
+import dev.excal1bur.appliedsmelting.client.screen.SmeltingTerminalScreen;
+import dev.excal1bur.appliedsmelting.core.ModMenus;
 
 @Mod(value = AE2Smelter.MOD_ID, dist = Dist.CLIENT)
 public final class AE2SmelterClient {

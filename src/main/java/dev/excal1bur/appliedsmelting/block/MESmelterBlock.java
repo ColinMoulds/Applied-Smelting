@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.block;
+package dev.excal1bur.appliedsmelting.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -9,7 +9,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import appeng.block.AEBaseEntityBlock;
 
-import com.colinmoulds.ae2smelter.blockentity.MESmelterBlockEntity;
+import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 
 public final class MESmelterBlock extends AEBaseEntityBlock<MESmelterBlockEntity> {
     public MESmelterBlock(Properties properties) {

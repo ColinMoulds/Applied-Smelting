@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.blockentity;
+package dev.excal1bur.appliedsmelting.blockentity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

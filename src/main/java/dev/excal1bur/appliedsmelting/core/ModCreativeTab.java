@@ -1,11 +1,11 @@
-package com.colinmoulds.ae2smelter.core;
+package dev.excal1bur.appliedsmelting.core;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import com.colinmoulds.ae2smelter.AE2Smelter;
+import dev.excal1bur.appliedsmelting.AE2Smelter;
 
 public final class ModCreativeTab {
     public static final DeferredRegister<CreativeModeTab> REGISTER =

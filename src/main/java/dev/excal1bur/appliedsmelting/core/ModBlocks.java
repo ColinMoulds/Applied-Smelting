@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.core;
+package dev.excal1bur.appliedsmelting.core;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -12,9 +12,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import appeng.block.AEBaseBlock;
 import appeng.block.AEBaseBlockItem;
 
-import com.colinmoulds.ae2smelter.AE2Smelter;
-import com.colinmoulds.ae2smelter.block.MESmelterBlock;
-import com.colinmoulds.ae2smelter.block.SmeltingTerminalBlock;
+import dev.excal1bur.appliedsmelting.AE2Smelter;
+import dev.excal1bur.appliedsmelting.block.MESmelterBlock;
+import dev.excal1bur.appliedsmelting.block.SmeltingTerminalBlock;
 
 public final class ModBlocks {
     public static final DeferredRegister.Blocks REGISTER = DeferredRegister.createBlocks(AE2Smelter.MOD_ID);

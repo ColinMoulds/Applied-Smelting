@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.client.screen;
+package dev.excal1bur.appliedsmelting.client.screen;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Inventory;
 import appeng.client.gui.AEBaseScreen;
 import appeng.client.gui.style.ScreenStyle;
 
-import com.colinmoulds.ae2smelter.menu.SmeltingTerminalMenu;
+import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
 
 public final class SmeltingTerminalScreen extends AEBaseScreen<SmeltingTerminalMenu> {
     private Button toggleButton;

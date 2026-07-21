@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter;
+package dev.excal1bur.appliedsmelting;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -10,12 +10,12 @@ import appeng.api.AECapabilities;
 import appeng.api.networking.GridServices;
 import appeng.api.networking.IInWorldGridNodeHost;
 
-import com.colinmoulds.ae2smelter.core.ModBlockEntities;
-import com.colinmoulds.ae2smelter.core.ModBlocks;
-import com.colinmoulds.ae2smelter.core.ModCreativeTab;
-import com.colinmoulds.ae2smelter.core.ModItems;
-import com.colinmoulds.ae2smelter.core.ModMenus;
-import com.colinmoulds.ae2smelter.service.SmeltingService;
+import dev.excal1bur.appliedsmelting.core.ModBlockEntities;
+import dev.excal1bur.appliedsmelting.core.ModBlocks;
+import dev.excal1bur.appliedsmelting.core.ModCreativeTab;
+import dev.excal1bur.appliedsmelting.core.ModItems;
+import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.service.SmeltingService;
 
 @Mod(AE2Smelter.MOD_ID)
 public final class AE2Smelter {

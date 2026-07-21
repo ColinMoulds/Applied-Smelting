@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.blockentity;
+package dev.excal1bur.appliedsmelting.blockentity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import appeng.api.networking.GridFlags;
 import appeng.blockentity.grid.AENetworkedBlockEntity;
 
-import com.colinmoulds.ae2smelter.service.SmeltingService;
+import dev.excal1bur.appliedsmelting.service.SmeltingService;
 
 public final class SmeltingTerminalBlockEntity extends AENetworkedBlockEntity {
     public SmeltingTerminalBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

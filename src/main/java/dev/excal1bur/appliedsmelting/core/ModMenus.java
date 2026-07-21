@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.core;
+package dev.excal1bur.appliedsmelting.core;
 
 import java.util.function.Supplier;
 
@@ -8,9 +8,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import appeng.menu.implementations.MenuTypeBuilder;
 
-import com.colinmoulds.ae2smelter.AE2Smelter;
-import com.colinmoulds.ae2smelter.blockentity.SmeltingTerminalBlockEntity;
-import com.colinmoulds.ae2smelter.menu.SmeltingTerminalMenu;
+import dev.excal1bur.appliedsmelting.AE2Smelter;
+import dev.excal1bur.appliedsmelting.blockentity.SmeltingTerminalBlockEntity;
+import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
 
 public final class ModMenus {
     public static final DeferredRegister<MenuType<?>> REGISTER =

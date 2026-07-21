@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.block;
+package dev.excal1bur.appliedsmelting.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -19,8 +19,8 @@ import appeng.block.AEBaseEntityBlock;
 import appeng.menu.MenuOpener;
 import appeng.menu.locator.MenuLocators;
 
-import com.colinmoulds.ae2smelter.blockentity.SmeltingTerminalBlockEntity;
-import com.colinmoulds.ae2smelter.core.ModMenus;
+import dev.excal1bur.appliedsmelting.blockentity.SmeltingTerminalBlockEntity;
+import dev.excal1bur.appliedsmelting.core.ModMenus;
 
 public final class SmeltingTerminalBlock extends AEBaseEntityBlock<SmeltingTerminalBlockEntity> {
     private static final VoxelShape NORTH_SHAPE = Shapes.or(

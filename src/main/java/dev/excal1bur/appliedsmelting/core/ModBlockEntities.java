@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.core;
+package dev.excal1bur.appliedsmelting.core;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -9,9 +9,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import appeng.blockentity.AEBaseBlockEntity;
 
-import com.colinmoulds.ae2smelter.AE2Smelter;
-import com.colinmoulds.ae2smelter.blockentity.MESmelterBlockEntity;
-import com.colinmoulds.ae2smelter.blockentity.SmeltingTerminalBlockEntity;
+import dev.excal1bur.appliedsmelting.AE2Smelter;
+import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
+import dev.excal1bur.appliedsmelting.blockentity.SmeltingTerminalBlockEntity;
 
 public final class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> REGISTER =

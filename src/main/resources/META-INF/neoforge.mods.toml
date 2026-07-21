@@ -7,7 +7,7 @@ logoFile = "logo.png"
 modId = "ae2smelter"
 version = "$version"
 displayName = "Applied Smelting"
-authors = "Colin Moulds"
+authors = "Excal1bur"
 description = '''
 Smelt items directly from an Applied Energistics 2 network using the ME Smelter and ME Smelting Terminal.
 '''

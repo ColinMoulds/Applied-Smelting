@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.menu;
+package dev.excal1bur.appliedsmelting.menu;
 
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.player.Inventory;
@@ -7,8 +7,8 @@ import appeng.menu.AEBaseMenu;
 import appeng.menu.guisync.ClientActionKey;
 import appeng.menu.guisync.GuiSync;
 
-import com.colinmoulds.ae2smelter.blockentity.SmeltingTerminalBlockEntity;
-import com.colinmoulds.ae2smelter.core.ModMenus;
+import dev.excal1bur.appliedsmelting.blockentity.SmeltingTerminalBlockEntity;
+import dev.excal1bur.appliedsmelting.core.ModMenus;
 
 public final class SmeltingTerminalMenu extends AEBaseMenu {
     private static final ClientActionKey<Boolean> SET_ENABLED = new ClientActionKey<>("setEnabled");

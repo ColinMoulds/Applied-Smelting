@@ -1,4 +1,4 @@
-package com.colinmoulds.ae2smelter.service;
+package dev.excal1bur.appliedsmelting.service;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -12,7 +12,7 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.IGridService;
 import appeng.api.networking.IGridServiceProvider;
 
-import com.colinmoulds.ae2smelter.blockentity.MESmelterBlockEntity;
+import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 
 public final class SmeltingService implements IGridService, IGridServiceProvider {
     private final Set<MESmelterBlockEntity> smelters = new LinkedHashSet<>();

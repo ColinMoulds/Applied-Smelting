@@ -7,7 +7,7 @@ val modId = "ae2smelter"
 
 base.archivesName = modId
 version = providers.gradleProperty("modVersion").get()
-group = "com.colinmoulds.ae2smelter"
+group = "dev.excal1bur.appliedsmelting"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
