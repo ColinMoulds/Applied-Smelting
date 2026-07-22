@@ -63,6 +63,12 @@ public final class SmeltingService implements IGridService, IGridServiceProvider
         return (int) smelters.stream().filter(MESmelterBlockEntity::isActivelySmelting).count();
     }
 
+    public int getItemFuelSmelterCount() {
+        return (int) smelters.stream()
+                .filter(smelter -> smelter.getPowerMode() == SmeltingPowerMode.ITEM_FUEL)
+                .count();
+    }
+
     public int getAverageProgressPercent() {
         return (int) Math.round(smelters.stream()
                 .filter(MESmelterBlockEntity::isWorking)
@@ -115,6 +121,40 @@ public final class SmeltingService implements IGridService, IGridServiceProvider
 
     public AEItemKey getSelectedInput() {
         return queuedInputs.isEmpty() ? null : queuedInputs.getFirst();
+    }
+
+    /**
+     * The queued item that is actually being smelted right now, falling back to the first
+     * queued item when nothing is currently active (e.g. still waiting to pull input).
+     */
+    public AEItemKey getDisplayInput() {
+        var active = getActiveInputCounts().entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+        return active != null ? active : getSelectedInput();
+    }
+
+    /** Every queued item that at least one connected smelter is actively smelting right now. */
+    public Set<AEItemKey> getActiveInputs() {
+        return getActiveInputCounts().keySet();
+    }
+
+    private Map<AEItemKey, Integer> getActiveInputCounts() {
+        var counts = new HashMap<AEItemKey, Integer>();
+        for (var smelter : smelters) {
+            if (!smelter.isActivelySmelting()) {
+                continue;
+            }
+            var item = smelter.getPinnedInput();
+            if (item == null) {
+                item = assignments.get(smelter);
+            }
+            if (item != null) {
+                counts.merge(item, 1, Integer::sum);
+            }
+        }
+        return counts;
     }
 
     public AEItemKey getSelectedFuel() {

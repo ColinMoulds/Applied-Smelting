@@ -2,17 +2,15 @@
 
 ## 0.2.0
 
-- Added a capacity-controlled network smelting queue with round-robin, least-assigned recipe scheduling across connected smelters.
-- Added pending-output reservations so parallel smelters respect storage targets without overproducing.
-- Added optional per-smelter recipe pinning by right-clicking an ME Smelter with a smeltable item; repeat the action to return it to the network queue.
-- Added Active/Connected counts, combined processing speed, queue usage, and combined AE consumption reporting.
-- Split smelting heat into Item Fuel and AE Power modes. Item Fuel mode uses furnace fuels; AE Power mode consumes network energy directly.
-- Added support for Energy Cards, Capacity Cards, Redstone Cards, and the new Fuel Efficiency Card alongside Acceleration Cards.
-- Energy Cards reduce idle and AE-fuel consumption by 15% each, down to 40% of the base cost.
-- Fuel Efficiency Cards extend furnace fuel duration by 25% each, up to 200%.
-- Capacity Cards add network recipe queue slots, up to nine total queued recipes.
-- Redstone Cards require a high redstone signal for the installed smelter to operate.
-- Expanded ME Smelters to eight mixed upgrade slots and redesigned their interface with power, recipe, upgrade, and energy telemetry.
+- Multiple ME Smelters can now work together from one shared list of recipes, so several machines can smelt different items from your ME network at the same time.
+- Added a network smelting queue to the ME Smelting Terminal — queue up recipes and watch them get worked on live.
+- Redesigned the terminal with a simple grid: see everything queued, what each one produces, and which ones are actively being smelted at a glance.
+- Added a dedicated Fuel tab for picking your smelting fuel, right from ME storage or straight out of your own inventory — works with any pack's custom fuels, not just vanilla.
+- You can now pin a specific recipe to one ME Smelter by right-clicking it while holding a smeltable item, so that machine always works that recipe instead of pulling from the shared queue.
+- Smelters can now run on AE power instead of furnace fuel, your choice per machine.
+- Added Energy Cards (less power use), Fuel Efficiency Cards (fuel lasts longer), Capacity Cards (bigger shared queue), and Redstone Cards (only run on a redstone signal), joining the existing Acceleration Cards.
+- ME Smelters now have 8 upgrade slots instead of 4, with a cleaner status display.
+- Fixed smelters occasionally hopping between queued recipes instead of sticking with one until it runs out or hits its target.
 
 ## 0.1.2
 

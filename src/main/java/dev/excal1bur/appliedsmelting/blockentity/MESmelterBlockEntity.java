@@ -210,7 +210,6 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
                     inventory.setItemDirect(0, ItemStack.EMPTY);
                     progress = 0;
                     clearPendingOutput();
-                    service.releaseAssignment(this);
                     saveChanges();
                     setStatus(SmelterStatus.SMELTING);
                     return TickRateModulation.URGENT;
