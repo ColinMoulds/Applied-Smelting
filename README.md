@@ -91,6 +91,6 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, cod
 
 ## License
 
-Applied Smelting code is licensed under the [GNU Lesser General Public License v3.0](LICENSE). The accompanying GNU GPLv3 text is provided in [COPYING](COPYING).
+Applied Smelting code is licensed under the [GNU Lesser General Public License v3.0](LICENSE). The accompanying GNU GPLv3 text is provided in [COPYING](licenses/COPYING).
 
-Original textures, models, logos, and other visual assets are licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 3.0](LICENSE-ASSETS). See [NOTICE](NOTICE) for the exact scope and attribution information.
+Original textures, models, logos, and other visual assets are licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 3.0](licenses/LICENSE-ASSETS). See [NOTICE](licenses/NOTICE) for the exact scope and attribution information.

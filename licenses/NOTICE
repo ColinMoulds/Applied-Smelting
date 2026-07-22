@@ -5,8 +5,8 @@ LICENSE SCOPE
 
 Source code, build scripts, and data files that are primarily functional in
 nature are licensed under the GNU Lesser General Public License, version 3.0
-only (SPDX: LGPL-3.0-only). See LICENSE. The incorporated GNU General Public
-License, version 3.0, is also provided in COPYING.
+only (SPDX: LGPL-3.0-only). See ../LICENSE. The incorporated GNU General
+Public License, version 3.0, is also provided in COPYING.
 
 Original textures, models, logos, previews, and other visual artwork are
 licensed under Creative Commons Attribution-NonCommercial-ShareAlike 3.0

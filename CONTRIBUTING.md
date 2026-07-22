@@ -36,4 +36,4 @@ Please use the issue templates under **New Issue** rather than opening a blank i
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the same terms as the project: [LGPL-3.0](LICENSE) for code, and [CC BY-NC-SA 3.0](LICENSE-ASSETS) for original textures, models, and other visual assets (see [NOTICE](NOTICE)).
+By contributing, you agree that your contributions will be licensed under the same terms as the project: [LGPL-3.0](LICENSE) for code, and [CC BY-NC-SA 3.0](licenses/LICENSE-ASSETS) for original textures, models, and other visual assets (see [NOTICE](licenses/NOTICE)).

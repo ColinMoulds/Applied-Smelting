@@ -51,13 +51,13 @@ tasks {
         from(rootProject.file("LICENSE")) {
             rename { "${it}_$modId" }
         }
-        from(rootProject.file("COPYING")) {
+        from(rootProject.file("licenses/COPYING")) {
             rename { "${it}_$modId" }
         }
-        from(rootProject.file("LICENSE-ASSETS")) {
+        from(rootProject.file("licenses/LICENSE-ASSETS")) {
             rename { "${it}_$modId" }
         }
-        from(rootProject.file("NOTICE")) {
+        from(rootProject.file("licenses/NOTICE")) {
             rename { "${it}_$modId" }
         }
     }
