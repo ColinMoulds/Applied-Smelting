@@ -58,10 +58,10 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, cod
 <!-- Fill in and uncomment as these become available. -->
 <!-- - [Modrinth](https://modrinth.com/mod/PROJECT_ID) -->
 - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/applied-smelting)
-<!-- - [Discord](https://discord.gg/INVITE) -->
 - [Changelog](CHANGELOG.md)
 - [Issues](https://github.com/ColinMoulds/Applied-Smelting/issues)
 - [Contributing](CONTRIBUTING.md)
+<!-- - [Discord](https://discord.gg/INVITE) -->
 
 ## License
 
