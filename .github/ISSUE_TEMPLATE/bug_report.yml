@@ -1,0 +1,84 @@
+name: Bug report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Applied Smelting is in early beta, so please include as much detail as you can.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: false
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Place an ME Smelter with...
+        2. Queue a recipe for...
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: mod-version
+    attributes:
+      label: Applied Smelting version
+      placeholder: "0.2.0"
+    validations:
+      required: true
+
+  - type: input
+    id: mc-version
+    attributes:
+      label: Minecraft / NeoForge version
+      placeholder: "1.26.1.2 / NeoForge 26.1.2.80"
+    validations:
+      required: true
+
+  - type: input
+    id: ae2-version
+    attributes:
+      label: Applied Energistics 2 version
+      placeholder: "26.1.10-beta"
+    validations:
+      required: true
+
+  - type: textarea
+    id: other-mods
+    attributes:
+      label: Other relevant mods
+      description: List any other mods involved, especially if the bug involves modded furnace recipes/fuels or another AE2 addon.
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / crash report
+      description: Paste a link to a log or crash report (e.g. a gist or pastebin), or attach the file directly.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues to make sure this hasn't already been reported.
+          required: true
