@@ -10,6 +10,10 @@ out/
 art/
 blockbench/
 
+# Screenshots/banner aren't ready to commit yet; keep the folder tracked via .gitkeep.
+docs/images/*
+!docs/images/.gitkeep
+
 # Editor, operating-system, and runtime leftovers.
 *.log
 logs/
