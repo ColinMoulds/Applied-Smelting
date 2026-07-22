@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import appeng.api.upgrades.Upgrades;
 
 import dev.excal1bur.appliedsmelting.AppliedSmelting;
+import dev.excal1bur.appliedsmelting.item.SmelterUpgradeKitItem;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 
 public final class ModItems {
@@ -20,11 +21,11 @@ public final class ModItems {
     public static final DeferredItem<Item> SMELTER_UPGRADE_TEMPLATE =
             REGISTER.registerItem("smelter_upgrade_template", Item::new);
     public static final DeferredItem<Item> MK1_UPGRADE_KIT =
-            REGISTER.registerItem("mk1_upgrade_kit", Item::new);
+            REGISTER.registerItem("mk1_upgrade_kit", SmelterUpgradeKitItem::new);
     public static final DeferredItem<Item> MK2_UPGRADE_KIT =
-            REGISTER.registerItem("mk2_upgrade_kit", Item::new);
+            REGISTER.registerItem("mk2_upgrade_kit", SmelterUpgradeKitItem::new);
     public static final DeferredItem<Item> MK3_UPGRADE_KIT =
-            REGISTER.registerItem("mk3_upgrade_kit", Item::new);
+            REGISTER.registerItem("mk3_upgrade_kit", SmelterUpgradeKitItem::new);
 
     private ModItems() {
     }

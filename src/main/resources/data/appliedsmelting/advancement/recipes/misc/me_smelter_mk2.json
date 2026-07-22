@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_smelter_mk1": {
+      "conditions": {
+        "items": [
+          {
+            "items": "appliedsmelting:me_smelter_mk1"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "appliedsmelting:me_smelter_mk2"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [["has_the_recipe", "has_smelter_mk1"]],
+  "rewards": {
+    "recipes": ["appliedsmelting:me_smelter_mk2"]
+  }
+}
