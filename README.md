@@ -1,18 +1,5 @@
-<!--
-  Banner: drop a 1280x320-ish banner (mod name, ME Smelter render, ME network aesthetic)
-  at docs/images/banner.png and uncomment the line below.
--->
-<!-- ![Applied Smelting banner](docs/images/banner.png) -->
-
 # Applied Smelting
 
-<!--
-  Badge notes:
-  - Build badge is live once .github/workflows/build.yml runs on this repo.
-  - Release badge is live once a GitHub Release/tag exists (currently none — see status below).
-  - Swap OWNER/REPO if the repo is ever renamed or transferred.
-  - Modrinth/CurseForge badges: uncomment once the mod has a project page there.
--->
 [![Build](https://github.com/ColinMoulds/Applied-Smelting/actions/workflows/build.yml/badge.svg)](https://github.com/ColinMoulds/Applied-Smelting/actions/workflows/build.yml)
 [![Latest Release](https://img.shields.io/github/v/release/ColinMoulds/Applied-Smelting?include_prereleases&label=release)](https://github.com/ColinMoulds/Applied-Smelting/releases)
 ![Minecraft](https://img.shields.io/badge/Minecraft-26.1.2-blue)
@@ -20,22 +7,11 @@
 ![Applied Energistics 2](https://img.shields.io/badge/AE2-26.1.10--beta%2B-8A2BE2)
 [![License](https://img.shields.io/badge/license-LGPL--3.0-informational)](LICENSE)
 <!-- [![Modrinth](https://img.shields.io/modrinth/dt/PROJECT_ID?logo=modrinth&label=Modrinth)](https://modrinth.com/mod/PROJECT_ID) -->
-<!-- [![CurseForge](https://cf.way2muchnoise.eu/PROJECT_ID.svg)](https://www.curseforge.com/minecraft/mc-mods/PROJECT_ID) -->
+[![CurseForge](https://cf.way2muchnoise.eu/PROJECT_ID.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-smelting)
 
 Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds an **ME Smelter** that processes furnace recipes directly from ME storage and an **ME Smelting Terminal** for network-wide control and status.
 
 > Smelt items directly from your ME network with a dedicated network-powered smelter and control terminal.
-
-<!--
-  Screenshots/GIFs: drop images in docs/images/ and uncomment the rows you fill in.
-  Good candidates: ME Smelter block in-world, ME Smelter GUI (status panel + upgrades),
-  ME Smelting Terminal in queue mode, settings screen.
--->
-<!--
-| ME Smelter | ME Smelting Terminal |
-|:---:|:---:|
-| ![ME Smelter in-world](docs/images/me-smelter-inworld.png) | ![ME Smelting Terminal](docs/images/terminal-queue.png) |
--->
 
 ## Table of Contents
 
@@ -60,8 +36,6 @@ Each smelter can use conventional furnace items or AE power as its heat source. 
 
 Recipe-browser integration and more advanced per-job controls are planned for later beta releases.
 
-> **Release status:** `0.2.0` is committed on `main` but not yet tagged or released while multi-smelter scheduling, power modes, and the new queue UI go through in-game testing. The latest published release is `0.1.2` (prerelease).
-
 ## Requirements
 
 | | |
@@ -83,7 +57,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, cod
 
 <!-- Fill in and uncomment as these become available. -->
 <!-- - [Modrinth](https://modrinth.com/mod/PROJECT_ID) -->
-<!-- - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/PROJECT_ID) -->
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/applied-smelting)
 <!-- - [Discord](https://discord.gg/INVITE) -->
 - [Changelog](CHANGELOG.md)
 - [Issues](https://github.com/ColinMoulds/Applied-Smelting/issues)
