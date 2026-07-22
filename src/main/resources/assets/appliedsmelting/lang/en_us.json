@@ -90,5 +90,6 @@
   "message.appliedsmelting.recipe_pinned": "Pinned %s to this ME Smelter",
   "message.appliedsmelting.recipe_unpinned": "ME Smelter returned to the network recipe queue",
   "message.appliedsmelting.queue_full": "Smelting queue full (%s); install Capacity Cards in connected smelters",
-  "message.appliedsmelting.tier_upgraded": "ME Smelter upgraded to %s"
+  "message.appliedsmelting.tier_upgraded": "ME Smelter upgraded to %s",
+  "message.appliedsmelting.wrong_tier_kit": "This kit can't be applied here - it requires a %s"
 }

@@ -8,33 +8,40 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
 
 import appeng.api.orientation.IOrientationStrategy;
 
-import dev.excal1bur.appliedsmelting.AppliedSmelting;
 import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 
 /**
- * Recolors the ME Smelter's existing front-face status dot (bottom-right, the same single texel
- * every tier's texture already reserves for it) at full brightness based on live machine status,
- * the same way AE2's ME Drive lights up its cell status lights: green while actively smelting,
- * blue while idle but fine, red when blocked (missing fuel/power/input, output full, etc.).
+ * Recolors the ME Smelter's front-face status dot (bottom-right texel, the same spot every tier's
+ * texture already reserves for it) based on live machine status, using the same technique AE2 uses
+ * for its own ME Drive cell status LEDs: a small untextured quad on {@link AppliedSmeltingRenderTypes#SMELTER_STATUS_LED}
+ * (no sampler, no lightmap - see appeng.client.renderer.blockentity.CellLedRenderer), colored purely
+ * via per-vertex color rather than a tinted texture.
  */
 public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<MESmelterBlockEntity, SmelterRenderState> {
-    private static final int FULL_BRIGHT = 15728880;
     private static final int COLOR_RUNNING = 0xFF3CD94A;
     private static final int COLOR_IDLE = 0xFF3C8CD9;
     private static final int COLOR_BLOCKED = 0xFFD9433C;
+    private static final int COLOR_DISCONNECTED = 0xFF1A1A1A;
+
+    // Bottom-right texel (13,13) of the 16x16 front-face texture. Vanilla's cube model bakes the
+    // north face with u = 1 - localX (see CuboidFace.UVs / FaceInfo.NORTH), so a texture column near
+    // u=1 (texel 13/16) lands at LOW local X - which is screen-RIGHT once viewed head-on, since a
+    // camera facing +Z (looking at the north face) has "right" pointing toward -X.
+    private static final float LED_MIN_X = 2.0F / 16.0F;
+    private static final float LED_MAX_X = 3.0F / 16.0F;
+    private static final float LED_MIN_Y = 2.0F / 16.0F;
+    private static final float LED_MAX_Y = 3.0F / 16.0F;
+    private static final float LED_Z = -5.0E-4F;
 
     public MESmelterBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -53,7 +60,7 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
             ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
         state.tier = blockEntity.getTier();
-        state.status = blockEntity.getMachineStatus();
+        state.status = blockEntity.getRawStatus();
         var blockState = blockEntity.getBlockState();
         state.facing = IOrientationStrategy.get(blockState).getFacing(blockState);
     }
@@ -61,8 +68,7 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
     @Override
     public void submit(
             SmelterRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        var renderType = RenderTypes.entityTranslucentEmissive(emissiveTexture(state.tier));
-        var color = statusColor(state.status);
+        var color = applyIntensity(statusColor(state.status), intensityFor(state.tier));
 
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
@@ -70,7 +76,7 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
         poseStack.translate(-0.5, -0.5, -0.5);
 
         submitNodeCollector.submitCustomGeometry(
-                poseStack, renderType, (pose, buffer) -> renderFrontFace(pose, buffer, color));
+                poseStack, AppliedSmeltingRenderTypes.SMELTER_STATUS_LED, (pose, buffer) -> renderLed(pose, buffer, color));
 
         poseStack.popPose();
     }
@@ -88,52 +94,34 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
         return switch (status) {
             case SMELTING -> COLOR_RUNNING;
             case WAITING_FOR_SELECTION, TARGET_REACHED, PAUSED -> COLOR_IDLE;
+            // Not connected/powered to the ME network at all (IGridNode#isActive() == false) - keep this
+            // visually distinct from a connected-but-blocked smelter (red) rather than lumping them together.
+            case OFFLINE, NO_SMELTERS -> COLOR_DISCONNECTED;
             case MISSING_INPUT, MISSING_FUEL, MISSING_POWER, OUTPUT_FULL,
-                    INVALID_RECIPE, OFFLINE, REDSTONE_PAUSED, NO_SMELTERS -> COLOR_BLOCKED;
+                    INVALID_RECIPE, REDSTONE_PAUSED -> COLOR_BLOCKED;
         };
     }
 
-    private static Identifier emissiveTexture(SmelterTier tier) {
-        var suffix = switch (tier) {
-            case DEFAULT -> "me_smelter_emissive";
-            case MK1 -> "me_smelter_mk1_emissive";
-            case MK2 -> "me_smelter_mk2_emissive";
-            case MK3 -> "me_smelter_mk3_emissive";
+    private static float intensityFor(SmelterTier tier) {
+        return switch (tier) {
+            case DEFAULT, MK1 -> 1.0F;
+            case MK2 -> 1.15F;
+            case MK3 -> 1.35F;
         };
-        return AppliedSmelting.id("textures/block/" + suffix + ".png");
     }
 
-    private static void renderFrontFace(PoseStack.Pose pose, VertexConsumer buffer, int color) {
-        quad(pose, buffer, color, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, -1); // north (front)
+    private static int applyIntensity(int color, float intensity) {
+        int a = color >>> 24 & 0xFF;
+        int r = Math.min(255, Math.round((color >> 16 & 0xFF) * intensity));
+        int g = Math.min(255, Math.round((color >> 8 & 0xFF) * intensity));
+        int b = Math.min(255, Math.round((color & 0xFF) * intensity));
+        return a << 24 | r << 16 | g << 8 | b;
     }
 
-    private static void quad(
-            PoseStack.Pose pose,
-            VertexConsumer buffer,
-            int color,
-            float x0, float y0, float z0,
-            float x1, float y1, float z1,
-            float x2, float y2, float z2,
-            float x3, float y3, float z3,
-            float nx, float ny, float nz) {
-        vertex(pose, buffer, color, x0, y0, z0, 0, 1, nx, ny, nz);
-        vertex(pose, buffer, color, x1, y1, z1, 1, 1, nx, ny, nz);
-        vertex(pose, buffer, color, x2, y2, z2, 1, 0, nx, ny, nz);
-        vertex(pose, buffer, color, x3, y3, z3, 0, 0, nx, ny, nz);
-    }
-
-    private static void vertex(
-            PoseStack.Pose pose,
-            VertexConsumer buffer,
-            int color,
-            float x, float y, float z,
-            float u, float v,
-            float nx, float ny, float nz) {
-        buffer.addVertex(pose, x, y, z)
-                .setColor(color)
-                .setUv(u, v)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(FULL_BRIGHT)
-                .setNormal(pose, nx, ny, nz);
+    private static void renderLed(PoseStack.Pose pose, VertexConsumer buffer, int color) {
+        buffer.addVertex(pose, LED_MIN_X, LED_MIN_Y, LED_Z).setColor(color);
+        buffer.addVertex(pose, LED_MAX_X, LED_MIN_Y, LED_Z).setColor(color);
+        buffer.addVertex(pose, LED_MAX_X, LED_MAX_Y, LED_Z).setColor(color);
+        buffer.addVertex(pose, LED_MIN_X, LED_MAX_Y, LED_Z).setColor(color);
     }
 }

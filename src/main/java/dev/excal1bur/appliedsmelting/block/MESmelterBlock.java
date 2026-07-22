@@ -15,8 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 
-import org.jetbrains.annotations.Nullable;
-
 import appeng.api.orientation.IOrientationStrategy;
 import appeng.api.orientation.OrientationStrategies;
 import appeng.api.stacks.AEItemKey;
@@ -59,10 +57,12 @@ public final class MESmelterBlock extends AEBaseEntityBlock<MESmelterBlockEntity
             BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof MESmelterBlockEntity smelter) {
             if (player.isShiftKeyDown()) {
-                var kitResult = tryApplyUpgradeKit(level, pos, smelter, stack, player);
-                if (kitResult != null) {
-                    return kitResult;
-                }
+                // Always return a definitive result here (never fall through to super.useItemOn()) -
+                // that method's default TRY_WITH_EMPTY_HAND result would cascade into our own
+                // useWithoutItem() below, whose shift-branch toggles the smelter's enabled state. That
+                // would silently pause/resume the machine as a side effect of an unrelated failed
+                // interaction (e.g. holding the wrong-tier kit, or any other item, while sneaking).
+                return tryApplyUpgradeKit(level, pos, smelter, stack, player);
             } else if (level.recipeAccess().propertySet(RecipePropertySet.FURNACE_INPUT).test(stack)) {
                 if (!level.isClientSide()) {
                     var input = AEItemKey.of(stack);
@@ -97,15 +97,26 @@ public final class MESmelterBlock extends AEBaseEntityBlock<MESmelterBlockEntity
 
     /**
      * Applies a tier-upgrade kit if the held item is the correct kit for this block's current tier.
-     * Returns null (not handled) if the held item isn't a matching upgrade kit, so the caller can
-     * fall through to other interactions.
+     * Returns PASS if the held item isn't an upgrade kit at all (so sneaking with an unrelated item
+     * does nothing), or SUCCESS with a rejection message if it's a kit but the wrong tier for this
+     * block.
      */
-    @Nullable
     private InteractionResult tryApplyUpgradeKit(
             Level level, BlockPos pos, MESmelterBlockEntity smelter, ItemStack stack, Player player) {
         var targetTier = ModItems.tierForUpgradeKit(stack);
-        if (targetTier == null || targetTier.previousTier() != tier) {
-            return null;
+        if (targetTier == null) {
+            return InteractionResult.PASS;
+        }
+        if (targetTier.previousTier() != tier) {
+            if (!level.isClientSide()) {
+                var requiredTier = targetTier.previousTier();
+                var requiredName = requiredTier == null
+                        ? Component.translatable("block.appliedsmelting.me_smelter")
+                        : ModBlocks.blockForTier(requiredTier).get().asItem().getDefaultInstance().getHoverName();
+                player.sendOverlayMessage(
+                        Component.translatable("message.appliedsmelting.wrong_tier_kit", requiredName));
+            }
+            return InteractionResult.SUCCESS;
         }
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;

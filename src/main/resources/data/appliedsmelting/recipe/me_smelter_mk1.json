@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "appliedsmelting:me_smelter",
+    "appliedsmelting:mk1_upgrade_kit"
+  ],
+  "result": {
+    "id": "appliedsmelting:me_smelter_mk1"
+  }
+}
