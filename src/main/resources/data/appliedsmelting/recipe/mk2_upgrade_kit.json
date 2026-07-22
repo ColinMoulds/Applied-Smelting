@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "appliedsmelting:mk1_upgrade_kit",
+    "ae2:fluix_crystal",
+    "ae2:fluix_crystal",
+    "ae2:fluix_crystal",
+    "ae2:fluix_pearl",
+    "ae2:logic_processor",
+    "ae2:logic_processor"
+  ],
+  "result": {
+    "id": "appliedsmelting:mk2_upgrade_kit"
+  }
+}

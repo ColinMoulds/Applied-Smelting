@@ -1,8 +1,15 @@
 {
   "block.appliedsmelting.me_smelter": "ME Smelter",
+  "block.appliedsmelting.me_smelter_mk1": "ME Smelter Mk1",
+  "block.appliedsmelting.me_smelter_mk2": "ME Smelter Mk2",
+  "block.appliedsmelting.me_smelter_mk3": "ME Smelter Mk3",
   "block.appliedsmelting.me_smelting_terminal": "ME Smelting Terminal",
   "item.appliedsmelting.me_smelting_terminal": "ME Smelting Terminal",
   "item.appliedsmelting.fuel_efficiency_card": "Fuel Efficiency Card",
+  "item.appliedsmelting.smelter_upgrade_template": "Smelter Upgrade Template",
+  "item.appliedsmelting.mk1_upgrade_kit": "Mk1 Upgrade Kit",
+  "item.appliedsmelting.mk2_upgrade_kit": "Mk2 Upgrade Kit",
+  "item.appliedsmelting.mk3_upgrade_kit": "Mk3 Upgrade Kit",
   "upgrade.appliedsmelting.fuel_efficiency": "Extends the burn duration of furnace fuel in ME Smelters.",
   "upgrade.appliedsmelting.acceleration": "Doubles ME Smelter processing speed per card, up to 16x.",
   "upgrade.appliedsmelting.energy": "Reduces ME Smelter idle and AE-fuel consumption by 15% per card.",
@@ -82,5 +89,6 @@
   "message.appliedsmelting.waiting": "ME Smelter waiting for a valid input",
   "message.appliedsmelting.recipe_pinned": "Pinned %s to this ME Smelter",
   "message.appliedsmelting.recipe_unpinned": "ME Smelter returned to the network recipe queue",
-  "message.appliedsmelting.queue_full": "Smelting queue full (%s); install Capacity Cards in connected smelters"
+  "message.appliedsmelting.queue_full": "Smelting queue full (%s); install Capacity Cards in connected smelters",
+  "message.appliedsmelting.tier_upgraded": "ME Smelter upgraded to %s"
 }

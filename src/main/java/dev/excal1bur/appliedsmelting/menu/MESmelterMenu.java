@@ -10,6 +10,7 @@ import appeng.menu.implementations.UpgradeableMenu;
 
 import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.service.SmelterTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 
 public final class MESmelterMenu extends UpgradeableMenu<MESmelterBlockEntity> {
@@ -45,6 +46,9 @@ public final class MESmelterMenu extends UpgradeableMenu<MESmelterBlockEntity> {
     @GuiSync(19)
     public GenericStack pinnedInput;
 
+    @GuiSync(20)
+    public int tierOrdinal;
+
     public MESmelterMenu(int id, Inventory playerInventory, MESmelterBlockEntity smelter) {
         super(ModMenus.ME_SMELTER.get(), id, playerInventory, smelter);
         registerClientAction(
@@ -67,12 +71,19 @@ public final class MESmelterMenu extends UpgradeableMenu<MESmelterBlockEntity> {
             fuelEfficiencyPercent = getHost().getFuelEfficiencyPercent();
             var pinned = getHost().getPinnedInput();
             pinnedInput = pinned == null ? null : new GenericStack(pinned, 1);
+            tierOrdinal = getHost().getTier().ordinal();
         }
         super.broadcastChanges();
     }
 
+    public SmelterTier getTier() {
+        var tiers = SmelterTier.values();
+        return tiers[Math.max(0, Math.min(tiers.length - 1, tierOrdinal))];
+    }
+
     public int getSpeedMultiplier() {
-        return 1 << Math.min(4, accelerationCards);
+        var raw = getTier().baseSpeedMultiplier() * (1 << Math.min(4, accelerationCards));
+        return (int) Math.round(Math.min(getTier().accelerationCap(), raw));
     }
 
     public SmeltingPowerMode getPowerMode() {

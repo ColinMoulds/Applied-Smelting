@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_mk1_kit": {
+      "conditions": {
+        "items": [
+          {
+            "items": "appliedsmelting:mk1_upgrade_kit"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "appliedsmelting:mk2_upgrade_kit"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [["has_the_recipe", "has_mk1_kit"]],
+  "rewards": {
+    "recipes": ["appliedsmelting:mk2_upgrade_kit"]
+  }
+}

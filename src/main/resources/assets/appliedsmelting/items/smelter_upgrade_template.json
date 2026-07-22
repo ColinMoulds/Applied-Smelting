@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "appliedsmelting:item/smelter_upgrade_template"
+  }
+}

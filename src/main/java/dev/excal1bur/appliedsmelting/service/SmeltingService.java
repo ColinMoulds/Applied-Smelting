@@ -225,8 +225,34 @@ public final class SmeltingService implements IGridService, IGridServiceProvider
     }
 
     public int getQueueCapacity() {
+        if (smelters.isEmpty()) {
+            return 1;
+        }
+        var baseCapacity = smelters.stream().mapToInt(s -> s.getTier().baseQueueCapacity()).max().orElse(1);
+        var capCeiling = smelters.stream().mapToInt(s -> s.getTier().capacityCardCap()).max().orElse(9);
         var capacityCards = smelters.stream().mapToInt(MESmelterBlockEntity::getCapacityCardCount).sum();
-        return 1 + Math.min(8, capacityCards);
+        return Math.min(capCeiling, baseCapacity + capacityCards);
+    }
+
+    /** Current network-queue assignment for a smelter, if any. Used to carry work over a tier upgrade. */
+    @Nullable
+    public AEItemKey getAssignment(MESmelterBlockEntity smelter) {
+        return assignments.get(smelter);
+    }
+
+    @Nullable
+    public AEItemKey getDeferredAssignment(MESmelterBlockEntity smelter) {
+        return deferredAssignments.get(smelter);
+    }
+
+    /** Carries a captured assignment/deferral over to a smelter that just replaced another (e.g. a tier upgrade). */
+    public void transferAssignment(MESmelterBlockEntity newSmelter, @Nullable AEItemKey assignment, @Nullable AEItemKey deferred) {
+        if (assignment != null) {
+            assignments.put(newSmelter, assignment);
+        }
+        if (deferred != null) {
+            deferredAssignments.put(newSmelter, deferred);
+        }
     }
 
     public AEItemKey assignInput(MESmelterBlockEntity smelter) {

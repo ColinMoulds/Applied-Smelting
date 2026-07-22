@@ -5,6 +5,7 @@ build/
 run/
 out/
 *.iml
+.claude/settings.local.json
 
 # Local design sources and third-party visual references are not release assets.
 art/

@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": { "layer0": "appliedsmelting:item/mk2_upgrade_kit" }
+}

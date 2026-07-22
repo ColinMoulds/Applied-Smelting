@@ -13,6 +13,7 @@ import appeng.client.api.AEKeyRendering;
 import appeng.util.Icon;
 
 import dev.excal1bur.appliedsmelting.menu.MESmelterMenu;
+import dev.excal1bur.appliedsmelting.service.SmelterTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 
 public final class MESmelterScreen extends UpgradeableScreen<MESmelterMenu> {
@@ -32,6 +33,7 @@ public final class MESmelterScreen extends UpgradeableScreen<MESmelterMenu> {
     @Override
     protected void updateBeforeRender() {
         super.updateBeforeRender();
+        setTextContent("dialog_title", Component.translatable(titleKey(menu.getTier())));
         setTextContent(
                 "cards",
                 Component.translatable(
@@ -103,6 +105,15 @@ public final class MESmelterScreen extends UpgradeableScreen<MESmelterMenu> {
         }
 
         guiGraphics.pose().popMatrix();
+    }
+
+    private static String titleKey(SmelterTier tier) {
+        return switch (tier) {
+            case DEFAULT -> "block.appliedsmelting.me_smelter";
+            case MK1 -> "block.appliedsmelting.me_smelter_mk1";
+            case MK2 -> "block.appliedsmelting.me_smelter_mk2";
+            case MK3 -> "block.appliedsmelting.me_smelter_mk3";
+        };
     }
 
     private static void drawInset(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {

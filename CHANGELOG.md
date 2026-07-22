@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Added three higher tiers of ME Smelter — Mk1, Mk2, and Mk3 — sitting alongside the original as separate blocks with higher base speed, more upgrade slots, lower power draw, better fuel efficiency, and more network queue capacity the further you go.
+- Added a crafting chain to upgrade a placed ME Smelter in place: craft a Smelter Upgrade Template, then a Mk1 Upgrade Kit, then a Mk2 Upgrade Kit, then a Mk3 Upgrade Kit, each built from the previous one. Shift-right-click a smelter with the matching kit to upgrade it.
+- Upgrading a smelter keeps everything it was doing — installed cards, pinned recipe, in-progress smelting, fuel, and its place in the network queue all carry over, nothing resets.
+- ME Smelters (all tiers) now glow with AE2-style cyan conduit lines and status lights, brighter and more pronounced on higher tiers.
+- Tier stats (speed, power draw, fuel efficiency, upgrade slots, queue capacity) are now configurable, for modpack authors who want to rebalance them.
+
 ## 0.2.0
 
 - Multiple ME Smelters can now work together from one shared list of recipes, so several machines can smelt different items from your ME network at the same time.

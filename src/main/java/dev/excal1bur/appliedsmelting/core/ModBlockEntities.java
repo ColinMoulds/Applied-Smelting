@@ -22,9 +22,16 @@ public final class ModBlockEntities {
             () -> {
                 var reference = new AtomicReference<BlockEntityType<MESmelterBlockEntity>>();
                 var type = new BlockEntityType<MESmelterBlockEntity>(
-                        (pos, state) -> new MESmelterBlockEntity(reference.get(), pos, state), ModBlocks.ME_SMELTER.get());
+                        (pos, state) -> new MESmelterBlockEntity(reference.get(), pos, state),
+                        ModBlocks.ME_SMELTER.get(),
+                        ModBlocks.ME_SMELTER_MK1.get(),
+                        ModBlocks.ME_SMELTER_MK2.get(),
+                        ModBlocks.ME_SMELTER_MK3.get());
                 reference.set(type);
                 ModBlocks.ME_SMELTER.get().setBlockEntity(MESmelterBlockEntity.class, type, null, null);
+                ModBlocks.ME_SMELTER_MK1.get().setBlockEntity(MESmelterBlockEntity.class, type, null, null);
+                ModBlocks.ME_SMELTER_MK2.get().setBlockEntity(MESmelterBlockEntity.class, type, null, null);
+                ModBlocks.ME_SMELTER_MK3.get().setBlockEntity(MESmelterBlockEntity.class, type, null, null);
                 AEBaseBlockEntity.registerBlockEntityItem(type, ModBlocks.ME_SMELTER_ITEM.get());
                 return type;
             });

@@ -38,7 +38,8 @@ import appeng.util.inv.AppEngInternalInventory;
 import dev.excal1bur.appliedsmelting.service.SmeltingService;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
-import dev.excal1bur.appliedsmelting.core.ModBlocks;
+import dev.excal1bur.appliedsmelting.service.SmelterTier;
+import dev.excal1bur.appliedsmelting.block.MESmelterBlock;
 import dev.excal1bur.appliedsmelting.core.ModItems;
 
 public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
@@ -53,6 +54,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     private final AppEngInternalInventory inventory = new AppEngInternalInventory(this, 1);
     private final IUpgradeInventory upgrades;
     private final IActionSource actionSource = new MachineSource(this);
+    private final SmelterTier tier;
     private int progress;
     private int fuelTicksRemaining;
     private int fuelTicksTotal;
@@ -65,11 +67,45 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
 
     public MESmelterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        tier = state.getBlock() instanceof MESmelterBlock smelterBlock ? smelterBlock.getTier() : SmelterTier.DEFAULT;
         getMainNode()
                 .setFlags(GridFlags.REQUIRE_CHANNEL)
-                .setIdlePowerUsage(BASE_IDLE_AE_PER_TICK)
                 .addService(IGridTickable.class, this);
-        upgrades = UpgradeInventories.forMachine(ModBlocks.ME_SMELTER_ITEM.get(), 8, this::onUpgradesChanged);
+        upgrades = UpgradeInventories.forMachine(state.getBlock().asItem(), tier.upgradeSlots(), this::onUpgradesChanged);
+        updateIdlePowerUsage();
+    }
+
+    public SmelterTier getTier() {
+        return tier;
+    }
+
+    @Override
+    protected net.minecraft.world.item.Item getItemFromBlockEntity() {
+        return getBlockState().getBlock().asItem();
+    }
+
+    /** Restores in-flight processing state captured from a smelter this one just replaced (a tier upgrade). */
+    public void restoreProcessingState(
+            ItemStack bufferedInput,
+            int progress,
+            int fuelTicksRemaining,
+            int fuelTicksTotal,
+            AEItemKey pendingOutputKey,
+            int pendingOutputAmount,
+            boolean enabled,
+            SmeltingPowerMode powerMode,
+            AEItemKey pinnedInput) {
+        inventory.setItemDirect(0, bufferedInput);
+        this.progress = progress;
+        this.fuelTicksRemaining = fuelTicksRemaining;
+        this.fuelTicksTotal = fuelTicksTotal;
+        this.pendingOutputKey = pendingOutputKey;
+        this.pendingOutputAmount = pendingOutputAmount;
+        this.enabled = enabled;
+        this.powerMode = powerMode;
+        this.pinnedInput = pinnedInput;
+        updateIdlePowerUsage();
+        saveChanges();
     }
 
     @Override
@@ -118,6 +154,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         output.putInt("fuelTicksTotal", fuelTicksTotal);
         output.putBoolean("enabled", enabled);
         output.putString("powerMode", powerMode.serializedName());
+        output.putInt("status", status.id());
         writeItemKey(output.child("pinnedInput"), pinnedInput);
         upgrades.writeToNBT(output, "upgrades");
     }
@@ -130,6 +167,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         fuelTicksTotal = input.getIntOr("fuelTicksTotal", fuelTicksRemaining);
         enabled = input.getBooleanOr("enabled", true);
         powerMode = SmeltingPowerMode.fromSerializedName(input.getStringOr("powerMode", "item_fuel"));
+        status = SmelterStatus.fromId(input.getIntOr("status", SmelterStatus.WAITING_FOR_SELECTION.id()));
         pinnedInput = readItemKey(input.childOrEmpty("pinnedInput"));
         upgrades.readFromNBT(input, "upgrades");
         updateIdlePowerUsage();
@@ -345,6 +383,26 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         return output.equals(pendingOutputKey) ? pendingOutputAmount : 0;
     }
 
+    public int getProgress() {
+        return progress;
+    }
+
+    public int getFuelTicksRemaining() {
+        return fuelTicksRemaining;
+    }
+
+    public int getFuelTicksTotal() {
+        return fuelTicksTotal;
+    }
+
+    public AEItemKey getPendingOutputKey() {
+        return pendingOutputKey;
+    }
+
+    public int getPendingOutputAmount() {
+        return pendingOutputAmount;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -372,7 +430,8 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
 
     public int getSpeedMultiplier() {
         var cards = Math.min(4, upgrades.getInstalledUpgrades(AEItems.SPEED_CARD));
-        return 1 << cards;
+        var raw = tier.baseSpeedMultiplier() * (1 << cards);
+        return (int) Math.round(Math.min(tier.accelerationCap(), raw));
     }
 
     public int getEnergyCardCount() {
@@ -392,11 +451,11 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     }
 
     public double getIdleAePerTick() {
-        return BASE_IDLE_AE_PER_TICK * getEnergyMultiplier();
+        return BASE_IDLE_AE_PER_TICK * tier.idleDrawMultiplier() * getEnergyMultiplier();
     }
 
     public double getAeFuelPerWorkTick() {
-        return BASE_AE_FUEL_PER_WORK_TICK * getEnergyMultiplier();
+        return BASE_AE_FUEL_PER_WORK_TICK * tier.aeFuelDrawMultiplier() * getEnergyMultiplier();
     }
 
     public double getMaximumAeFuelPerTick() {
@@ -404,7 +463,8 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     }
 
     public int getFuelEfficiencyPercent() {
-        return 100 + getFuelEfficiencyCardCount() * FUEL_EFFICIENCY_PER_CARD_PERCENT;
+        return (int) Math.round(100 * tier.fuelEfficiencyMultiplier())
+                + getFuelEfficiencyCardCount() * FUEL_EFFICIENCY_PER_CARD_PERCENT;
     }
 
     public SmeltingPowerMode getPowerMode() {
@@ -492,7 +552,10 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     }
 
     private void setStatus(SmelterStatus status) {
-        this.status = status;
+        if (this.status != status) {
+            this.status = status;
+            markForUpdate();
+        }
     }
 
     public Component getStatusMessage() {

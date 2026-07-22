@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "appliedsmelting:mk2_upgrade_kit",
+    "ae2:engineering_processor",
+    "ae2:engineering_processor",
+    "ae2:quantum_entangled_singularity"
+  ],
+  "result": {
+    "id": "appliedsmelting:mk3_upgrade_kit"
+  }
+}
