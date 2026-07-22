@@ -11,11 +11,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 
 import dev.excal1bur.appliedsmelting.AppliedSmelting;
 
-/**
- * Mirrors AE2's own ME Drive cell status LEDs (appeng.client.render.AERenderTypes#STORAGE_CELL_LEDS):
- * a plain position+color pipeline with no texture sampler and no lightmap, so the status dot is a pure
- * vertex-colored quad rather than a tinted texture.
- */
+/** Untextured position+color pipeline for the status LED, mirroring AE2's own ME Drive cell LEDs. */
 public final class AppliedSmeltingRenderTypes {
     public static final RenderPipeline STATUS_LED_PIPELINE = RenderPipeline
             .builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)

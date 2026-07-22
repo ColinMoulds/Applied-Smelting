@@ -20,23 +20,14 @@ import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 
-/**
- * Recolors the ME Smelter's front-face status dot (bottom-right texel, the same spot every tier's
- * texture already reserves for it) based on live machine status, using the same technique AE2 uses
- * for its own ME Drive cell status LEDs: a small untextured quad on {@link AppliedSmeltingRenderTypes#SMELTER_STATUS_LED}
- * (no sampler, no lightmap - see appeng.client.renderer.blockentity.CellLedRenderer), colored purely
- * via per-vertex color rather than a tinted texture.
- */
+/** Recolors the ME Smelter's front-face status dot to reflect live machine status. */
 public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<MESmelterBlockEntity, SmelterRenderState> {
     private static final int COLOR_RUNNING = 0xFF3CD94A;
     private static final int COLOR_IDLE = 0xFF3C8CD9;
     private static final int COLOR_BLOCKED = 0xFFD9433C;
     private static final int COLOR_DISCONNECTED = 0xFF1A1A1A;
 
-    // Bottom-right texel (13,13) of the 16x16 front-face texture. Vanilla's cube model bakes the
-    // north face with u = 1 - localX (see CuboidFace.UVs / FaceInfo.NORTH), so a texture column near
-    // u=1 (texel 13/16) lands at LOW local X - which is screen-RIGHT once viewed head-on, since a
-    // camera facing +Z (looking at the north face) has "right" pointing toward -X.
+    // Bottom-right texel of the 16x16 front-face texture; the cube model's north face bakes u = 1 - localX.
     private static final float LED_MIN_X = 2.0F / 16.0F;
     private static final float LED_MAX_X = 3.0F / 16.0F;
     private static final float LED_MIN_Y = 2.0F / 16.0F;
@@ -94,8 +85,6 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
         return switch (status) {
             case SMELTING -> COLOR_RUNNING;
             case WAITING_FOR_SELECTION, TARGET_REACHED, PAUSED -> COLOR_IDLE;
-            // Not connected/powered to the ME network at all (IGridNode#isActive() == false) - keep this
-            // visually distinct from a connected-but-blocked smelter (red) rather than lumping them together.
             case OFFLINE, NO_SMELTERS -> COLOR_DISCONNECTED;
             case MISSING_INPUT, MISSING_FUEL, MISSING_POWER, OUTPUT_FULL,
                     INVALID_RECIPE, REDSTONE_PAUSED -> COLOR_BLOCKED;

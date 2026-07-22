@@ -173,10 +173,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         updateIdlePowerUsage();
     }
 
-    // saveAdditional/loadTag only cover disk persistence - AE2 syncs live block entity state to nearby
-    // clients through this separate binary stream instead (see AEBaseBlockEntity#getUpdateTag, which
-    // wraps writeToStream()). Without this override, status changes (smelting/idle/blocked) would never
-    // reach an already-loaded client, only the value present at the moment the chunk was first sent.
+    // AE2 syncs live block entity state via this stream, separate from saveAdditional/loadTag.
     @Override
     protected void writeToStream(net.minecraft.network.RegistryFriendlyByteBuf data) {
         super.writeToStream(data);
@@ -572,12 +569,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         return status;
     }
 
-    /**
-     * The raw, tick-computed status, synced from the server via saveAdditional/loadTag. Unlike
-     * {@link #getMachineStatus()}, this doesn't re-derive enabled/redstone/grid-active state
-     * client-side (those are already folded into this value server-side via setStatus calls in
-     * tickingRequest), which makes it the safe choice for client-only code like rendering.
-     */
+    /** Server-computed status as-is, without {@link #getMachineStatus()}'s client-side re-derivation. */
     public SmelterStatus getRawStatus() {
         return status;
     }
