@@ -55,6 +55,14 @@ public final class SmeltingSettingsScreen
                 "power_status",
                 Component.translatable(menu.enabled ? "gui.appliedsmelting.on" : "gui.appliedsmelting.off")
                         .withColor(menu.enabled ? 0x38c947 : 0xd84747));
+        setTextContent(
+                "network_idle",
+                Component.translatable(
+                        "gui.appliedsmelting.network_idle_ae", menu.combinedIdleAeTimes100 / 100.0));
+        setTextContent(
+                "network_ae_fuel",
+                Component.translatable(
+                        "gui.appliedsmelting.network_ae_fuel", menu.combinedAeFuelTimes100 / 100.0));
     }
 
     private void saveTargetAmount() {

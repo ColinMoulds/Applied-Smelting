@@ -23,6 +23,7 @@ import dev.excal1bur.appliedsmelting.core.ModMenus;
 public final class SmeltingTerminalMenu extends MEStorageMenu {
     private static final ClientActionKey<Boolean> SET_ENABLED = new ClientActionKey<>("setEnabled");
     private static final ClientActionKey<Long> SET_TARGET_AMOUNT = new ClientActionKey<>("setTargetAmount");
+    private static final ClientActionKey<Integer> REMOVE_QUEUED_INPUT = new ClientActionKey<>("removeQueuedInput");
 
     private final SmeltingTerminalHost terminal;
 
@@ -59,11 +60,46 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
     @GuiSync(11)
     public long storedOutputAmount;
 
+    @GuiSync(12)
+    public int queueSize;
+
+    @GuiSync(13)
+    public int queueCapacity;
+
+    @GuiSync(14)
+    public int combinedSpeedMultiplier;
+
+    @GuiSync(15)
+    public int combinedIdleAeTimes100;
+
+    @GuiSync(16)
+    public int combinedAeFuelTimes100;
+
+    @GuiSync(17)
+    public GenericStack queuePreview0;
+    @GuiSync(18)
+    public GenericStack queuePreview1;
+    @GuiSync(19)
+    public GenericStack queuePreview2;
+    @GuiSync(20)
+    public GenericStack queuePreview3;
+    @GuiSync(21)
+    public GenericStack queuePreview4;
+    @GuiSync(22)
+    public GenericStack queuePreview5;
+    @GuiSync(23)
+    public GenericStack queuePreview6;
+    @GuiSync(24)
+    public GenericStack queuePreview7;
+    @GuiSync(25)
+    public GenericStack queuePreview8;
+
     public SmeltingTerminalMenu(int id, Inventory playerInventory, SmeltingTerminalHost terminal) {
         super(ModMenus.SMELTING_TERMINAL.get(), id, playerInventory, terminal);
         this.terminal = terminal;
         registerClientAction(SET_ENABLED, ByteBufCodecs.BOOL, this::setNetworkEnabled);
         registerClientAction(SET_TARGET_AMOUNT, ByteBufCodecs.VAR_LONG, this::setTargetAmount);
+        registerClientAction(REMOVE_QUEUED_INPUT, ByteBufCodecs.VAR_INT, this::removeQueuedInput);
     }
 
     @Override
@@ -85,6 +121,22 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             statusId = service == null ? 0 : service.getOverallStatus().id();
             progressPercent = service == null ? 0 : service.getAverageProgressPercent();
             fuelPercent = service == null ? 0 : service.getAverageFuelPercent();
+            queueSize = service == null ? 0 : service.getQueuedInputs().size();
+            queueCapacity = service == null ? 1 : service.getQueueCapacity();
+            combinedSpeedMultiplier = service == null ? 0 : service.getCombinedSpeedMultiplier();
+            combinedIdleAeTimes100 = service == null ? 0 : (int) Math.round(service.getCombinedIdleAePerTick() * 100);
+            combinedAeFuelTimes100 =
+                    service == null ? 0 : (int) Math.round(service.getCombinedMaximumAeFuelPerTick() * 100);
+            var queue = service == null ? java.util.List.<AEItemKey>of() : service.getQueuedInputs();
+            queuePreview0 = queuePreview(queue, 0);
+            queuePreview1 = queuePreview(queue, 1);
+            queuePreview2 = queuePreview(queue, 2);
+            queuePreview3 = queuePreview(queue, 3);
+            queuePreview4 = queuePreview(queue, 4);
+            queuePreview5 = queuePreview(queue, 5);
+            queuePreview6 = queuePreview(queue, 6);
+            queuePreview7 = queuePreview(queue, 7);
+            queuePreview8 = queuePreview(queue, 8);
         }
         super.broadcastChanges();
     }
@@ -114,8 +166,12 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
         if (clickedKey instanceof AEItemKey itemKey) {
             var service = terminal.getSmeltingService();
             if (service != null && action == InventoryAction.PICKUP_OR_SET_DOWN && isSmeltable(itemKey)) {
-                service.setSelectedInput(itemKey.equals(service.getSelectedInput()) ? null : itemKey);
-                terminal.setSelections(service.getSelectedInput(), service.getSelectedFuel());
+                if (service.toggleQueuedInput(itemKey)) {
+                    terminal.setQueuedInputs(service.getQueuedInputs());
+                } else {
+                    player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable(
+                            "message.appliedsmelting.queue_full", service.getQueueCapacity()));
+                }
                 return;
             }
             if (service != null
@@ -157,6 +213,25 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
         sendClientAction(SET_TARGET_AMOUNT, Math.max(0, targetAmount));
     }
 
+    public void requestRemoveQueuedInput(int index) {
+        sendClientAction(REMOVE_QUEUED_INPUT, index);
+    }
+
+    public GenericStack getQueuePreview(int index) {
+        return switch (index) {
+            case 0 -> queuePreview0;
+            case 1 -> queuePreview1;
+            case 2 -> queuePreview2;
+            case 3 -> queuePreview3;
+            case 4 -> queuePreview4;
+            case 5 -> queuePreview5;
+            case 6 -> queuePreview6;
+            case 7 -> queuePreview7;
+            case 8 -> queuePreview8;
+            default -> null;
+        };
+    }
+
     private void setTargetAmount(long targetAmount) {
         var amount = Math.max(0, targetAmount);
         var service = terminal.getSmeltingService();
@@ -164,6 +239,17 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             service.setTargetAmount(amount);
             terminal.setTargetAmount(amount);
         }
+    }
+
+    private void removeQueuedInput(int index) {
+        var service = terminal.getSmeltingService();
+        if (service != null && service.removeQueuedInput(index)) {
+            terminal.setQueuedInputs(service.getQueuedInputs());
+        }
+    }
+
+    private static GenericStack queuePreview(java.util.List<AEItemKey> queue, int index) {
+        return index < queue.size() ? new GenericStack(queue.get(index), 1) : null;
     }
 
     private void setNetworkEnabled(boolean enabled) {

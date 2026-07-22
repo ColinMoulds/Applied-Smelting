@@ -1,5 +1,9 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +41,7 @@ public final class SmeltingTerminalBlockEntity extends AENetworkedBlockEntity im
             .build();
     private AEItemKey selectedInput;
     private AEItemKey selectedFuel;
+    private final List<AEItemKey> queuedInputs = new ArrayList<>();
     private long targetAmount;
 
     public SmeltingTerminalBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -51,13 +56,28 @@ public final class SmeltingTerminalBlockEntity extends AENetworkedBlockEntity im
         }
         var service = grid.getService(SmeltingService.class);
         service.adoptSelections(selectedInput, selectedFuel);
+        service.adoptQueuedInputs(queuedInputs);
         service.adoptTargetAmount(targetAmount);
         return service;
     }
 
     public void setSelections(AEItemKey input, AEItemKey fuel) {
+        if (!Objects.equals(selectedInput, input)) {
+            queuedInputs.clear();
+            if (input != null) {
+                queuedInputs.add(input);
+            }
+        }
         selectedInput = input;
         selectedFuel = fuel;
+        saveChanges();
+    }
+
+    @Override
+    public void setQueuedInputs(List<AEItemKey> inputs) {
+        queuedInputs.clear();
+        queuedInputs.addAll(inputs);
+        selectedInput = queuedInputs.isEmpty() ? null : queuedInputs.getFirst();
         saveChanges();
     }
 
@@ -73,6 +93,18 @@ public final class SmeltingTerminalBlockEntity extends AENetworkedBlockEntity im
         configManager.readFromNBT(input);
         selectedInput = readItemKey(input.childOrEmpty("selectedInput"));
         selectedFuel = readItemKey(input.childOrEmpty("selectedFuel"));
+        queuedInputs.clear();
+        var queuedInputCount = input.getIntOr("queuedInputCount", -1);
+        if (queuedInputCount >= 0) {
+            for (int i = 0; i < queuedInputCount; i++) {
+                var queuedInput = readItemKey(input.childOrEmpty("queuedInput" + i));
+                if (queuedInput != null && !queuedInputs.contains(queuedInput)) {
+                    queuedInputs.add(queuedInput);
+                }
+            }
+        } else if (selectedInput != null) {
+            queuedInputs.add(selectedInput);
+        }
         targetAmount = input.getLongOr("targetAmount", 0);
     }
 
@@ -82,6 +114,10 @@ public final class SmeltingTerminalBlockEntity extends AENetworkedBlockEntity im
         configManager.writeToNBT(output);
         writeItemKey(output.child("selectedInput"), selectedInput);
         writeItemKey(output.child("selectedFuel"), selectedFuel);
+        output.putInt("queuedInputCount", queuedInputs.size());
+        for (int i = 0; i < queuedInputs.size(); i++) {
+            writeItemKey(output.child("queuedInput" + i), queuedInputs.get(i));
+        }
         output.putLong("targetAmount", targetAmount);
     }
 

@@ -2,8 +2,8 @@
   "$schema": "../schema.json",
   "includes": ["../common/common.json"],
   "generatedBackground": {
-    "width": 176,
-    "height": 154
+    "width": 220,
+    "height": 196
   },
   "text": {
     "dialog_title": {
@@ -20,14 +20,14 @@
         "translate": "gui.appliedsmelting.network_power"
       },
       "position": {
-        "left": 20,
+        "left": 24,
         "top": 32
       }
     },
     "power_status": {
       "text": "",
       "position": {
-        "left": 143,
+        "left": 178,
         "top": 32
       }
     },
@@ -36,7 +36,7 @@
         "translate": "gui.appliedsmelting.storage_target"
       },
       "position": {
-        "left": 20,
+        "left": 24,
         "top": 57
       }
     },
@@ -46,31 +46,45 @@
       },
       "position": {
         "left": 8,
-        "top": 139
+        "top": 180
+      }
+    },
+    "network_idle": {
+      "text": "",
+      "position": {
+        "left": 8,
+        "top": 150
+      }
+    },
+    "network_ae_fuel": {
+      "text": "",
+      "position": {
+        "left": 8,
+        "top": 163
       }
     }
   },
   "widgets": {
     "back": {
-      "left": 152,
+      "left": 196,
       "top": -5,
       "width": 20,
       "height": 20
     },
     "power": {
-      "left": 122,
+      "left": 157,
       "top": 28,
       "width": 16,
       "height": 16
     },
     "target": {
-      "left": 20,
+      "left": 24,
       "top": 69,
-      "width": 138,
+      "width": 172,
       "height": 62
     },
     "targetInput": {
-      "left": 60,
+      "left": 79,
       "top": 94,
       "width": 61,
       "height": 12

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0
+
+- Added a capacity-controlled network smelting queue with round-robin, least-assigned recipe scheduling across connected smelters.
+- Added pending-output reservations so parallel smelters respect storage targets without overproducing.
+- Added optional per-smelter recipe pinning by right-clicking an ME Smelter with a smeltable item; repeat the action to return it to the network queue.
+- Added Active/Connected counts, combined processing speed, queue usage, and combined AE consumption reporting.
+- Split smelting heat into Item Fuel and AE Power modes. Item Fuel mode uses furnace fuels; AE Power mode consumes network energy directly.
+- Added support for Energy Cards, Capacity Cards, Redstone Cards, and the new Fuel Efficiency Card alongside Acceleration Cards.
+- Energy Cards reduce idle and AE-fuel consumption by 15% each, down to 40% of the base cost.
+- Fuel Efficiency Cards extend furnace fuel duration by 25% each, up to 200%.
+- Capacity Cards add network recipe queue slots, up to nine total queued recipes.
+- Redstone Cards require a high redstone signal for the installed smelter to operate.
+- Expanded ME Smelters to eight mixed upgrade slots and redesigned their interface with power, recipe, upgrade, and energy telemetry.
+
 ## 0.1.2
 
 - Centred the furnace input, flame, and fuel layout with additional vertical spacing.

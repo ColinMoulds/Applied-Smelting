@@ -18,6 +18,7 @@ public final class ModCreativeTab {
                 .displayItems((parameters, output) -> {
                     output.accept(ModBlocks.ME_SMELTER_ITEM.get());
                     output.accept(ModBlocks.SMELTING_TERMINAL_ITEM.get());
+                    output.accept(ModItems.FUEL_EFFICIENCY_CARD.get());
                 })
                 .build());
     }

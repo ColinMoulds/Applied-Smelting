@@ -1,5 +1,9 @@
 package dev.excal1bur.appliedsmelting.part;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +23,7 @@ import dev.excal1bur.appliedsmelting.service.SmeltingService;
 public final class SmeltingTerminalPart extends AbstractTerminalPart implements SmeltingTerminalHost {
     private AEItemKey selectedInput;
     private AEItemKey selectedFuel;
+    private final List<AEItemKey> queuedInputs = new ArrayList<>();
     private long targetAmount;
 
     public SmeltingTerminalPart(IPartItem<?> partItem) {
@@ -39,14 +44,29 @@ public final class SmeltingTerminalPart extends AbstractTerminalPart implements 
         }
         var service = grid.getService(SmeltingService.class);
         service.adoptSelections(selectedInput, selectedFuel);
+        service.adoptQueuedInputs(queuedInputs);
         service.adoptTargetAmount(targetAmount);
         return service;
     }
 
     @Override
     public void setSelections(@Nullable AEItemKey input, @Nullable AEItemKey fuel) {
+        if (!Objects.equals(selectedInput, input)) {
+            queuedInputs.clear();
+            if (input != null) {
+                queuedInputs.add(input);
+            }
+        }
         selectedInput = input;
         selectedFuel = fuel;
+        saveChanges();
+    }
+
+    @Override
+    public void setQueuedInputs(List<AEItemKey> inputs) {
+        queuedInputs.clear();
+        queuedInputs.addAll(inputs);
+        selectedInput = queuedInputs.isEmpty() ? null : queuedInputs.getFirst();
         saveChanges();
     }
 
@@ -61,6 +81,18 @@ public final class SmeltingTerminalPart extends AbstractTerminalPart implements 
         super.readFromNBT(input);
         selectedInput = readItemKey(input.childOrEmpty("selectedInput"));
         selectedFuel = readItemKey(input.childOrEmpty("selectedFuel"));
+        queuedInputs.clear();
+        var queuedInputCount = input.getIntOr("queuedInputCount", -1);
+        if (queuedInputCount >= 0) {
+            for (int i = 0; i < queuedInputCount; i++) {
+                var queuedInput = readItemKey(input.childOrEmpty("queuedInput" + i));
+                if (queuedInput != null && !queuedInputs.contains(queuedInput)) {
+                    queuedInputs.add(queuedInput);
+                }
+            }
+        } else if (selectedInput != null) {
+            queuedInputs.add(selectedInput);
+        }
         targetAmount = input.getLongOr("targetAmount", 0);
     }
 
@@ -69,6 +101,10 @@ public final class SmeltingTerminalPart extends AbstractTerminalPart implements 
         super.writeToNBT(output);
         writeItemKey(output.child("selectedInput"), selectedInput);
         writeItemKey(output.child("selectedFuel"), selectedFuel);
+        output.putInt("queuedInputCount", queuedInputs.size());
+        for (int i = 0; i < queuedInputs.size(); i++) {
+            writeItemKey(output.child("queuedInput" + i), queuedInputs.get(i));
+        }
         output.putLong("targetAmount", targetAmount);
     }
 

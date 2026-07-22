@@ -26,6 +26,7 @@ import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.stacks.AEItemKey;
+import appeng.api.stacks.GenericStack;
 import appeng.api.upgrades.IUpgradeInventory;
 import appeng.api.upgrades.IUpgradeableObject;
 import appeng.api.upgrades.UpgradeInventories;
@@ -35,13 +36,19 @@ import appeng.me.helpers.MachineSource;
 import appeng.util.inv.AppEngInternalInventory;
 
 import dev.excal1bur.appliedsmelting.service.SmeltingService;
+import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
+import dev.excal1bur.appliedsmelting.core.ModItems;
 
 public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         implements IGridTickable, IUpgradeableObject {
     private static final int PROCESSING_TICKS = 200;
-    private static final double AE_PER_TICK = 2.0;
+    private static final double BASE_IDLE_AE_PER_TICK = 2.0;
+    private static final double BASE_AE_FUEL_PER_WORK_TICK = 8.0;
+    private static final double ENERGY_CARD_REDUCTION = 0.15;
+    private static final double MINIMUM_ENERGY_MULTIPLIER = 0.4;
+    private static final int FUEL_EFFICIENCY_PER_CARD_PERCENT = 25;
 
     private final AppEngInternalInventory inventory = new AppEngInternalInventory(this, 1);
     private final IUpgradeInventory upgrades;
@@ -50,6 +57,8 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     private int fuelTicksRemaining;
     private int fuelTicksTotal;
     private boolean enabled = true;
+    private SmeltingPowerMode powerMode = SmeltingPowerMode.ITEM_FUEL;
+    private AEItemKey pinnedInput;
     private SmelterStatus status = SmelterStatus.WAITING_FOR_SELECTION;
     private AEItemKey pendingOutputKey;
     private int pendingOutputAmount;
@@ -58,9 +67,9 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         super(type, pos, state);
         getMainNode()
                 .setFlags(GridFlags.REQUIRE_CHANNEL)
-                .setIdlePowerUsage(2.0)
+                .setIdlePowerUsage(BASE_IDLE_AE_PER_TICK)
                 .addService(IGridTickable.class, this);
-        upgrades = UpgradeInventories.forMachine(ModBlocks.ME_SMELTER_ITEM.get(), 4, this::onUpgradesChanged);
+        upgrades = UpgradeInventories.forMachine(ModBlocks.ME_SMELTER_ITEM.get(), 8, this::onUpgradesChanged);
     }
 
     @Override
@@ -108,6 +117,8 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         output.putInt("fuelTicksRemaining", fuelTicksRemaining);
         output.putInt("fuelTicksTotal", fuelTicksTotal);
         output.putBoolean("enabled", enabled);
+        output.putString("powerMode", powerMode.serializedName());
+        writeItemKey(output.child("pinnedInput"), pinnedInput);
         upgrades.writeToNBT(output, "upgrades");
     }
 
@@ -118,7 +129,10 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         fuelTicksRemaining = input.getIntOr("fuelTicksRemaining", 0);
         fuelTicksTotal = input.getIntOr("fuelTicksTotal", fuelTicksRemaining);
         enabled = input.getBooleanOr("enabled", true);
+        powerMode = SmeltingPowerMode.fromSerializedName(input.getStringOr("powerMode", "item_fuel"));
+        pinnedInput = readItemKey(input.childOrEmpty("pinnedInput"));
         upgrades.readFromNBT(input, "upgrades");
+        updateIdlePowerUsage();
     }
 
     @Override
@@ -132,6 +146,10 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
             setStatus(SmelterStatus.PAUSED);
             return TickRateModulation.SLOWER;
         }
+        if (!isRedstoneAllowed()) {
+            setStatus(SmelterStatus.REDSTONE_PAUSED);
+            return TickRateModulation.SLOWER;
+        }
         if (!node.isActive()) {
             setStatus(SmelterStatus.OFFLINE);
             return TickRateModulation.SLOWER;
@@ -140,11 +158,13 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var level = node.getLevel();
         var grid = node.getGrid();
         var service = grid.getService(SmeltingService.class);
-        var selectedInput = service.getSelectedInput();
+        var selectedInput = service.assignInput(this);
         var selectedFuel = service.getSelectedFuel();
         var storage = grid.getStorageService().getInventory();
 
-        if (selectedInput == null || selectedFuel == null) {
+        if (selectedInput == null
+                || powerMode == SmeltingPowerMode.ITEM_FUEL && selectedFuel == null) {
+            service.releaseAssignment(this);
             if (!returnInputToNetwork(storage)) {
                 setStatus(SmelterStatus.OUTPUT_FULL);
                 return TickRateModulation.SLOWER;
@@ -172,6 +192,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         if (recipe.isEmpty()) {
             returnInputToNetwork(grid.getStorageService().getInventory());
             setStatus(SmelterStatus.INVALID_RECIPE);
+            service.deferAssignment(this, selectedInput);
             return TickRateModulation.SLOWER;
         }
 
@@ -189,6 +210,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
                     inventory.setItemDirect(0, ItemStack.EMPTY);
                     progress = 0;
                     clearPendingOutput();
+                    service.releaseAssignment(this);
                     saveChanges();
                     setStatus(SmelterStatus.SMELTING);
                     return TickRateModulation.URGENT;
@@ -199,21 +221,24 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         }
 
         var workTicks = Math.min(ticksSinceLastCall * getSpeedMultiplier(), PROCESSING_TICKS - progress);
-        if (fuelTicksRemaining <= 0 && !consumeFuel(level, storage, selectedFuel)) {
-            return TickRateModulation.SLOWER;
-        }
-        workTicks = Math.min(workTicks, fuelTicksRemaining);
-        var energyNeeded = AE_PER_TICK * workTicks;
-        var energy = grid.getEnergyService();
-        if (energy.extractAEPower(energyNeeded, Actionable.SIMULATE, PowerMultiplier.CONFIG) + 0.001
-                < energyNeeded) {
-            setStatus(SmelterStatus.MISSING_POWER);
-            return TickRateModulation.SLOWER;
+        if (powerMode == SmeltingPowerMode.ITEM_FUEL) {
+            if (fuelTicksRemaining <= 0 && !consumeFuel(level, storage, selectedFuel)) {
+                return TickRateModulation.SLOWER;
+            }
+            workTicks = Math.min(workTicks, fuelTicksRemaining);
+            fuelTicksRemaining -= workTicks;
+        } else {
+            var energyNeeded = getAeFuelPerWorkTick() * workTicks;
+            var energy = grid.getEnergyService();
+            if (energy.extractAEPower(energyNeeded, Actionable.SIMULATE, PowerMultiplier.CONFIG) + 0.001
+                    < energyNeeded) {
+                setStatus(SmelterStatus.MISSING_POWER);
+                return TickRateModulation.SLOWER;
+            }
+            energy.extractAEPower(energyNeeded, Actionable.MODULATE, PowerMultiplier.CONFIG);
         }
 
-        energy.extractAEPower(energyNeeded, Actionable.MODULATE, PowerMultiplier.CONFIG);
         progress += workTicks;
-        fuelTicksRemaining -= workTicks;
         setStatus(SmelterStatus.SMELTING);
         saveChanges();
         return TickRateModulation.URGENT;
@@ -229,6 +254,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var recipe = level.recipeAccess().getRecipeFor(RecipeType.SMELTING, recipeInput, level);
         if (recipe.isEmpty()) {
             setStatus(SmelterStatus.INVALID_RECIPE);
+            service.deferAssignment(this, itemKey);
             return false;
         }
 
@@ -244,6 +270,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         var storedAmount = storage.getAvailableStacks().get(resultKey);
         if (!service.canStartJob(this, resultKey, result.getCount(), storedAmount)) {
             setStatus(SmelterStatus.TARGET_REACHED);
+            service.deferAssignment(this, itemKey);
             return false;
         }
 
@@ -257,6 +284,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
             return true;
         }
         setStatus(SmelterStatus.MISSING_INPUT);
+        service.deferAssignment(this, itemKey);
         return false;
     }
 
@@ -285,8 +313,9 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
         if (remainderKey != null) {
             storage.insert(remainderKey, remainder.getCount(), Actionable.MODULATE, actionSource);
         }
-        fuelTicksRemaining = burnDuration;
-        fuelTicksTotal = burnDuration;
+        var adjustedBurnDuration = Math.max(1, (int) ((long) burnDuration * getFuelEfficiencyPercent() / 100));
+        fuelTicksRemaining = adjustedBurnDuration;
+        fuelTicksTotal = adjustedBurnDuration;
         saveChanges();
         return true;
     }
@@ -337,6 +366,7 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     }
 
     private void onUpgradesChanged() {
+        updateIdlePowerUsage();
         saveChanges();
         wakeForSelectionChange();
     }
@@ -344,6 +374,90 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     public int getSpeedMultiplier() {
         var cards = Math.min(4, upgrades.getInstalledUpgrades(AEItems.SPEED_CARD));
         return 1 << cards;
+    }
+
+    public int getEnergyCardCount() {
+        return Math.min(4, upgrades.getInstalledUpgrades(AEItems.ENERGY_CARD));
+    }
+
+    public int getFuelEfficiencyCardCount() {
+        return Math.min(4, upgrades.getInstalledUpgrades(ModItems.FUEL_EFFICIENCY_CARD));
+    }
+
+    public int getCapacityCardCount() {
+        return Math.min(4, upgrades.getInstalledUpgrades(AEItems.CAPACITY_CARD));
+    }
+
+    public boolean hasRedstoneCard() {
+        return upgrades.getInstalledUpgrades(AEItems.REDSTONE_CARD) > 0;
+    }
+
+    public double getIdleAePerTick() {
+        return BASE_IDLE_AE_PER_TICK * getEnergyMultiplier();
+    }
+
+    public double getAeFuelPerWorkTick() {
+        return BASE_AE_FUEL_PER_WORK_TICK * getEnergyMultiplier();
+    }
+
+    public double getMaximumAeFuelPerTick() {
+        return powerMode == SmeltingPowerMode.AE_POWER ? getAeFuelPerWorkTick() * getSpeedMultiplier() : 0;
+    }
+
+    public int getFuelEfficiencyPercent() {
+        return 100 + getFuelEfficiencyCardCount() * FUEL_EFFICIENCY_PER_CARD_PERCENT;
+    }
+
+    public SmeltingPowerMode getPowerMode() {
+        return powerMode;
+    }
+
+    public void setPowerMode(SmeltingPowerMode powerMode) {
+        if (this.powerMode != powerMode) {
+            this.powerMode = powerMode;
+            saveChanges();
+            wakeForSelectionChange();
+        }
+    }
+
+    public AEItemKey getPinnedInput() {
+        return pinnedInput;
+    }
+
+    public void setPinnedInput(AEItemKey pinnedInput) {
+        if (java.util.Objects.equals(this.pinnedInput, pinnedInput)) {
+            return;
+        }
+        this.pinnedInput = pinnedInput;
+        getMainNode().ifPresent((grid, node) -> grid.getService(SmeltingService.class).releaseAssignment(this));
+        saveChanges();
+        wakeForSelectionChange();
+    }
+
+    private double getEnergyMultiplier() {
+        return Math.max(
+                MINIMUM_ENERGY_MULTIPLIER,
+                1.0 - getEnergyCardCount() * ENERGY_CARD_REDUCTION);
+    }
+
+    private void updateIdlePowerUsage() {
+        getMainNode().setIdlePowerUsage(getIdleAePerTick());
+    }
+
+    private boolean isRedstoneAllowed() {
+        var level = getLevel();
+        return !hasRedstoneCard() || level == null || level.hasNeighborSignal(getBlockPos());
+    }
+
+    private static AEItemKey readItemKey(ValueInput input) {
+        var stack = GenericStack.readTag(input);
+        return stack != null && stack.what() instanceof AEItemKey itemKey ? itemKey : null;
+    }
+
+    private static void writeItemKey(ValueOutput output, AEItemKey key) {
+        if (key != null) {
+            GenericStack.writeTag(output, new GenericStack(key, 1));
+        }
     }
 
     public boolean isWorking() {
@@ -368,6 +482,9 @@ public final class MESmelterBlockEntity extends AENetworkedInvBlockEntity
     public SmelterStatus getMachineStatus() {
         if (!enabled) {
             return SmelterStatus.PAUSED;
+        }
+        if (!isRedstoneAllowed()) {
+            return SmelterStatus.REDSTONE_PAUSED;
         }
         if (!getMainNode().isActive()) {
             return SmelterStatus.OFFLINE;

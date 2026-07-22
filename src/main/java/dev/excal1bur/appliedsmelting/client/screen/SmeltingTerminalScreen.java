@@ -16,6 +16,8 @@ import appeng.client.gui.me.common.RepoSlot;
 import appeng.client.gui.style.ScreenStyle;
 import appeng.client.gui.widgets.TabButton;
 import appeng.helpers.InventoryAction;
+import appeng.api.stacks.AEKey;
+import appeng.util.prioritylist.IPartitionList;
 import appeng.util.Icon;
 
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
@@ -30,9 +32,15 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     private static final int OUTPUT_Y = 23;
     private static final int FLAME_X = INPUT_X + 2;
     private static final int FLAME_Y = 25;
+    private static final int QUEUE_X = 11;
+    private static final int QUEUE_Y = 7;
+    private static final int QUEUE_SLOT_SPACING = 17;
     private static final Identifier FURNACE_FLAME_SPRITE =
             Identifier.withDefaultNamespace("container/furnace/lit_progress");
     private TabButton settingsButton;
+    private TabButton queueButton;
+    private TabButton queueBackButton;
+    private boolean queueView;
     private long draggedSerial = -1;
     private appeng.api.stacks.AEItemKey draggedKey;
     private double dragStartX;
@@ -53,6 +61,21 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         settingsButton.setX(leftPos + imageWidth - 24);
         settingsButton.setY(topPos + panelTop() + 4);
         addRenderableWidget(settingsButton);
+        queueButton = new TabButton(
+                Icon.SCHEDULING_ROUND_ROBIN,
+                Component.translatable("gui.appliedsmelting.open_queue"),
+                button -> setQueueView(true));
+        queueButton.setX(leftPos + imageWidth - 24);
+        queueButton.setY(topPos + panelTop() + 26);
+        addRenderableWidget(queueButton);
+        queueBackButton = new TabButton(
+                Icon.BACK,
+                Component.translatable("gui.appliedsmelting.back_to_terminal"),
+                button -> setQueueView(false));
+        queueBackButton.setX(leftPos + imageWidth - 24);
+        queueBackButton.setY(topPos + panelTop() + 4);
+        addRenderableWidget(queueBackButton);
+        updateQueueViewWidgets();
     }
 
     @Override
@@ -61,14 +84,34 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         setTextContent("smelters", Component.translatable(
                 SmelterStatus.fromId(menu.statusId).translationKey()));
         setTextContent("active", Component.translatable(
-                "gui.appliedsmelting.smelters_compact", menu.workingCount, menu.smelterCount));
+                "gui.appliedsmelting.network_summary",
+                menu.workingCount,
+                menu.smelterCount,
+                menu.combinedSpeedMultiplier));
         setTextContent("stored", Component.translatable(
-                "gui.appliedsmelting.stored_target",
+                "gui.appliedsmelting.stored_queue",
                 formatCompactAmount(menu.storedOutputAmount),
                 menu.targetAmount == 0
                         ? Component.translatable("gui.appliedsmelting.unlimited")
-                        : Component.literal(formatCompactAmount(menu.targetAmount))));
+                        : Component.literal(formatCompactAmount(menu.targetAmount)),
+                menu.queueSize,
+                menu.queueCapacity));
+        setTextContent(
+                "crafting_grid_title",
+                Component.translatable(queueView
+                        ? "gui.appliedsmelting.smelting_queue"
+                        : "gui.appliedsmelting.furnace_selection"));
+        setTextContent(
+                "queue_status",
+                Component.translatable("gui.appliedsmelting.queue_status", menu.queueSize, menu.queueCapacity));
+        setTextHidden("smelters", queueView);
+        setTextHidden("active", queueView);
+        setTextHidden("stored", queueView);
+        setTextHidden("queue_status", !queueView);
+        setTextHidden("queue_hint", !queueView);
+        setTextHidden("queue_remove_hint", !queueView);
         settingsButton.active = menu.smelterCount > 0;
+        queueButton.active = menu.smelterCount > 0;
     }
 
     @Override
@@ -78,9 +121,20 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(offsetX, offsetY);
         int top = panelTop();
-        // Cover the crafting grid inherited from AE2's terminal texture and replace it with a furnace layout.
+        // Cover the crafting grid inherited from AE2's terminal texture and replace it with our active panel.
         guiGraphics.fill(9, top, 168, top + 66, 0xffa9adc2);
         drawInset(guiGraphics, 9, top, 159, 66);
+        if (queueView) {
+            for (int i = 0; i < 9; i++) {
+                drawQueueSlot(
+                        guiGraphics,
+                        QUEUE_X + i * QUEUE_SLOT_SPACING,
+                        top + QUEUE_Y,
+                        i < menu.queueCapacity);
+            }
+            guiGraphics.pose().popMatrix();
+            return;
+        }
         drawSlot(guiGraphics, INPUT_X, top + INPUT_Y);
         drawSlot(guiGraphics, FUEL_X, top + FUEL_Y);
         drawSlot(guiGraphics, OUTPUT_X, top + OUTPUT_Y);
@@ -98,6 +152,24 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         int top = panelTop();
         super.drawFG(guiGraphics, offsetX, offsetY, mouseX, mouseY);
 
+        if (queueView) {
+            for (int i = 0; i < 9; i++) {
+                var stack = menu.getQueuePreview(i);
+                if (stack != null) {
+                    AEKeyRendering.drawInGui(
+                            minecraft,
+                            guiGraphics,
+                            QUEUE_X + i * QUEUE_SLOT_SPACING + 1,
+                            top + QUEUE_Y + 1,
+                            stack.what());
+                }
+            }
+            if (draggedKey != null) {
+                AEKeyRendering.drawInGui(minecraft, guiGraphics, mouseX - leftPos - 8, mouseY - topPos - 8, draggedKey);
+            }
+            return;
+        }
+
         renderSelection(guiGraphics, menu.selectedInput, INPUT_X + 1, top + INPUT_Y + 1);
         renderSelection(guiGraphics, menu.selectedFuel, FUEL_X + 1, top + FUEL_Y + 1);
         renderSelection(guiGraphics, menu.outputPreview, OUTPUT_X + 1, top + OUTPUT_Y + 1);
@@ -110,6 +182,22 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (event.button() == 0) {
+            if (queueView) {
+                int top = panelTop();
+                for (int i = 0; i < 9; i++) {
+                    if (menu.getQueuePreview(i) != null
+                            && isHovering(
+                                    QUEUE_X + i * QUEUE_SLOT_SPACING,
+                                    top + QUEUE_Y,
+                                    18,
+                                    18,
+                                    event.x(),
+                                    event.y())) {
+                        menu.requestRemoveQueuedInput(i);
+                        return true;
+                    }
+                }
+            }
             Slot hovered = getHoveredSlot();
             if (hovered instanceof RepoSlot repoSlot && repoSlot.getEntry() != null
                     && repoSlot.getEntry().getWhat() instanceof appeng.api.stacks.AEItemKey itemKey) {
@@ -127,10 +215,15 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     public boolean mouseReleased(MouseButtonEvent event) {
         if (event.button() == 0 && draggedSerial != -1) {
             int top = panelTop();
-            if (isHovering(FUEL_X, top + FUEL_Y, 18, 18, event.x(), event.y())) {
+            if (queueView
+                    && (isHovering(QUEUE_X, top + QUEUE_Y, 154, 18, event.x(), event.y())
+                            || Math.hypot(event.x() - dragStartX, event.y() - dragStartY) < 4.0)) {
+                menu.handleInteraction(draggedSerial, InventoryAction.PICKUP_OR_SET_DOWN);
+            } else if (!queueView && isHovering(FUEL_X, top + FUEL_Y, 18, 18, event.x(), event.y())) {
                 menu.handleInteraction(draggedSerial, InventoryAction.SPLIT_OR_PLACE_SINGLE);
-            } else if (isHovering(INPUT_X, top + INPUT_Y, 18, 18, event.x(), event.y())
-                    || Math.hypot(event.x() - dragStartX, event.y() - dragStartY) < 4.0) {
+            } else if (!queueView
+                    && (isHovering(INPUT_X, top + INPUT_Y, 18, 18, event.x(), event.y())
+                            || Math.hypot(event.x() - dragStartX, event.y() - dragStartY) < 4.0)) {
                 // Dropping on the input slot, or a normal left-click, selects the input.
                 menu.handleInteraction(draggedSerial, InventoryAction.PICKUP_OR_SET_DOWN);
             }
@@ -144,6 +237,21 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     @Override
     protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         int top = panelTop();
+        if (queueView) {
+            for (int i = 0; i < 9; i++) {
+                var stack = menu.getQueuePreview(i);
+                if (stack != null
+                        && isHovering(QUEUE_X + i * QUEUE_SLOT_SPACING, top + QUEUE_Y, 18, 18, x, y)) {
+                    var tooltip = new java.util.ArrayList<Component>();
+                    tooltip.addAll(AEKeyRendering.getTooltip(stack.what()));
+                    tooltip.add(Component.translatable("gui.appliedsmelting.remove_from_queue"));
+                    guiGraphics.setComponentTooltipForNextFrame(font, tooltip, x, y);
+                    return;
+                }
+            }
+            super.extractTooltip(guiGraphics, x, y);
+            return;
+        }
         if (showSelectionTooltip(guiGraphics, x, y, INPUT_X, top + INPUT_Y, menu.selectedInput,
                 "gui.appliedsmelting.selected_input")) {
             return;
@@ -217,6 +325,54 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
                     top + FLAME_Y + 14 - litHeight,
                     14,
                     litHeight);
+        }
+    }
+
+    private static void drawQueueSlot(GuiGraphicsExtractor graphics, int x, int y, boolean available) {
+        graphics.fill(x, y, x + 18, y + 18, 0xff686c81);
+        graphics.fill(x + 1, y + 1, x + 18, y + 18, 0xffd4d8ea);
+        graphics.fill(x + 2, y + 2, x + 17, y + 17, available ? 0xffaeb2c8 : 0xff7d8195);
+    }
+
+    private void setQueueView(boolean queueView) {
+        this.queueView = queueView;
+        if (queueView) {
+            repo.setPartitionList(new IPartitionList() {
+                @Override
+                public boolean isListed(AEKey key) {
+                    return key instanceof appeng.api.stacks.AEItemKey itemKey
+                            && minecraft.level != null
+                            && minecraft.level.recipeAccess()
+                                    .propertySet(net.minecraft.world.item.crafting.RecipePropertySet.FURNACE_INPUT)
+                                    .test(itemKey.toStack());
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    return false;
+                }
+
+                @Override
+                public Iterable<AEKey> getItems() {
+                    return java.util.List.of();
+                }
+            });
+        } else {
+            repo.setPartitionList(IPartitionList.builder().build());
+        }
+        repo.updateView();
+        updateQueueViewWidgets();
+    }
+
+    private void updateQueueViewWidgets() {
+        if (settingsButton != null) {
+            settingsButton.visible = !queueView;
+        }
+        if (queueButton != null) {
+            queueButton.visible = !queueView;
+        }
+        if (queueBackButton != null) {
+            queueBackButton.visible = queueView;
         }
     }
 

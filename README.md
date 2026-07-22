@@ -6,9 +6,17 @@ Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds
 
 ## Beta scope
 
-Version `0.1.2` is an early beta. Smelters process selected furnace inputs from their AE2 network, consume selected fuel and AE power, and return completed outputs directly to storage. The terminal supports input and fuel selection, priority-style target stock controls, stored-output reporting, network-wide power controls, active-machine status, and live aggregate progress. ME Smelters accept up to four acceleration cards for speeds up to 16x.
+Version `0.2.0` is an early beta. Connected ME Smelters coordinate work through a capacity-controlled recipe queue, reserve pending outputs against storage targets, and distribute queued recipes across the network. Individual machines can be pinned to a recipe by right-clicking them with a smeltable item, or left on the shared queue.
 
-Recipe-browser integration, expanded upgrades, and advanced parallel job controls are planned for later beta releases.
+Each smelter can use conventional furnace items or AE power as its heat source. The machine and terminal interfaces report idle AE use, maximum AE-fuel use, active and connected machines, combined processing speed, and queue capacity. Eight mixed upgrade slots support Acceleration, Energy, Capacity, Redstone, and Fuel Efficiency Cards.
+
+- Acceleration Cards double speed per card, up to 16x.
+- Energy Cards reduce idle and AE-fuel consumption.
+- Fuel Efficiency Cards extend the operations supplied by each furnace fuel item.
+- Capacity Cards add recipes to the shared network queue, up to nine recipes.
+- Redstone Cards make the installed smelter operate only while receiving a high signal.
+
+Recipe-browser integration and more advanced per-job controls are planned for later beta releases.
 
 ## Requirements
 

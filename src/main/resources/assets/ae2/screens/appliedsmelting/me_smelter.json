@@ -1,11 +1,9 @@
 {
   "$schema": "../schema.json",
-  "includes": ["../me_chest.json"],
-  "slots": {
-    "STORAGE_CELL": {
-      "left": -100,
-      "top": -100
-    }
+  "includes": ["../common/common.json", "../common/player_inventory.json"],
+  "generatedBackground": {
+    "width": 176,
+    "height": 230
   },
   "text": {
     "dialog_title": {
@@ -14,22 +12,88 @@
       },
       "position": {
         "left": 8,
-        "top": 6
+        "top": 7
+      }
+    },
+    "power_mode_label": {
+      "text": {
+        "translate": "gui.appliedsmelting.power_mode"
+      },
+      "position": {
+        "left": 12,
+        "top": 28
+      }
+    },
+    "power_mode": {
+      "text": "",
+      "position": {
+        "left": 53,
+        "top": 28
+      }
+    },
+    "recipe": {
+      "text": "",
+      "position": {
+        "left": 12,
+        "top": 46
+      }
+    },
+    "recipe_hint": {
+      "text": {
+        "translate": "gui.appliedsmelting.recipe_pin_hint"
+      },
+      "position": {
+        "left": 12,
+        "top": 58
+      },
+      "scale": 0.62
+    },
+    "speed": {
+      "text": "",
+      "position": {
+        "left": 12,
+        "top": 73
       }
     },
     "cards": {
       "text": "",
       "position": {
         "left": 12,
-        "top": 31
-      }
+        "top": 86
+      },
+      "scale": 0.7
     },
-    "speed": {
+    "power_usage": {
       "text": "",
       "position": {
         "left": 12,
-        "top": 45
-      }
+        "top": 99
+      },
+      "scale": 0.72
+    },
+    "fuel_efficiency": {
+      "text": "",
+      "position": {
+        "left": 12,
+        "top": 111
+      },
+      "scale": 0.75
+    },
+    "redstone": {
+      "text": "",
+      "position": {
+        "left": 12,
+        "top": 121
+      },
+      "scale": 0.75
+    }
+  },
+  "widgets": {
+    "powerMode": {
+      "left": 145,
+      "top": 24,
+      "width": 16,
+      "height": 16
     }
   }
 }

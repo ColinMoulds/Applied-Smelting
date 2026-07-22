@@ -1,5 +1,7 @@
 package dev.excal1bur.appliedsmelting.menu;
 
+import java.util.List;
+
 import org.jetbrains.annotations.Nullable;
 
 import appeng.api.stacks.AEItemKey;
@@ -12,6 +14,8 @@ public interface SmeltingTerminalHost extends ITerminalHost {
     SmeltingService getSmeltingService();
 
     void setSelections(@Nullable AEItemKey input, @Nullable AEItemKey fuel);
+
+    void setQueuedInputs(List<AEItemKey> inputs);
 
     void setTargetAmount(long targetAmount);
 }

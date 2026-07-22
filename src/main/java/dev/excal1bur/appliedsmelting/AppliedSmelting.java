@@ -50,6 +50,32 @@ public final class AppliedSmelting {
     }
 
     private static void registerUpgrades(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> Upgrades.add(AEItems.SPEED_CARD, ModBlocks.ME_SMELTER_ITEM.get(), 4));
+        event.enqueueWork(() -> {
+            Upgrades.add(
+                    AEItems.SPEED_CARD,
+                    ModBlocks.ME_SMELTER_ITEM.get(),
+                    4,
+                    "upgrade.appliedsmelting.acceleration");
+            Upgrades.add(
+                    AEItems.ENERGY_CARD,
+                    ModBlocks.ME_SMELTER_ITEM.get(),
+                    4,
+                    "upgrade.appliedsmelting.energy");
+            Upgrades.add(
+                    AEItems.CAPACITY_CARD,
+                    ModBlocks.ME_SMELTER_ITEM.get(),
+                    4,
+                    "upgrade.appliedsmelting.capacity");
+            Upgrades.add(
+                    AEItems.REDSTONE_CARD,
+                    ModBlocks.ME_SMELTER_ITEM.get(),
+                    1,
+                    "upgrade.appliedsmelting.redstone");
+            Upgrades.add(
+                    ModItems.FUEL_EFFICIENCY_CARD,
+                    ModBlocks.ME_SMELTER_ITEM.get(),
+                    4,
+                    "upgrade.appliedsmelting.fuel_efficiency");
+        });
     }
 }

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "ae2:basic_card",
+    "minecraft:blaze_powder",
+    "minecraft:coal"
+  ],
+  "result": {
+    "id": "appliedsmelting:fuel_efficiency_card"
+  }
+}

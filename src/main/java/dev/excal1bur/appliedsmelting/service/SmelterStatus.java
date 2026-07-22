@@ -11,7 +11,8 @@ public enum SmelterStatus {
     OUTPUT_FULL(7, "gui.appliedsmelting.status.output_full"),
     TARGET_REACHED(8, "gui.appliedsmelting.status.target_reached"),
     INVALID_RECIPE(9, "gui.appliedsmelting.status.invalid_recipe"),
-    SMELTING(10, "gui.appliedsmelting.status.smelting");
+    SMELTING(10, "gui.appliedsmelting.status.smelting"),
+    REDSTONE_PAUSED(11, "gui.appliedsmelting.status.redstone_paused");
 
     private final int id;
     private final String translationKey;
