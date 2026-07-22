@@ -57,11 +57,8 @@ public final class MESmelterBlock extends AEBaseEntityBlock<MESmelterBlockEntity
             BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof MESmelterBlockEntity smelter) {
             if (player.isShiftKeyDown()) {
-                // Always return a definitive result here (never fall through to super.useItemOn()) -
-                // that method's default TRY_WITH_EMPTY_HAND result would cascade into our own
-                // useWithoutItem() below, whose shift-branch toggles the smelter's enabled state. That
-                // would silently pause/resume the machine as a side effect of an unrelated failed
-                // interaction (e.g. holding the wrong-tier kit, or any other item, while sneaking).
+                // Must return a definitive result - falling through to super() would cascade into
+                // useWithoutItem()'s toggle-enabled branch via vanilla's TRY_WITH_EMPTY_HAND.
                 return tryApplyUpgradeKit(level, pos, smelter, stack, player);
             } else if (level.recipeAccess().propertySet(RecipePropertySet.FURNACE_INPUT).test(stack)) {
                 if (!level.isClientSide()) {
@@ -95,12 +92,7 @@ public final class MESmelterBlock extends AEBaseEntityBlock<MESmelterBlockEntity
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
-    /**
-     * Applies a tier-upgrade kit if the held item is the correct kit for this block's current tier.
-     * Returns PASS if the held item isn't an upgrade kit at all (so sneaking with an unrelated item
-     * does nothing), or SUCCESS with a rejection message if it's a kit but the wrong tier for this
-     * block.
-     */
+    /** Applies a tier-upgrade kit if it matches this block's current tier; rejects with a message otherwise. */
     private InteractionResult tryApplyUpgradeKit(
             Level level, BlockPos pos, MESmelterBlockEntity smelter, ItemStack stack, Player player) {
         var targetTier = ModItems.tierForUpgradeKit(stack);
