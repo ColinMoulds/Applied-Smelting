@@ -15,26 +15,24 @@ Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds
 
 ## Table of Contents
 
-- [Beta scope](#beta-scope)
+- [Features](#features)
 - [Requirements](#requirements)
 - [Building](#building)
 - [Contributing](#contributing)
 - [Links](#links)
 - [License](#license)
 
-## Beta scope
+## Features
 
-Version `0.2.0` is an early beta. Connected ME Smelters coordinate work through a capacity-controlled recipe queue, reserve pending outputs against storage targets, and distribute queued recipes across the network. Individual machines can be pinned to a recipe by right-clicking them with a smeltable item, or left on the shared queue.
+- **ME Smelter** — a network-connected machine that pulls furnace-recipe inputs from ME storage and returns the results, in four tiers (Default, Mk1, Mk2, Mk3) with increasing speed, efficiency, and queue capacity.
+- **In-place tier upgrades** — upgrade a placed smelter with a craftable kit chain (Template → Mk1 → Mk2 → Mk3). Upgrading keeps everything the machine was doing: pinned recipe, progress, fuel, cards, and its place in the network queue.
+- **ME Smelting Terminal** — network-wide control with a shared recipe queue, live progress, fuel selection from the network or your own inventory, and per-machine status.
+- **Flexible power** — each smelter runs on conventional furnace fuel or AE power, your choice per machine.
+- **Upgrade cards** — Acceleration, Energy, Fuel Efficiency, Capacity, and Redstone cards, using AE2's standard upgrade slot system.
+- **Status glow** — smelters show a live status light, styled after AE2's own machines, so you can see at a glance which are running, idle, blocked, or offline.
+- **Configurable balance** — tier stats (speed, power draw, fuel efficiency, upgrade slots, queue capacity) are adjustable through the mod config.
 
-Each smelter can use conventional furnace items or AE power as its heat source. The machine and terminal interfaces report idle AE use, maximum AE-fuel use, active and connected machines, combined processing speed, and queue capacity. Eight mixed upgrade slots support Acceleration, Energy, Capacity, Redstone, and Fuel Efficiency Cards.
-
-- Acceleration Cards double speed per card, up to 16x.
-- Energy Cards reduce idle and AE-fuel consumption.
-- Fuel Efficiency Cards extend the operations supplied by each furnace fuel item.
-- Capacity Cards add recipes to the shared network queue, up to nine recipes.
-- Redstone Cards make the installed smelter operate only while receiving a high signal.
-
-Recipe-browser integration and more advanced per-job controls are planned for later beta releases.
+See the [wiki](https://github.com/ColinMoulds/Applied-Smelting/wiki) for detailed usage guides.
 
 ## Requirements
 
