@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.3
+
+- Added Mk1, Mk2, and Mk3 tiers for the ME Crucible, upgradeable in place the same way as the other three machines.
+- Every machine in the mod (ME Smelter, ME Blast Furnace, ME Smoker, ME Crucible) now has the full Mk1-3 tier progression.
+
 ## 0.4.2
 
 - Added Mk1, Mk2, and Mk3 tiers for the ME Smoker, upgradeable in place the same way as the ME Smelter and ME Blast Furnace.

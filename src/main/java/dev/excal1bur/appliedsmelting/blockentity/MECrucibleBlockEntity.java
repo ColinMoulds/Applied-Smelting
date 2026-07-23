@@ -12,21 +12,42 @@ import net.minecraft.world.level.material.Fluids;
 
 import appeng.api.stacks.AEFluidKey;
 
-import dev.excal1bur.appliedsmelting.core.AppliedSmeltingConfig;
+import dev.excal1bur.appliedsmelting.block.MECrucibleBlock;
 import dev.excal1bur.appliedsmelting.core.ModRecipes;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.CrucibleService;
+import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 
 /** Ore/raw-metal -> molten-metal-fluid machine. Output goes to ME fluid storage, not item storage. */
 public final class MECrucibleBlockEntity extends AbstractMENetworkFurnaceBlockEntity {
+    private final CrucibleTier tier;
+
     public MECrucibleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state, AppliedSmeltingConfig.CRUCIBLE_DEFAULT.upgradeSlots().get());
+        super(type, pos, state, tierOf(state).upgradeSlots());
+        tier = tierOf(state);
         updateIdlePowerUsage();
+    }
+
+    private static CrucibleTier tierOf(BlockState state) {
+        return state.getBlock() instanceof MECrucibleBlock block ? block.getTier() : CrucibleTier.DEFAULT;
+    }
+
+    public CrucibleTier getTier() {
+        return tier;
     }
 
     @Override
     protected Class<? extends AbstractFurnaceNetworkService> serviceClass() {
         return CrucibleService.class;
+    }
+
+    @Override
+    public float getGlowIntensity() {
+        return switch (tier) {
+            case DEFAULT, MK1 -> 1.0F;
+            case MK2 -> 1.15F;
+            case MK3 -> 1.35F;
+        };
     }
 
     @Override
@@ -46,41 +67,41 @@ public final class MECrucibleBlockEntity extends AbstractMENetworkFurnaceBlockEn
 
     @Override
     protected double baseSpeedMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.baseSpeedMultiplier().get();
+        return tier.baseSpeedMultiplier();
     }
 
     @Override
     protected double accelerationCap() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.accelerationCap().get();
+        return tier.accelerationCap();
     }
 
     @Override
     protected double idleDrawMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.idleDrawMultiplier().get();
+        return tier.idleDrawMultiplier();
     }
 
     @Override
     protected double aeFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.aeFuelDrawMultiplier().get();
+        return tier.aeFuelDrawMultiplier();
     }
 
     @Override
     protected double lavaFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.lavaFuelDrawMultiplier().get();
+        return tier.lavaFuelDrawMultiplier();
     }
 
     @Override
     protected double fuelEfficiencyMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.fuelEfficiencyMultiplier().get();
+        return tier.fuelEfficiencyMultiplier();
     }
 
     @Override
     public int baseQueueCapacity() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.baseQueueCapacity().get();
+        return tier.baseQueueCapacity();
     }
 
     @Override
     public int capacityCardCap() {
-        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.capacityCardCap().get();
+        return tier.capacityCardCap();
     }
 }

@@ -20,6 +20,7 @@ import dev.excal1bur.appliedsmelting.block.MESmokerBlock;
 import dev.excal1bur.appliedsmelting.block.SmeltingTerminalBlock;
 import dev.excal1bur.appliedsmelting.part.SmeltingTerminalPart;
 import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
+import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 import dev.excal1bur.appliedsmelting.service.SmokerTier;
 
@@ -110,9 +111,35 @@ public final class ModBlocks {
             properties -> new AEBaseBlockItem(ME_SMOKER_MK3.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE = REGISTER.registerBlock(
-            "me_crucible", MECrucibleBlock::new, ModBlocks::machineProperties);
+            "me_crucible",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.DEFAULT),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_CRUCIBLE_ITEM = ModItems.REGISTER.registerItem(
             "me_crucible", properties -> new AEBaseBlockItem(ME_CRUCIBLE.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE_MK1 = REGISTER.registerBlock(
+            "me_crucible_mk1",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.MK1),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_CRUCIBLE_MK1_ITEM = ModItems.REGISTER.registerItem(
+            "me_crucible_mk1",
+            properties -> new AEBaseBlockItem(ME_CRUCIBLE_MK1.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE_MK2 = REGISTER.registerBlock(
+            "me_crucible_mk2",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.MK2),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_CRUCIBLE_MK2_ITEM = ModItems.REGISTER.registerItem(
+            "me_crucible_mk2",
+            properties -> new AEBaseBlockItem(ME_CRUCIBLE_MK2.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE_MK3 = REGISTER.registerBlock(
+            "me_crucible_mk3",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.MK3),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_CRUCIBLE_MK3_ITEM = ModItems.REGISTER.registerItem(
+            "me_crucible_mk3",
+            properties -> new AEBaseBlockItem(ME_CRUCIBLE_MK3.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<SmeltingTerminalBlock> SMELTING_TERMINAL = REGISTER.registerBlock(
             "me_smelting_terminal", SmeltingTerminalBlock::new, ModBlocks::machineProperties);
@@ -147,6 +174,15 @@ public final class ModBlocks {
             case MK1 -> ME_SMOKER_MK1;
             case MK2 -> ME_SMOKER_MK2;
             case MK3 -> ME_SMOKER_MK3;
+        };
+    }
+
+    public static DeferredBlock<MECrucibleBlock> blockForCrucibleTier(CrucibleTier tier) {
+        return switch (tier) {
+            case DEFAULT -> ME_CRUCIBLE;
+            case MK1 -> ME_CRUCIBLE_MK1;
+            case MK2 -> ME_CRUCIBLE_MK2;
+            case MK3 -> ME_CRUCIBLE_MK3;
         };
     }
 
