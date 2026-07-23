@@ -1,32 +1,23 @@
 package dev.excal1bur.appliedsmelting.client.screen;
 
-import java.util.List;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import appeng.client.gui.implementations.UpgradeableScreen;
 import appeng.client.gui.style.ScreenStyle;
-import appeng.client.gui.widgets.ToggleButton;
 import appeng.client.api.AEKeyRendering;
-import appeng.util.Icon;
 
+import dev.excal1bur.appliedsmelting.client.widget.PowerModeButton;
 import dev.excal1bur.appliedsmelting.menu.MESmelterMenu;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
-import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 
 public final class MESmelterScreen extends UpgradeableScreen<MESmelterMenu> {
-    private final ToggleButton powerModeButton;
+    private final PowerModeButton powerModeButton;
 
     public MESmelterScreen(MESmelterMenu menu, Inventory playerInventory, Component title, ScreenStyle style) {
         super(menu, playerInventory, title, style);
-        powerModeButton = new ToggleButton(
-                Icon.POWER_UNIT_AE,
-                Icon.BACKGROUND_FUEL,
-                aeMode -> menu.requestPowerMode(aeMode ? SmeltingPowerMode.AE_POWER : SmeltingPowerMode.ITEM_FUEL));
-        powerModeButton.setTooltipOn(List.of(Component.translatable("gui.appliedsmelting.use_item_fuel")));
-        powerModeButton.setTooltipOff(List.of(Component.translatable("gui.appliedsmelting.use_ae_fuel")));
+        powerModeButton = new PowerModeButton(menu::requestPowerMode);
         widgets.add("powerMode", powerModeButton);
     }
 
@@ -48,9 +39,11 @@ public final class MESmelterScreen extends UpgradeableScreen<MESmelterMenu> {
                 Component.translatable("gui.appliedsmelting.smelting_speed", menu.getSpeedMultiplier()));
         setTextContent(
                 "power_mode",
-                Component.translatable(menu.getPowerMode() == SmeltingPowerMode.AE_POWER
-                        ? "gui.appliedsmelting.mode_ae_power"
-                        : "gui.appliedsmelting.mode_item_fuel"));
+                Component.translatable(switch (menu.getPowerMode()) {
+                    case AE_POWER -> "gui.appliedsmelting.mode_ae_power";
+                    case LAVA_FUEL -> "gui.appliedsmelting.mode_lava_fuel";
+                    case ITEM_FUEL -> "gui.appliedsmelting.mode_item_fuel";
+                }));
         setTextContent(
                 "recipe",
                 Component.translatable(menu.pinnedInput == null
@@ -61,7 +54,8 @@ public final class MESmelterScreen extends UpgradeableScreen<MESmelterMenu> {
                 Component.translatable(
                         "gui.appliedsmelting.power_usage",
                         menu.idleAeTimes100 / 100.0,
-                        menu.aeFuelTimes100 / 100.0));
+                        menu.aeFuelTimes100 / 100.0,
+                        menu.lavaFuelTimes100 / 100.0));
         setTextContent(
                 "fuel_efficiency",
                 Component.translatable("gui.appliedsmelting.fuel_efficiency", menu.fuelEfficiencyPercent));
@@ -70,7 +64,7 @@ public final class MESmelterScreen extends UpgradeableScreen<MESmelterMenu> {
                 Component.translatable(menu.redstoneCard
                         ? "gui.appliedsmelting.redstone_signal_required"
                         : "gui.appliedsmelting.redstone_ignored"));
-        powerModeButton.setState(menu.getPowerMode() == SmeltingPowerMode.AE_POWER);
+        powerModeButton.setMode(menu.getPowerMode());
     }
 
     @Override

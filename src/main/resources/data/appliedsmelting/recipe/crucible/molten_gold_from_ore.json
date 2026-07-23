@@ -1,0 +1,7 @@
+{
+  "type": "appliedsmelting:crucible_melting",
+  "ingredient": "#c:ores/gold",
+  "metal": "gold",
+  "amount": 144,
+  "cookingtime": 200
+}

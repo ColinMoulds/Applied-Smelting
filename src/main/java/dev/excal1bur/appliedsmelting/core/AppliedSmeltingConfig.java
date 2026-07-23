@@ -9,13 +9,22 @@ public final class AppliedSmeltingConfig {
     public static final TierValues MK1;
     public static final TierValues MK2;
     public static final TierValues MK3;
+    public static final TierValues BLAST_FURNACE;
+    public static final TierValues SMOKER;
+
+    public static final TierValues CRUCIBLE;
 
     static {
         var builder = new ModConfigSpec.Builder();
-        DEFAULT = TierValues.define(builder, "default", 1.0, 8, 16.0, 1.0, 1.0, 1.0, 1, 9);
-        MK1 = TierValues.define(builder, "mk1", 1.0, 8, 16.0, 1.0, 1.0, 1.0, 2, 9);
-        MK2 = TierValues.define(builder, "mk2", 1.5, 8, 24.0, 0.85, 1.25, 1.25, 3, 14);
-        MK3 = TierValues.define(builder, "mk3", 2.25, 8, 32.0, 0.7, 1.5, 1.5, 5, 20);
+        DEFAULT = TierValues.define(builder, "default", 1.0, 8, 16.0, 1.0, 1.0, 1.0, 1.0, 1, 9);
+        MK1 = TierValues.define(builder, "mk1", 1.0, 8, 16.0, 1.0, 1.0, 1.0, 1.0, 2, 9);
+        MK2 = TierValues.define(builder, "mk2", 1.5, 8, 24.0, 0.85, 1.25, 1.25, 1.25, 3, 14);
+        MK3 = TierValues.define(builder, "mk3", 2.25, 8, 32.0, 0.7, 1.5, 1.5, 1.5, 5, 20);
+        // Blast Furnace/Smoker match the Default Smelter tier's multipliers - their inherent 2x speed
+        // comes from vanilla's own recipe cooking time (100 ticks vs 200), not from baseSpeedMultiplier.
+        BLAST_FURNACE = TierValues.define(builder, "blast_furnace", 1.0, 8, 16.0, 1.0, 1.0, 1.0, 1.0, 1, 9);
+        SMOKER = TierValues.define(builder, "smoker", 1.0, 8, 16.0, 1.0, 1.0, 1.0, 1.0, 1, 9);
+        CRUCIBLE = TierValues.define(builder, "crucible", 1.0, 8, 16.0, 1.0, 1.0, 1.0, 1.0, 1, 9);
         SPEC = builder.build();
     }
 
@@ -28,6 +37,7 @@ public final class AppliedSmeltingConfig {
             ModConfigSpec.DoubleValue accelerationCap,
             ModConfigSpec.DoubleValue idleDrawMultiplier,
             ModConfigSpec.DoubleValue aeFuelDrawMultiplier,
+            ModConfigSpec.DoubleValue lavaFuelDrawMultiplier,
             ModConfigSpec.DoubleValue fuelEfficiencyMultiplier,
             ModConfigSpec.IntValue baseQueueCapacity,
             ModConfigSpec.IntValue capacityCardCap) {
@@ -40,6 +50,7 @@ public final class AppliedSmeltingConfig {
                 double accelerationCap,
                 double idleDrawMultiplier,
                 double aeFuelDrawMultiplier,
+                double lavaFuelDrawMultiplier,
                 double fuelEfficiencyMultiplier,
                 int baseQueueCapacity,
                 int capacityCardCap) {
@@ -55,6 +66,8 @@ public final class AppliedSmeltingConfig {
                             .defineInRange("idleDrawMultiplier", idleDrawMultiplier, 0.1, 2.0),
                     builder.comment("Maximum AE-fuel draw rate multiplier before Energy Cards (1.0 = no change)")
                             .defineInRange("aeFuelDrawMultiplier", aeFuelDrawMultiplier, 0.1, 4.0),
+                    builder.comment("Network-drawn lava draw rate multiplier (mB per work tick, before Fuel Efficiency Cards)")
+                            .defineInRange("lavaFuelDrawMultiplier", lavaFuelDrawMultiplier, 0.1, 4.0),
                     builder.comment("Base fuel efficiency multiplier before Fuel Efficiency Cards")
                             .defineInRange("fuelEfficiencyMultiplier", fuelEfficiencyMultiplier, 0.1, 4.0),
                     builder.comment("Base network queue capacity contributed while a smelter of this tier is connected")

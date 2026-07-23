@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0
+
+- Added the ME Blast Furnace, a Blast Furnace-recipe machine with its own independent network queue — twice as fast as the ME Smelter for ore-style recipes.
+- Added the ME Smoker, a Smoker-recipe machine with its own independent network queue, for fast food cooking.
+- The ME Smelting Terminal now has separate tabs for Smelting, Blasting, and Smoking, so you can manage all three machines' queues from one terminal.
+- Sky Dust and Sky Stone Block can now be processed in the ME Blast Furnace, not just a regular furnace.
+- Added a third power option: machines can now draw lava straight from your ME network's fluid storage, alongside furnace fuel and AE power.
+- Added the ME Crucible, a new machine that melts ore and raw metal into molten metal and stores it directly in your ME network's fluid storage. Uses Productive Metalworks's fluids if that mod is installed, or its own molten iron/copper/gold otherwise.
+- Fixed the status light on all machines showing on the wrong face when placed facing east or west.
+- Fixed machines showing "waiting for a recipe" instead of "missing fuel" when they had something queued but no power or fuel available.
+
 ## 0.3.0
 
 - Added three higher tiers of ME Smelter — Mk1, Mk2, and Mk3 — sitting alongside the original as separate blocks with higher base speed, more upgrade slots, lower power draw, better fuel efficiency, and more network queue capacity the further you go.
