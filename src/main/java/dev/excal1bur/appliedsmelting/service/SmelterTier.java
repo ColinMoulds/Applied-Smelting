@@ -37,6 +37,10 @@ public enum SmelterTier {
         return values.aeFuelDrawMultiplier().get();
     }
 
+    public double lavaFuelDrawMultiplier() {
+        return values.lavaFuelDrawMultiplier().get();
+    }
+
     public double fuelEfficiencyMultiplier() {
         return values.fuelEfficiencyMultiplier().get();
     }

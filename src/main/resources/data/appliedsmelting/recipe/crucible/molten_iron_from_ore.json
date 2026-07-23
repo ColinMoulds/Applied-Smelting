@@ -1,0 +1,7 @@
+{
+  "type": "appliedsmelting:crucible_melting",
+  "ingredient": "#c:ores/iron",
+  "metal": "iron",
+  "amount": 144,
+  "cookingtime": 200
+}

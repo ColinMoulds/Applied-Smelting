@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "appliedsmelting:block/me_smoker_bottom",
+    "east": "appliedsmelting:block/me_smoker_side",
+    "north": "appliedsmelting:block/me_smoker_front",
+    "particle": "appliedsmelting:block/me_smoker_side",
+    "south": "appliedsmelting:block/me_smoker_side",
+    "up": "appliedsmelting:block/me_smoker_top",
+    "west": "appliedsmelting:block/me_smoker_side"
+  }
+}

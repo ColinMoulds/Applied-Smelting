@@ -2,7 +2,8 @@ package dev.excal1bur.appliedsmelting.service;
 
 public enum SmeltingPowerMode {
     ITEM_FUEL("item_fuel"),
-    AE_POWER("ae_power");
+    AE_POWER("ae_power"),
+    LAVA_FUEL("lava_fuel");
 
     private final String serializedName;
 
@@ -15,7 +16,8 @@ public enum SmeltingPowerMode {
     }
 
     public SmeltingPowerMode next() {
-        return this == ITEM_FUEL ? AE_POWER : ITEM_FUEL;
+        var values = values();
+        return values[(ordinal() + 1) % values.length];
     }
 
     public static SmeltingPowerMode fromSerializedName(String name) {

@@ -1,8 +1,8 @@
 package dev.excal1bur.appliedsmelting.part;
 
-import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -13,21 +13,22 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import appeng.api.parts.IPartItem;
 import appeng.api.stacks.AEItemKey;
-import appeng.api.stacks.GenericStack;
 import appeng.parts.reporting.AbstractTerminalPart;
 
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
-import dev.excal1bur.appliedsmelting.service.SmeltingService;
+import dev.excal1bur.appliedsmelting.menu.TerminalQueueState;
+import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
+import dev.excal1bur.appliedsmelting.service.FurnaceType;
 
 public final class SmeltingTerminalPart extends AbstractTerminalPart implements SmeltingTerminalHost {
-    private AEItemKey selectedInput;
-    private AEItemKey selectedFuel;
-    private final List<AEItemKey> queuedInputs = new ArrayList<>();
-    private long targetAmount;
+    private final Map<FurnaceType, TerminalQueueState> states = new EnumMap<>(FurnaceType.class);
 
     public SmeltingTerminalPart(IPartItem<?> partItem) {
         super(partItem);
+        for (var type : FurnaceType.values()) {
+            states.put(type, new TerminalQueueState());
+        }
     }
 
     @Override
@@ -37,85 +38,47 @@ public final class SmeltingTerminalPart extends AbstractTerminalPart implements 
 
     @Nullable
     @Override
-    public SmeltingService getSmeltingService() {
+    public AbstractFurnaceNetworkService getService(FurnaceType type) {
         var grid = getMainNode().getGrid();
         if (grid == null) {
             return null;
         }
-        var service = grid.getService(SmeltingService.class);
-        service.adoptSelections(selectedInput, selectedFuel);
-        service.adoptQueuedInputs(queuedInputs);
-        service.adoptTargetAmount(targetAmount);
+        var service = grid.getService(type.serviceClass());
+        states.get(type).adoptInto(service);
         return service;
     }
 
     @Override
-    public void setSelections(@Nullable AEItemKey input, @Nullable AEItemKey fuel) {
-        if (!Objects.equals(selectedInput, input)) {
-            queuedInputs.clear();
-            if (input != null) {
-                queuedInputs.add(input);
-            }
-        }
-        selectedInput = input;
-        selectedFuel = fuel;
+    public void setSelections(FurnaceType type, @Nullable AEItemKey input, @Nullable AEItemKey fuel) {
+        states.get(type).setSelections(input, fuel);
         saveChanges();
     }
 
     @Override
-    public void setQueuedInputs(List<AEItemKey> inputs) {
-        queuedInputs.clear();
-        queuedInputs.addAll(inputs);
-        selectedInput = queuedInputs.isEmpty() ? null : queuedInputs.getFirst();
+    public void setQueuedInputs(FurnaceType type, List<AEItemKey> inputs) {
+        states.get(type).setQueuedInputs(inputs);
         saveChanges();
     }
 
     @Override
-    public void setTargetAmount(long targetAmount) {
-        this.targetAmount = Math.max(0, targetAmount);
+    public void setTargetAmount(FurnaceType type, long targetAmount) {
+        states.get(type).setTargetAmount(targetAmount);
         saveChanges();
     }
 
     @Override
     public void readFromNBT(ValueInput input) {
         super.readFromNBT(input);
-        selectedInput = readItemKey(input.childOrEmpty("selectedInput"));
-        selectedFuel = readItemKey(input.childOrEmpty("selectedFuel"));
-        queuedInputs.clear();
-        var queuedInputCount = input.getIntOr("queuedInputCount", -1);
-        if (queuedInputCount >= 0) {
-            for (int i = 0; i < queuedInputCount; i++) {
-                var queuedInput = readItemKey(input.childOrEmpty("queuedInput" + i));
-                if (queuedInput != null && !queuedInputs.contains(queuedInput)) {
-                    queuedInputs.add(queuedInput);
-                }
-            }
-        } else if (selectedInput != null) {
-            queuedInputs.add(selectedInput);
+        for (var type : FurnaceType.values()) {
+            states.get(type).readFromNBT(input, type.serializedName());
         }
-        targetAmount = input.getLongOr("targetAmount", 0);
     }
 
     @Override
     public void writeToNBT(ValueOutput output) {
         super.writeToNBT(output);
-        writeItemKey(output.child("selectedInput"), selectedInput);
-        writeItemKey(output.child("selectedFuel"), selectedFuel);
-        output.putInt("queuedInputCount", queuedInputs.size());
-        for (int i = 0; i < queuedInputs.size(); i++) {
-            writeItemKey(output.child("queuedInput" + i), queuedInputs.get(i));
-        }
-        output.putLong("targetAmount", targetAmount);
-    }
-
-    private static AEItemKey readItemKey(ValueInput input) {
-        var stack = GenericStack.readTag(input);
-        return stack != null && stack.what() instanceof AEItemKey itemKey ? itemKey : null;
-    }
-
-    private static void writeItemKey(ValueOutput output, @Nullable AEItemKey key) {
-        if (key != null) {
-            GenericStack.writeTag(output, new GenericStack(key, 1));
+        for (var type : FurnaceType.values()) {
+            states.get(type).writeToNBT(output, type.serializedName());
         }
     }
 }
