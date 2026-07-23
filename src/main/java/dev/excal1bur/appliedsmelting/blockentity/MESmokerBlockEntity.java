@@ -12,7 +12,7 @@ import dev.excal1bur.appliedsmelting.service.SmokingService;
 
 public final class MESmokerBlockEntity extends AbstractCookingFurnaceBlockEntity {
     public MESmokerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state, AppliedSmeltingConfig.SMOKER.upgradeSlots().get());
+        super(type, pos, state, AppliedSmeltingConfig.SMOKER_DEFAULT.upgradeSlots().get());
         updateIdlePowerUsage();
     }
 
@@ -28,41 +28,41 @@ public final class MESmokerBlockEntity extends AbstractCookingFurnaceBlockEntity
 
     @Override
     protected double baseSpeedMultiplier() {
-        return AppliedSmeltingConfig.SMOKER.baseSpeedMultiplier().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.baseSpeedMultiplier().get();
     }
 
     @Override
     protected double accelerationCap() {
-        return AppliedSmeltingConfig.SMOKER.accelerationCap().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.accelerationCap().get();
     }
 
     @Override
     protected double idleDrawMultiplier() {
-        return AppliedSmeltingConfig.SMOKER.idleDrawMultiplier().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.idleDrawMultiplier().get();
     }
 
     @Override
     protected double aeFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.SMOKER.aeFuelDrawMultiplier().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.aeFuelDrawMultiplier().get();
     }
 
     @Override
     protected double lavaFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.SMOKER.lavaFuelDrawMultiplier().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.lavaFuelDrawMultiplier().get();
     }
 
     @Override
     protected double fuelEfficiencyMultiplier() {
-        return AppliedSmeltingConfig.SMOKER.fuelEfficiencyMultiplier().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.fuelEfficiencyMultiplier().get();
     }
 
     @Override
     public int baseQueueCapacity() {
-        return AppliedSmeltingConfig.SMOKER.baseQueueCapacity().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.baseQueueCapacity().get();
     }
 
     @Override
     public int capacityCardCap() {
-        return AppliedSmeltingConfig.SMOKER.capacityCardCap().get();
+        return AppliedSmeltingConfig.SMOKER_DEFAULT.capacityCardCap().get();
     }
 }

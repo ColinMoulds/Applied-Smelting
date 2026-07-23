@@ -20,7 +20,7 @@ import dev.excal1bur.appliedsmelting.service.CrucibleService;
 /** Ore/raw-metal -> molten-metal-fluid machine. Output goes to ME fluid storage, not item storage. */
 public final class MECrucibleBlockEntity extends AbstractMENetworkFurnaceBlockEntity {
     public MECrucibleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state, AppliedSmeltingConfig.CRUCIBLE.upgradeSlots().get());
+        super(type, pos, state, AppliedSmeltingConfig.CRUCIBLE_DEFAULT.upgradeSlots().get());
         updateIdlePowerUsage();
     }
 
@@ -46,41 +46,41 @@ public final class MECrucibleBlockEntity extends AbstractMENetworkFurnaceBlockEn
 
     @Override
     protected double baseSpeedMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE.baseSpeedMultiplier().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.baseSpeedMultiplier().get();
     }
 
     @Override
     protected double accelerationCap() {
-        return AppliedSmeltingConfig.CRUCIBLE.accelerationCap().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.accelerationCap().get();
     }
 
     @Override
     protected double idleDrawMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE.idleDrawMultiplier().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.idleDrawMultiplier().get();
     }
 
     @Override
     protected double aeFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE.aeFuelDrawMultiplier().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.aeFuelDrawMultiplier().get();
     }
 
     @Override
     protected double lavaFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE.lavaFuelDrawMultiplier().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.lavaFuelDrawMultiplier().get();
     }
 
     @Override
     protected double fuelEfficiencyMultiplier() {
-        return AppliedSmeltingConfig.CRUCIBLE.fuelEfficiencyMultiplier().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.fuelEfficiencyMultiplier().get();
     }
 
     @Override
     public int baseQueueCapacity() {
-        return AppliedSmeltingConfig.CRUCIBLE.baseQueueCapacity().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.baseQueueCapacity().get();
     }
 
     @Override
     public int capacityCardCap() {
-        return AppliedSmeltingConfig.CRUCIBLE.capacityCardCap().get();
+        return AppliedSmeltingConfig.CRUCIBLE_DEFAULT.capacityCardCap().get();
     }
 }

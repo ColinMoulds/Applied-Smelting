@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipePropertySet;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 
 import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
@@ -63,7 +62,7 @@ public final class MESmelterBlock extends AbstractCookingFurnaceBlock<MESmelterB
     /** Applies a tier-upgrade kit if it matches this block's current tier; rejects with a message otherwise. */
     private InteractionResult tryApplyUpgradeKit(
             Level level, BlockPos pos, MESmelterBlockEntity smelter, ItemStack stack, Player player) {
-        var targetTier = ModItems.tierForUpgradeKit(stack);
+        var targetTier = SmelterTier.fromKitLevel(ModItems.upgradeKitLevel(stack));
         if (targetTier == null) {
             return InteractionResult.PASS;
         }
@@ -140,20 +139,5 @@ public final class MESmelterBlock extends AbstractCookingFurnaceBlock<MESmelterB
         stack.shrink(1);
         player.sendOverlayMessage(Component.translatable("message.appliedsmelting.tier_upgraded", targetTier.serializedName()));
         return InteractionResult.SUCCESS;
-    }
-
-    private static BlockState copyProperties(BlockState oldState, BlockState newState) {
-        var result = newState;
-        for (var property : oldState.getProperties()) {
-            if (result.hasProperty(property)) {
-                result = copyProperty(oldState, result, property);
-            }
-        }
-        return result;
-    }
-
-    private static <T extends Comparable<T>> BlockState copyProperty(
-            BlockState oldState, BlockState newState, Property<T> property) {
-        return newState.setValue(property, oldState.getValue(property));
     }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- Added Mk1, Mk2, and Mk3 tiers for the ME Blast Furnace, upgradeable in place the same way as the ME Smelter (craft an ME Machine Upgrade Template, then Mk1/Mk2/Mk3 Upgrade Kits, shift-right-click to apply).
+- The Upgrade Template and Mk1-3 Upgrade Kits are now universal - the same items work on any upgradeable machine, not just the ME Smelter.
+- Rebalanced the ME Smelter and ME Blast Furnace tier progression so Mk1 is a real step up in speed/efficiency instead of matching the base tier's stats.
+
 ## 0.4.0
 
 - Added the ME Blast Furnace, a Blast Furnace-recipe machine with its own independent network queue — twice as fast as the ME Smelter for ore-style recipes.
