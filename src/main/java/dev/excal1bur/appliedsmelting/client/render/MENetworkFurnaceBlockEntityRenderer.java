@@ -16,12 +16,12 @@ import org.jspecify.annotations.Nullable;
 
 import appeng.api.orientation.IOrientationStrategy;
 
-import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
+import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
-import dev.excal1bur.appliedsmelting.service.SmelterTier;
 
-/** Recolors the ME Smelter's front-face status dot to reflect live machine status. */
-public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<MESmelterBlockEntity, SmelterRenderState> {
+/** Recolors an ME network furnace machine's front-face status dot to reflect live machine status. */
+public final class MENetworkFurnaceBlockEntityRenderer
+        implements BlockEntityRenderer<AbstractMENetworkFurnaceBlockEntity, SmelterRenderState> {
     private static final int COLOR_RUNNING = 0xFF3CD94A;
     private static final int COLOR_IDLE = 0xFF3C8CD9;
     private static final int COLOR_BLOCKED = 0xFFD9433C;
@@ -34,7 +34,7 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
     private static final float LED_MAX_Y = 3.0F / 16.0F;
     private static final float LED_Z = -5.0E-4F;
 
-    public MESmelterBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public MENetworkFurnaceBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
@@ -44,13 +44,13 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
 
     @Override
     public void extractRenderState(
-            MESmelterBlockEntity blockEntity,
+            AbstractMENetworkFurnaceBlockEntity blockEntity,
             SmelterRenderState state,
             float partialTicks,
             Vec3 cameraPosition,
             ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
-        state.tier = blockEntity.getTier();
+        state.glowIntensity = blockEntity.getGlowIntensity();
         state.status = blockEntity.getRawStatus();
         var blockState = blockEntity.getBlockState();
         state.facing = IOrientationStrategy.get(blockState).getFacing(blockState);
@@ -59,11 +59,11 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
     @Override
     public void submit(
             SmelterRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        var color = applyIntensity(statusColor(state.status), intensityFor(state.tier));
+        var color = applyIntensity(statusColor(state.status), state.glowIntensity);
 
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(yRotationFor(state.facing)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-yRotationFor(state.facing)));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         submitNodeCollector.submitCustomGeometry(
@@ -88,14 +88,6 @@ public final class MESmelterBlockEntityRenderer implements BlockEntityRenderer<M
             case OFFLINE, NO_SMELTERS -> COLOR_DISCONNECTED;
             case MISSING_INPUT, MISSING_FUEL, MISSING_POWER, OUTPUT_FULL,
                     INVALID_RECIPE, REDSTONE_PAUSED -> COLOR_BLOCKED;
-        };
-    }
-
-    private static float intensityFor(SmelterTier tier) {
-        return switch (tier) {
-            case DEFAULT, MK1 -> 1.0F;
-            case MK2 -> 1.15F;
-            case MK3 -> 1.35F;
         };
     }
 

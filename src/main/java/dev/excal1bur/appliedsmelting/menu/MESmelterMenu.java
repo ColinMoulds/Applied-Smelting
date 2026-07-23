@@ -49,6 +49,9 @@ public final class MESmelterMenu extends UpgradeableMenu<MESmelterBlockEntity> {
     @GuiSync(20)
     public int tierOrdinal;
 
+    @GuiSync(21)
+    public int lavaFuelTimes100;
+
     public MESmelterMenu(int id, Inventory playerInventory, MESmelterBlockEntity smelter) {
         super(ModMenus.ME_SMELTER.get(), id, playerInventory, smelter);
         registerClientAction(
@@ -68,6 +71,7 @@ public final class MESmelterMenu extends UpgradeableMenu<MESmelterBlockEntity> {
             powerMode = getHost().getPowerMode().ordinal();
             idleAeTimes100 = (int) Math.round(getHost().getIdleAePerTick() * 100);
             aeFuelTimes100 = (int) Math.round(getHost().getMaximumAeFuelPerTick() * 100);
+            lavaFuelTimes100 = (int) Math.round(getHost().getMaximumLavaMbPerTick() * 100);
             fuelEfficiencyPercent = getHost().getFuelEfficiencyPercent();
             var pinned = getHost().getPinnedInput();
             pinnedInput = pinned == null ? null : new GenericStack(pinned, 1);

@@ -19,6 +19,7 @@ import appeng.util.Icon;
 import appeng.util.prioritylist.IPartitionList;
 
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
+import dev.excal1bur.appliedsmelting.service.FurnaceType;
 
 /**
  * The queue grid (input -> arrow -> output, per column) is the terminal's default view.
@@ -36,6 +37,9 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     private TabButton settingsButton;
     private TabButton fuelButton;
     private TabButton fuelBackButton;
+    private TabButton smeltingTypeButton;
+    private TabButton blastingTypeButton;
+    private TabButton smokingTypeButton;
     private boolean fuelPickerView;
     private long draggedSerial = -1;
     private appeng.api.stacks.AEItemKey draggedKey;
@@ -77,6 +81,30 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         fuelBackButton.setY(topPos + panelTop() + 4);
         addRenderableWidget(fuelBackButton);
         updateFuelPickerWidgets();
+
+        smeltingTypeButton = new TabButton(
+                new ItemStack(net.minecraft.world.item.Items.LAVA_BUCKET),
+                Component.translatable(FurnaceType.SMELTING.displayNameKey()),
+                button -> menu.requestActiveType(FurnaceType.SMELTING));
+        smeltingTypeButton.setX(leftPos + imageWidth - 24);
+        smeltingTypeButton.setY(topPos + panelTop() + 48);
+        addRenderableWidget(smeltingTypeButton);
+
+        blastingTypeButton = new TabButton(
+                Icon.TAB_PROCESSING,
+                Component.translatable(FurnaceType.BLASTING.displayNameKey()),
+                button -> menu.requestActiveType(FurnaceType.BLASTING));
+        blastingTypeButton.setX(leftPos + imageWidth - 24);
+        blastingTypeButton.setY(topPos + panelTop() + 70);
+        addRenderableWidget(blastingTypeButton);
+
+        smokingTypeButton = new TabButton(
+                Icon.TAB_SMITHING,
+                Component.translatable(FurnaceType.SMOKING.displayNameKey()),
+                button -> menu.requestActiveType(FurnaceType.SMOKING));
+        smokingTypeButton.setX(leftPos + imageWidth - 24);
+        smokingTypeButton.setY(topPos + panelTop() + 92);
+        addRenderableWidget(smokingTypeButton);
     }
 
     @Override
@@ -84,6 +112,10 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         super.updateBeforeRender();
         settingsButton.active = menu.smelterCount > 0;
         fuelButton.active = menu.smelterCount > 0;
+        var activeType = menu.getActiveType();
+        smeltingTypeButton.active = activeType != FurnaceType.SMELTING;
+        blastingTypeButton.active = activeType != FurnaceType.BLASTING;
+        smokingTypeButton.active = activeType != FurnaceType.SMOKING;
     }
 
     @Override
@@ -301,6 +333,15 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         }
         if (fuelBackButton != null) {
             fuelBackButton.visible = fuelPickerView;
+        }
+        if (smeltingTypeButton != null) {
+            smeltingTypeButton.visible = !fuelPickerView;
+        }
+        if (blastingTypeButton != null) {
+            blastingTypeButton.visible = !fuelPickerView;
+        }
+        if (smokingTypeButton != null) {
+            smokingTypeButton.visible = !fuelPickerView;
         }
     }
 

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "appliedsmelting:block/me_blast_furnace_bottom",
+    "east": "appliedsmelting:block/me_blast_furnace_side",
+    "north": "appliedsmelting:block/me_blast_furnace_front",
+    "particle": "appliedsmelting:block/me_blast_furnace_side",
+    "south": "appliedsmelting:block/me_blast_furnace_side",
+    "up": "appliedsmelting:block/me_blast_furnace_top",
+    "west": "appliedsmelting:block/me_blast_furnace_side"
+  }
+}

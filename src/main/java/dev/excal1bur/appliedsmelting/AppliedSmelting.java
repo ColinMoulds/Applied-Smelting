@@ -18,9 +18,14 @@ import dev.excal1bur.appliedsmelting.core.AppliedSmeltingConfig;
 import dev.excal1bur.appliedsmelting.core.ModBlockEntities;
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
 import dev.excal1bur.appliedsmelting.core.ModCreativeTab;
+import dev.excal1bur.appliedsmelting.core.ModFluids;
 import dev.excal1bur.appliedsmelting.core.ModItems;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.core.ModRecipes;
+import dev.excal1bur.appliedsmelting.service.BlastingService;
+import dev.excal1bur.appliedsmelting.service.CrucibleService;
 import dev.excal1bur.appliedsmelting.service.SmeltingService;
+import dev.excal1bur.appliedsmelting.service.SmokingService;
 
 @Mod(AppliedSmelting.MOD_ID)
 public final class AppliedSmelting {
@@ -31,11 +36,18 @@ public final class AppliedSmelting {
         ModItems.REGISTER.register(modBus);
         ModBlockEntities.REGISTER.register(modBus);
         ModMenus.REGISTER.register(modBus);
+        ModRecipes.REGISTER.register(modBus);
+        ModRecipes.TYPES.register(modBus);
+        ModFluids.FLUID_TYPES.register(modBus);
+        ModFluids.FLUIDS.register(modBus);
         ModCreativeTab.REGISTER.register(modBus);
         modBus.addListener(AppliedSmelting::registerCapabilities);
         modBus.addListener(AppliedSmelting::registerUpgrades);
 
         GridServices.register(SmeltingService.class, SmeltingService.class);
+        GridServices.register(BlastingService.class, BlastingService.class);
+        GridServices.register(SmokingService.class, SmokingService.class);
+        GridServices.register(CrucibleService.class, CrucibleService.class);
         container.registerConfig(ModConfig.Type.COMMON, AppliedSmeltingConfig.SPEC);
     }
 
@@ -58,7 +70,10 @@ public final class AppliedSmelting {
                     ModBlocks.ME_SMELTER_ITEM,
                     ModBlocks.ME_SMELTER_MK1_ITEM,
                     ModBlocks.ME_SMELTER_MK2_ITEM,
-                    ModBlocks.ME_SMELTER_MK3_ITEM)) {
+                    ModBlocks.ME_SMELTER_MK3_ITEM,
+                    ModBlocks.ME_BLAST_FURNACE_ITEM,
+                    ModBlocks.ME_SMOKER_ITEM,
+                    ModBlocks.ME_CRUCIBLE_ITEM)) {
                 var item = machine.get();
                 Upgrades.add(AEItems.SPEED_CARD, item, 4, "upgrade.appliedsmelting.acceleration");
                 Upgrades.add(AEItems.ENERGY_CARD, item, 4, "upgrade.appliedsmelting.energy");
