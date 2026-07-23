@@ -64,9 +64,15 @@ public final class ModBlockEntities {
                 var reference = new AtomicReference<BlockEntityType<MESmokerBlockEntity>>();
                 var type = new BlockEntityType<MESmokerBlockEntity>(
                         (pos, state) -> new MESmokerBlockEntity(reference.get(), pos, state),
-                        ModBlocks.ME_SMOKER.get());
+                        ModBlocks.ME_SMOKER.get(),
+                        ModBlocks.ME_SMOKER_MK1.get(),
+                        ModBlocks.ME_SMOKER_MK2.get(),
+                        ModBlocks.ME_SMOKER_MK3.get());
                 reference.set(type);
                 ModBlocks.ME_SMOKER.get().setBlockEntity(MESmokerBlockEntity.class, type, null, null);
+                ModBlocks.ME_SMOKER_MK1.get().setBlockEntity(MESmokerBlockEntity.class, type, null, null);
+                ModBlocks.ME_SMOKER_MK2.get().setBlockEntity(MESmokerBlockEntity.class, type, null, null);
+                ModBlocks.ME_SMOKER_MK3.get().setBlockEntity(MESmokerBlockEntity.class, type, null, null);
                 AEBaseBlockEntity.registerBlockEntityItem(type, ModBlocks.ME_SMOKER_ITEM.get());
                 return type;
             });
