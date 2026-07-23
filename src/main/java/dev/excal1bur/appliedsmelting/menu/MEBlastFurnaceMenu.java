@@ -10,6 +10,7 @@ import appeng.menu.implementations.UpgradeableMenu;
 
 import dev.excal1bur.appliedsmelting.blockentity.MEBlastFurnaceBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 
 public final class MEBlastFurnaceMenu extends UpgradeableMenu<MEBlastFurnaceBlockEntity> {
@@ -51,6 +52,9 @@ public final class MEBlastFurnaceMenu extends UpgradeableMenu<MEBlastFurnaceBloc
     @GuiSync(21)
     public int lavaFuelTimes100;
 
+    @GuiSync(22)
+    public int tierOrdinal;
+
     public MEBlastFurnaceMenu(int id, Inventory playerInventory, MEBlastFurnaceBlockEntity machine) {
         super(ModMenus.ME_BLAST_FURNACE.get(), id, playerInventory, machine);
         registerClientAction(
@@ -75,12 +79,18 @@ public final class MEBlastFurnaceMenu extends UpgradeableMenu<MEBlastFurnaceBloc
             var pinned = getHost().getPinnedInput();
             pinnedInput = pinned == null ? null : new GenericStack(pinned, 1);
             speedMultiplier = getHost().getSpeedMultiplier();
+            tierOrdinal = getHost().getTier().ordinal();
         }
         super.broadcastChanges();
     }
 
     public int getSpeedMultiplier() {
         return speedMultiplier;
+    }
+
+    public BlastFurnaceTier getTier() {
+        var tiers = BlastFurnaceTier.values();
+        return tiers[Math.max(0, Math.min(tiers.length - 1, tierOrdinal))];
     }
 
     public SmeltingPowerMode getPowerMode() {

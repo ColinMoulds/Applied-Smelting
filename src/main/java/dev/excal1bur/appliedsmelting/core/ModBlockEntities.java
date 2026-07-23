@@ -45,9 +45,15 @@ public final class ModBlockEntities {
                 var reference = new AtomicReference<BlockEntityType<MEBlastFurnaceBlockEntity>>();
                 var type = new BlockEntityType<MEBlastFurnaceBlockEntity>(
                         (pos, state) -> new MEBlastFurnaceBlockEntity(reference.get(), pos, state),
-                        ModBlocks.ME_BLAST_FURNACE.get());
+                        ModBlocks.ME_BLAST_FURNACE.get(),
+                        ModBlocks.ME_BLAST_FURNACE_MK1.get(),
+                        ModBlocks.ME_BLAST_FURNACE_MK2.get(),
+                        ModBlocks.ME_BLAST_FURNACE_MK3.get());
                 reference.set(type);
                 ModBlocks.ME_BLAST_FURNACE.get().setBlockEntity(MEBlastFurnaceBlockEntity.class, type, null, null);
+                ModBlocks.ME_BLAST_FURNACE_MK1.get().setBlockEntity(MEBlastFurnaceBlockEntity.class, type, null, null);
+                ModBlocks.ME_BLAST_FURNACE_MK2.get().setBlockEntity(MEBlastFurnaceBlockEntity.class, type, null, null);
+                ModBlocks.ME_BLAST_FURNACE_MK3.get().setBlockEntity(MEBlastFurnaceBlockEntity.class, type, null, null);
                 AEBaseBlockEntity.registerBlockEntityItem(type, ModBlocks.ME_BLAST_FURNACE_ITEM.get());
                 return type;
             });

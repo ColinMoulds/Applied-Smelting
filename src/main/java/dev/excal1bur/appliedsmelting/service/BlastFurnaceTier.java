@@ -4,16 +4,16 @@ import java.util.Locale;
 
 import dev.excal1bur.appliedsmelting.core.AppliedSmeltingConfig;
 
-/** ME Smelter tier. Ordinal order also defines upgrade-kit progression order. */
-public enum SmelterTier {
-    DEFAULT(AppliedSmeltingConfig.SMELTER_DEFAULT),
-    MK1(AppliedSmeltingConfig.SMELTER_MK1),
-    MK2(AppliedSmeltingConfig.SMELTER_MK2),
-    MK3(AppliedSmeltingConfig.SMELTER_MK3);
+/** ME Blast Furnace tier. Ordinal order also defines upgrade-kit progression order. */
+public enum BlastFurnaceTier {
+    DEFAULT(AppliedSmeltingConfig.BLAST_FURNACE_DEFAULT),
+    MK1(AppliedSmeltingConfig.BLAST_FURNACE_MK1),
+    MK2(AppliedSmeltingConfig.BLAST_FURNACE_MK2),
+    MK3(AppliedSmeltingConfig.BLAST_FURNACE_MK3);
 
     private final AppliedSmeltingConfig.TierValues values;
 
-    SmelterTier(AppliedSmeltingConfig.TierValues values) {
+    BlastFurnaceTier(AppliedSmeltingConfig.TierValues values) {
         this.values = values;
     }
 
@@ -54,7 +54,7 @@ public enum SmelterTier {
     }
 
     /** The tier this one's upgrade kit is applied to (null for DEFAULT, which has no kit). */
-    public SmelterTier previousTier() {
+    public BlastFurnaceTier previousTier() {
         var all = values();
         var index = ordinal();
         return index == 0 ? null : all[index - 1];
@@ -64,7 +64,7 @@ public enum SmelterTier {
         return name().toLowerCase(Locale.ROOT);
     }
 
-    public static SmelterTier fromSerializedName(String name) {
+    public static BlastFurnaceTier fromSerializedName(String name) {
         for (var tier : values()) {
             if (tier.serializedName().equals(name)) {
                 return tier;
@@ -74,7 +74,7 @@ public enum SmelterTier {
     }
 
     /** Maps an upgrade kit's mark level (1/2/3) to the tier it upgrades to, or null for 0/invalid. */
-    public static SmelterTier fromKitLevel(int level) {
+    public static BlastFurnaceTier fromKitLevel(int level) {
         return switch (level) {
             case 1 -> MK1;
             case 2 -> MK2;

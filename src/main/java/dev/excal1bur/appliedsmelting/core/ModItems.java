@@ -5,19 +5,18 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import org.jetbrains.annotations.Nullable;
-
 import appeng.api.upgrades.Upgrades;
 
 import dev.excal1bur.appliedsmelting.AppliedSmelting;
 import dev.excal1bur.appliedsmelting.item.SmelterUpgradeKitItem;
-import dev.excal1bur.appliedsmelting.service.SmelterTier;
 
 public final class ModItems {
     public static final DeferredRegister.Items REGISTER = DeferredRegister.createItems(AppliedSmelting.MOD_ID);
     public static final DeferredItem<Item> FUEL_EFFICIENCY_CARD =
             REGISTER.registerItem("fuel_efficiency_card", Upgrades::createUpgradeCardItem);
 
+    // Universal across all machine types - the template/kit recipes aren't Smelter-specific, and
+    // each machine's own tier enum maps a kit's mark level (1/2/3) to its own tier constants.
     public static final DeferredItem<Item> SMELTER_UPGRADE_TEMPLATE =
             REGISTER.registerItem("smelter_upgrade_template", Item::new);
     public static final DeferredItem<Item> MK1_UPGRADE_KIT =
@@ -30,18 +29,17 @@ public final class ModItems {
     private ModItems() {
     }
 
-    /** The tier a held upgrade kit item would apply, or null if the stack isn't an upgrade kit. */
-    @Nullable
-    public static SmelterTier tierForUpgradeKit(ItemStack stack) {
+    /** Which mark level a held upgrade kit item applies (1/2/3), or 0 if the stack isn't a kit. */
+    public static int upgradeKitLevel(ItemStack stack) {
         if (stack.is(MK1_UPGRADE_KIT.get())) {
-            return SmelterTier.MK1;
+            return 1;
         }
         if (stack.is(MK2_UPGRADE_KIT.get())) {
-            return SmelterTier.MK2;
+            return 2;
         }
         if (stack.is(MK3_UPGRADE_KIT.get())) {
-            return SmelterTier.MK3;
+            return 3;
         }
-        return null;
+        return 0;
     }
 }

@@ -4,6 +4,9 @@
   "block.appliedsmelting.me_smelter_mk2": "ME Smelter Mk2",
   "block.appliedsmelting.me_smelter_mk3": "ME Smelter Mk3",
   "block.appliedsmelting.me_blast_furnace": "ME Blast Furnace",
+  "block.appliedsmelting.me_blast_furnace_mk1": "ME Blast Furnace Mk1",
+  "block.appliedsmelting.me_blast_furnace_mk2": "ME Blast Furnace Mk2",
+  "block.appliedsmelting.me_blast_furnace_mk3": "ME Blast Furnace Mk3",
   "block.appliedsmelting.me_smoker": "ME Smoker",
   "block.appliedsmelting.me_smelting_terminal": "ME Smelting Terminal",
   "block.appliedsmelting.me_crucible": "ME Crucible",
@@ -12,7 +15,7 @@
   "fluid.appliedsmelting.molten_gold": "Molten Gold",
   "item.appliedsmelting.me_smelting_terminal": "ME Smelting Terminal",
   "item.appliedsmelting.fuel_efficiency_card": "Fuel Efficiency Card",
-  "item.appliedsmelting.smelter_upgrade_template": "Smelter Upgrade Template",
+  "item.appliedsmelting.smelter_upgrade_template": "ME Machine Upgrade Template",
   "item.appliedsmelting.mk1_upgrade_kit": "Mk1 Upgrade Kit",
   "item.appliedsmelting.mk2_upgrade_kit": "Mk2 Upgrade Kit",
   "item.appliedsmelting.mk3_upgrade_kit": "Mk3 Upgrade Kit",
@@ -97,6 +100,6 @@
   "message.appliedsmelting.recipe_pinned": "Pinned %s to this ME Smelter",
   "message.appliedsmelting.recipe_unpinned": "ME Smelter returned to the network recipe queue",
   "message.appliedsmelting.queue_full": "Smelting queue full (%s); install Capacity Cards in connected smelters",
-  "message.appliedsmelting.tier_upgraded": "ME Smelter upgraded to %s",
+  "message.appliedsmelting.tier_upgraded": "Upgraded to %s",
   "message.appliedsmelting.wrong_tier_kit": "This kit can't be applied here - it requires a %s"
 }
