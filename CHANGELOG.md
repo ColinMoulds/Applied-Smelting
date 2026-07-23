@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.6
+
+- The ME Crucible's molten metal output now works with any mod's fluid tagged `c:molten_<metal>`, not just Productive Metalworks specifically - no extra setup needed, it's picked up automatically.
+
 ## 0.4.5
 
 - The ME Smelting Terminal now has a fourth tab for the ME Crucible, with its own queue - ore goes in on the left, and the terminal shows what molten metal it'll produce on the right, rendered as a fluid instead of an item.
