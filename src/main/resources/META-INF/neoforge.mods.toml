@@ -32,3 +32,10 @@ type = "required"
 versionRange = "[26.1.10-beta,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.appliedsmelting]]
+modId = "jei"
+type = "optional"
+versionRange = "[29.16.0.47,)"
+ordering = "AFTER"
+side = "CLIENT"
