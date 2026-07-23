@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.5
+
+- The ME Smelting Terminal now has a fourth tab for the ME Crucible, with its own queue - ore goes in on the left, and the terminal shows what molten metal it'll produce on the right, rendered as a fluid instead of an item.
+- The Crucible tab also shows any molten metal already sitting in your ME network's fluid storage, so you can see - and pull out with a bucket - what you've made.
+
 ## 0.4.4
 
 - Added optional JEI support. The ME Crucible's ore-to-molten-metal recipes now show up in JEI's recipe book, and every machine (ME Smelter, ME Blast Furnace, ME Smoker, ME Crucible, all tiers) can be clicked in JEI to jump straight to its recipes. Vanilla smelting/blasting/smoking recipes - including the Sky Stone ones - already appeared in JEI automatically and needed no changes.

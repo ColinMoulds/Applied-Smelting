@@ -40,6 +40,7 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     private TabButton smeltingTypeButton;
     private TabButton blastingTypeButton;
     private TabButton smokingTypeButton;
+    private TabButton crucibleTypeButton;
     private boolean fuelPickerView;
     private long draggedSerial = -1;
     private appeng.api.stacks.AEItemKey draggedKey;
@@ -105,6 +106,14 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         smokingTypeButton.setX(leftPos + imageWidth - 24);
         smokingTypeButton.setY(topPos + panelTop() + 92);
         addRenderableWidget(smokingTypeButton);
+
+        crucibleTypeButton = new TabButton(
+                new ItemStack(net.minecraft.world.item.Items.BUCKET),
+                Component.translatable(FurnaceType.CRUCIBLE.displayNameKey()),
+                button -> menu.requestActiveType(FurnaceType.CRUCIBLE));
+        crucibleTypeButton.setX(leftPos + imageWidth - 24);
+        crucibleTypeButton.setY(topPos + panelTop() + 114);
+        addRenderableWidget(crucibleTypeButton);
     }
 
     @Override
@@ -116,6 +125,7 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         smeltingTypeButton.active = activeType != FurnaceType.SMELTING;
         blastingTypeButton.active = activeType != FurnaceType.BLASTING;
         smokingTypeButton.active = activeType != FurnaceType.SMOKING;
+        crucibleTypeButton.active = activeType != FurnaceType.CRUCIBLE;
     }
 
     @Override
@@ -342,6 +352,9 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         }
         if (smokingTypeButton != null) {
             smokingTypeButton.visible = !fuelPickerView;
+        }
+        if (crucibleTypeButton != null) {
+            crucibleTypeButton.visible = !fuelPickerView;
         }
     }
 

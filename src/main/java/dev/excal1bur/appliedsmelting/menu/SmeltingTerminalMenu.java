@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 
 import org.jetbrains.annotations.Nullable;
 
+import appeng.api.stacks.AEFluidKey;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.GenericStack;
@@ -20,6 +21,7 @@ import appeng.menu.guisync.GuiSync;
 import appeng.menu.me.common.MEStorageMenu;
 
 import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.core.ModRecipes;
 import dev.excal1bur.appliedsmelting.service.FurnaceType;
 
 public final class SmeltingTerminalMenu extends MEStorageMenu {
@@ -207,6 +209,11 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
 
     @Override
     public boolean isKeyVisible(AEKey key) {
+        // On the Crucible tab, also show fluids already in network storage (read-only view - AE2's
+        // own default network interaction already handles bucket extraction for a clicked fluid).
+        if (key instanceof AEFluidKey && getActiveType() == FurnaceType.CRUCIBLE) {
+            return true;
+        }
         if (!(key instanceof AEItemKey itemKey)) {
             return false;
         }
@@ -258,6 +265,14 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
     }
 
     private boolean isSmeltable(FurnaceType type, AEItemKey itemKey) {
+        if (type == FurnaceType.CRUCIBLE) {
+            if (!(getPlayer().level() instanceof ServerLevel level)) {
+                return false;
+            }
+            return level.recipeAccess()
+                    .getRecipeFor(ModRecipes.CRUCIBLE_MELTING.get(), new SingleRecipeInput(itemKey.toStack()), level)
+                    .isPresent();
+        }
         var level = getPlayer().level();
         return level.recipeAccess().propertySet(type.recipePropertySet()).test(itemKey.toStack());
     }
@@ -270,6 +285,18 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             return null;
         }
         var recipeInput = new SingleRecipeInput(input.toStack());
+        if (type == FurnaceType.CRUCIBLE) {
+            var recipe = level.recipeAccess().getRecipeFor(ModRecipes.CRUCIBLE_MELTING.get(), recipeInput, level);
+            if (recipe.isEmpty()) {
+                return null;
+            }
+            var value = recipe.get().value();
+            var fluid = value.resolveFluid();
+            if (fluid == net.minecraft.world.level.material.Fluids.EMPTY) {
+                return null;
+            }
+            return new GenericStack(AEFluidKey.of(fluid), value.amount());
+        }
         var recipe = level.recipeAccess().getRecipeFor(type.recipeType(), recipeInput, level);
         if (recipe.isEmpty()) {
             return null;
