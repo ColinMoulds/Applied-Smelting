@@ -83,9 +83,15 @@ public final class ModBlockEntities {
                 var reference = new AtomicReference<BlockEntityType<MECrucibleBlockEntity>>();
                 var type = new BlockEntityType<MECrucibleBlockEntity>(
                         (pos, state) -> new MECrucibleBlockEntity(reference.get(), pos, state),
-                        ModBlocks.ME_CRUCIBLE.get());
+                        ModBlocks.ME_CRUCIBLE.get(),
+                        ModBlocks.ME_CRUCIBLE_MK1.get(),
+                        ModBlocks.ME_CRUCIBLE_MK2.get(),
+                        ModBlocks.ME_CRUCIBLE_MK3.get());
                 reference.set(type);
                 ModBlocks.ME_CRUCIBLE.get().setBlockEntity(MECrucibleBlockEntity.class, type, null, null);
+                ModBlocks.ME_CRUCIBLE_MK1.get().setBlockEntity(MECrucibleBlockEntity.class, type, null, null);
+                ModBlocks.ME_CRUCIBLE_MK2.get().setBlockEntity(MECrucibleBlockEntity.class, type, null, null);
+                ModBlocks.ME_CRUCIBLE_MK3.get().setBlockEntity(MECrucibleBlockEntity.class, type, null, null);
                 AEBaseBlockEntity.registerBlockEntityItem(type, ModBlocks.ME_CRUCIBLE_ITEM.get());
                 return type;
             });
