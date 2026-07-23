@@ -19,6 +19,7 @@ java {
 
 dependencies {
     api(libs.ae2)
+    compileOnly(libs.jei)
 }
 
 neoForge {

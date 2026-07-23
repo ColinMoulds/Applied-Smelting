@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.4
+
+- Added optional JEI support. The ME Crucible's ore-to-molten-metal recipes now show up in JEI's recipe book, and every machine (ME Smelter, ME Blast Furnace, ME Smoker, ME Crucible, all tiers) can be clicked in JEI to jump straight to its recipes. Vanilla smelting/blasting/smoking recipes - including the Sky Stone ones - already appeared in JEI automatically and needed no changes.
+
 ## 0.4.3
 
 - Added Mk1, Mk2, and Mk3 tiers for the ME Crucible, upgradeable in place the same way as the other three machines.
