@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "appliedsmelting:me_smoker_mk1"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "appliedsmelting:blocks/me_smoker_mk1"
+}

@@ -25,6 +25,9 @@ public final class ModCreativeTab {
                     output.accept(ModBlocks.ME_BLAST_FURNACE_MK2_ITEM.get());
                     output.accept(ModBlocks.ME_BLAST_FURNACE_MK3_ITEM.get());
                     output.accept(ModBlocks.ME_SMOKER_ITEM.get());
+                    output.accept(ModBlocks.ME_SMOKER_MK1_ITEM.get());
+                    output.accept(ModBlocks.ME_SMOKER_MK2_ITEM.get());
+                    output.accept(ModBlocks.ME_SMOKER_MK3_ITEM.get());
                     output.accept(ModBlocks.ME_CRUCIBLE_ITEM.get());
                     output.accept(ModBlocks.SMELTING_TERMINAL_ITEM.get());
                     output.accept(ModItems.FUEL_EFFICIENCY_CARD.get());

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- Added Mk1, Mk2, and Mk3 tiers for the ME Smoker, upgradeable in place the same way as the ME Smelter and ME Blast Furnace.
+
 ## 0.4.1
 
 - Added Mk1, Mk2, and Mk3 tiers for the ME Blast Furnace, upgradeable in place the same way as the ME Smelter (craft an ME Machine Upgrade Template, then Mk1/Mk2/Mk3 Upgrade Kits, shift-right-click to apply).

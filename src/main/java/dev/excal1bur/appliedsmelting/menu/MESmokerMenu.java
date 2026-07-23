@@ -11,6 +11,7 @@ import appeng.menu.implementations.UpgradeableMenu;
 import dev.excal1bur.appliedsmelting.blockentity.MESmokerBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
+import dev.excal1bur.appliedsmelting.service.SmokerTier;
 
 public final class MESmokerMenu extends UpgradeableMenu<MESmokerBlockEntity> {
     private static final ClientActionKey<Integer> SET_POWER_MODE = new ClientActionKey<>("setPowerMode");
@@ -51,6 +52,9 @@ public final class MESmokerMenu extends UpgradeableMenu<MESmokerBlockEntity> {
     @GuiSync(21)
     public int lavaFuelTimes100;
 
+    @GuiSync(22)
+    public int tierOrdinal;
+
     public MESmokerMenu(int id, Inventory playerInventory, MESmokerBlockEntity machine) {
         super(ModMenus.ME_SMOKER.get(), id, playerInventory, machine);
         registerClientAction(
@@ -75,12 +79,18 @@ public final class MESmokerMenu extends UpgradeableMenu<MESmokerBlockEntity> {
             var pinned = getHost().getPinnedInput();
             pinnedInput = pinned == null ? null : new GenericStack(pinned, 1);
             speedMultiplier = getHost().getSpeedMultiplier();
+            tierOrdinal = getHost().getTier().ordinal();
         }
         super.broadcastChanges();
     }
 
     public int getSpeedMultiplier() {
         return speedMultiplier;
+    }
+
+    public SmokerTier getTier() {
+        var tiers = SmokerTier.values();
+        return tiers[Math.max(0, Math.min(tiers.length - 1, tierOrdinal))];
     }
 
     public SmeltingPowerMode getPowerMode() {
