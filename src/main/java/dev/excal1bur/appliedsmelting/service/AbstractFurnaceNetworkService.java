@@ -1,0 +1,374 @@
+package dev.excal1bur.appliedsmelting.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.nbt.CompoundTag;
+
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.IGridService;
+import appeng.api.networking.IGridServiceProvider;
+import appeng.api.stacks.AEItemKey;
+import appeng.api.stacks.AEKey;
+
+import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
+import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
+
+/** Per-machine-type network queue/assignment/distribution logic. One instance per registered machine type. */
+public abstract class AbstractFurnaceNetworkService implements IGridService, IGridServiceProvider {
+    private final Set<AbstractMENetworkFurnaceBlockEntity> smelters = new LinkedHashSet<>();
+    private final Set<SmeltingTerminalHost> terminals = new LinkedHashSet<>();
+    private final List<AEItemKey> queuedInputs = new ArrayList<>();
+    private final Map<AbstractMENetworkFurnaceBlockEntity, AEItemKey> assignments = new HashMap<>();
+    private final Map<AbstractMENetworkFurnaceBlockEntity, AEItemKey> deferredAssignments = new HashMap<>();
+    private AEItemKey selectedFuel;
+    private long targetAmount = -1;
+    private int assignmentCursor;
+
+    /** Which concrete block entity class this service tracks, so machine types don't share a queue. */
+    protected abstract Class<? extends AbstractMENetworkFurnaceBlockEntity> machineClass();
+
+    /** Which terminal page/queue this service backs. */
+    protected abstract FurnaceType furnaceType();
+
+    @Override
+    public void addNode(IGridNode node, @Nullable CompoundTag savedData) {
+        if (machineClass().isInstance(node.getOwner())) {
+            smelters.add(machineClass().cast(node.getOwner()));
+        }
+        if (node.getOwner() instanceof SmeltingTerminalHost terminal) {
+            terminals.add(terminal);
+        }
+    }
+
+    @Override
+    public void removeNode(IGridNode node) {
+        if (machineClass().isInstance(node.getOwner())) {
+            var smelter = machineClass().cast(node.getOwner());
+            smelters.remove(smelter);
+            assignments.remove(smelter);
+            deferredAssignments.remove(smelter);
+        }
+        if (node.getOwner() instanceof SmeltingTerminalHost terminal) {
+            terminals.remove(terminal);
+        }
+    }
+
+    public int getSmelterCount() {
+        return smelters.size();
+    }
+
+    public int getWorkingCount() {
+        return (int) smelters.stream().filter(AbstractMENetworkFurnaceBlockEntity::isActivelySmelting).count();
+    }
+
+    public int getItemFuelSmelterCount() {
+        return (int) smelters.stream()
+                .filter(smelter -> smelter.getPowerMode() == SmeltingPowerMode.ITEM_FUEL)
+                .count();
+    }
+
+    public int getAverageProgressPercent() {
+        return (int) Math.round(smelters.stream()
+                .filter(AbstractMENetworkFurnaceBlockEntity::isWorking)
+                .mapToInt(AbstractMENetworkFurnaceBlockEntity::getProgressPercent)
+                .average()
+                .orElse(0));
+    }
+
+    public int getAverageFuelPercent() {
+        return (int) Math.round(smelters.stream()
+                .mapToInt(AbstractMENetworkFurnaceBlockEntity::getFuelPercent)
+                .filter(percent -> percent > 0)
+                .average()
+                .orElse(0));
+    }
+
+    public SmelterStatus getOverallStatus() {
+        if (smelters.isEmpty()) {
+            return SmelterStatus.NO_SMELTERS;
+        }
+
+        var priority = new SmelterStatus[] {
+            SmelterStatus.SMELTING,
+            SmelterStatus.OUTPUT_FULL,
+            SmelterStatus.MISSING_POWER,
+            SmelterStatus.MISSING_FUEL,
+            SmelterStatus.MISSING_INPUT,
+            SmelterStatus.INVALID_RECIPE,
+            SmelterStatus.TARGET_REACHED,
+            SmelterStatus.WAITING_FOR_SELECTION,
+            SmelterStatus.REDSTONE_PAUSED,
+            SmelterStatus.PAUSED,
+            SmelterStatus.OFFLINE
+        };
+        for (var candidate : priority) {
+            if (smelters.stream().anyMatch(smelter -> smelter.getMachineStatus() == candidate)) {
+                return candidate;
+            }
+        }
+        return SmelterStatus.OFFLINE;
+    }
+
+    public boolean isEnabled() {
+        return smelters.stream().anyMatch(AbstractMENetworkFurnaceBlockEntity::isEnabled);
+    }
+
+    public void setEnabled(boolean enabled) {
+        smelters.forEach(smelter -> smelter.setEnabled(enabled));
+    }
+
+    public AEItemKey getSelectedInput() {
+        return queuedInputs.isEmpty() ? null : queuedInputs.getFirst();
+    }
+
+    /**
+     * The queued item that is actually being smelted right now, falling back to the first
+     * queued item when nothing is currently active (e.g. still waiting to pull input).
+     */
+    public AEItemKey getDisplayInput() {
+        var active = getActiveInputCounts().entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+        return active != null ? active : getSelectedInput();
+    }
+
+    /** Every queued item that at least one connected smelter is actively smelting right now. */
+    public Set<AEItemKey> getActiveInputs() {
+        return getActiveInputCounts().keySet();
+    }
+
+    private Map<AEItemKey, Integer> getActiveInputCounts() {
+        var counts = new HashMap<AEItemKey, Integer>();
+        for (var smelter : smelters) {
+            if (!smelter.isActivelySmelting()) {
+                continue;
+            }
+            var item = smelter.getPinnedInput();
+            if (item == null) {
+                item = assignments.get(smelter);
+            }
+            if (item != null) {
+                counts.merge(item, 1, Integer::sum);
+            }
+        }
+        return counts;
+    }
+
+    public AEItemKey getSelectedFuel() {
+        return selectedFuel;
+    }
+
+    public void setSelectedInput(AEItemKey selectedInput) {
+        queuedInputs.clear();
+        if (selectedInput != null) {
+            queuedInputs.add(selectedInput);
+        }
+        assignments.clear();
+        deferredAssignments.clear();
+        persistQueue();
+        wakeSmelters();
+    }
+
+    public void setSelectedFuel(AEItemKey selectedFuel) {
+        this.selectedFuel = selectedFuel;
+        terminals.forEach(terminal -> terminal.setSelections(furnaceType(), getSelectedInput(), selectedFuel));
+        wakeSmelters();
+    }
+
+    public void adoptSelections(AEItemKey input, AEItemKey fuel) {
+        if (queuedInputs.isEmpty() && input != null) {
+            queuedInputs.add(input);
+        }
+        if (selectedFuel == null && fuel != null) {
+            selectedFuel = fuel;
+        }
+    }
+
+    public void adoptQueuedInputs(List<AEItemKey> inputs) {
+        if (queuedInputs.isEmpty() && !inputs.isEmpty()) {
+            queuedInputs.addAll(inputs.stream().distinct().toList());
+        }
+    }
+
+    public List<AEItemKey> getQueuedInputs() {
+        return List.copyOf(queuedInputs);
+    }
+
+    public boolean toggleQueuedInput(AEItemKey input) {
+        if (queuedInputs.remove(input)) {
+            assignments.entrySet().removeIf(entry -> entry.getValue().equals(input));
+            persistQueue();
+            wakeSmelters();
+            return true;
+        }
+        if (queuedInputs.size() >= getQueueCapacity()) {
+            return false;
+        }
+        queuedInputs.add(input);
+        persistQueue();
+        wakeSmelters();
+        return true;
+    }
+
+    public boolean removeQueuedInput(int index) {
+        if (index < 0 || index >= queuedInputs.size()) {
+            return false;
+        }
+        var removed = queuedInputs.remove(index);
+        assignments.entrySet().removeIf(entry -> entry.getValue().equals(removed));
+        persistQueue();
+        wakeSmelters();
+        return true;
+    }
+
+    public int getQueueCapacity() {
+        if (smelters.isEmpty()) {
+            return 1;
+        }
+        var baseCapacity = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::baseQueueCapacity).max().orElse(1);
+        var capCeiling = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::capacityCardCap).max().orElse(9);
+        var capacityCards = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::getCapacityCardCount).sum();
+        return Math.min(capCeiling, baseCapacity + capacityCards);
+    }
+
+    /** Current network-queue assignment for a smelter, if any. Used to carry work over a tier upgrade. */
+    @Nullable
+    public AEItemKey getAssignment(AbstractMENetworkFurnaceBlockEntity smelter) {
+        return assignments.get(smelter);
+    }
+
+    @Nullable
+    public AEItemKey getDeferredAssignment(AbstractMENetworkFurnaceBlockEntity smelter) {
+        return deferredAssignments.get(smelter);
+    }
+
+    /** Carries a captured assignment/deferral over to a smelter that just replaced another (e.g. a tier upgrade). */
+    public void transferAssignment(AbstractMENetworkFurnaceBlockEntity newSmelter, @Nullable AEItemKey assignment, @Nullable AEItemKey deferred) {
+        if (assignment != null) {
+            assignments.put(newSmelter, assignment);
+        }
+        if (deferred != null) {
+            deferredAssignments.put(newSmelter, deferred);
+        }
+    }
+
+    public AEItemKey assignInput(AbstractMENetworkFurnaceBlockEntity smelter) {
+        var pinned = smelter.getPinnedInput();
+        if (pinned != null) {
+            assignments.remove(smelter);
+            deferredAssignments.remove(smelter);
+            return pinned;
+        }
+        var activeInputs = getActiveQueuedInputs();
+        var existing = assignments.get(smelter);
+        if (existing != null && activeInputs.contains(existing)) {
+            return existing;
+        }
+        assignments.remove(smelter);
+        var deferred = deferredAssignments.remove(smelter);
+        if (activeInputs.isEmpty()) {
+            return null;
+        }
+
+        var assignmentCounts = new HashMap<AEItemKey, Integer>();
+        activeInputs.forEach(input -> assignmentCounts.put(input, 0));
+        assignments.values().forEach(input -> assignmentCounts.computeIfPresent(input, (key, count) -> count + 1));
+        var leastAssigned = assignmentCounts.values().stream().mapToInt(Integer::intValue).min().orElse(0);
+        for (int offset = 0; offset < activeInputs.size(); offset++) {
+            var index = Math.floorMod(assignmentCursor + offset, activeInputs.size());
+            var candidate = activeInputs.get(index);
+            if (activeInputs.size() > 1 && candidate.equals(deferred)) {
+                continue;
+            }
+            if (assignmentCounts.get(candidate) == leastAssigned) {
+                assignments.put(smelter, candidate);
+                assignmentCursor = index + 1;
+                return candidate;
+            }
+        }
+        for (int offset = 0; offset < activeInputs.size(); offset++) {
+            var index = Math.floorMod(assignmentCursor + offset, activeInputs.size());
+            var candidate = activeInputs.get(index);
+            if (activeInputs.size() == 1 || !candidate.equals(deferred)) {
+                assignments.put(smelter, candidate);
+                assignmentCursor = index + 1;
+                return candidate;
+            }
+        }
+        return activeInputs.getFirst();
+    }
+
+    public void releaseAssignment(AbstractMENetworkFurnaceBlockEntity smelter) {
+        assignments.remove(smelter);
+    }
+
+    public void deferAssignment(AbstractMENetworkFurnaceBlockEntity smelter, AEItemKey input) {
+        assignments.remove(smelter);
+        if (smelter.getPinnedInput() == null && input != null) {
+            deferredAssignments.put(smelter, input);
+        }
+    }
+
+    public int getCombinedSpeedMultiplier() {
+        return smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::getSpeedMultiplier).sum();
+    }
+
+    public double getCombinedIdleAePerTick() {
+        return smelters.stream().mapToDouble(AbstractMENetworkFurnaceBlockEntity::getIdleAePerTick).sum();
+    }
+
+    public double getCombinedMaximumAeFuelPerTick() {
+        return smelters.stream().mapToDouble(AbstractMENetworkFurnaceBlockEntity::getMaximumAeFuelPerTick).sum();
+    }
+
+    private List<AEItemKey> getActiveQueuedInputs() {
+        return queuedInputs.subList(0, Math.min(queuedInputs.size(), getQueueCapacity()));
+    }
+
+    public void adoptTargetAmount(long targetAmount) {
+        if (this.targetAmount < 0) {
+            this.targetAmount = Math.max(0, targetAmount);
+        }
+    }
+
+    public long getTargetAmount() {
+        return Math.max(0, targetAmount);
+    }
+
+    public void setTargetAmount(long targetAmount) {
+        this.targetAmount = Math.max(0, targetAmount);
+        terminals.forEach(terminal -> terminal.setTargetAmount(furnaceType(), this.targetAmount));
+        wakeSmelters();
+    }
+
+    public boolean canStartJob(
+            AbstractMENetworkFurnaceBlockEntity requester, AEKey output, long outputAmount, long storedAmount) {
+        var target = getTargetAmount();
+        if (target == 0) {
+            return true;
+        }
+
+        long pendingAmount = smelters.stream()
+                .filter(smelter -> smelter != requester)
+                .mapToLong(smelter -> smelter.getPendingOutputAmount(output))
+                .sum();
+        return storedAmount + pendingAmount + outputAmount <= target;
+    }
+
+    private void wakeSmelters() {
+        smelters.forEach(AbstractMENetworkFurnaceBlockEntity::wakeForSelectionChange);
+    }
+
+    private void persistQueue() {
+        var queue = getQueuedInputs();
+        terminals.forEach(terminal -> terminal.setQueuedInputs(furnaceType(), queue));
+    }
+}
