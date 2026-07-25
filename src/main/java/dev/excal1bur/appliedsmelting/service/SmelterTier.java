@@ -6,10 +6,10 @@ import dev.excal1bur.appliedsmelting.core.AppliedSmeltingConfig;
 
 /** ME Smelter tier. Ordinal order also defines upgrade-kit progression order. */
 public enum SmelterTier {
-    DEFAULT(AppliedSmeltingConfig.DEFAULT),
-    MK1(AppliedSmeltingConfig.MK1),
-    MK2(AppliedSmeltingConfig.MK2),
-    MK3(AppliedSmeltingConfig.MK3);
+    DEFAULT(AppliedSmeltingConfig.SMELTER_DEFAULT),
+    MK1(AppliedSmeltingConfig.SMELTER_MK1),
+    MK2(AppliedSmeltingConfig.SMELTER_MK2),
+    MK3(AppliedSmeltingConfig.SMELTER_MK3);
 
     private final AppliedSmeltingConfig.TierValues values;
 
@@ -71,5 +71,15 @@ public enum SmelterTier {
             }
         }
         return DEFAULT;
+    }
+
+    /** Maps an upgrade kit's mark level (1/2/3) to the tier it upgrades to, or null for 0/invalid. */
+    public static SmelterTier fromKitLevel(int level) {
+        return switch (level) {
+            case 1 -> MK1;
+            case 2 -> MK2;
+            case 3 -> MK3;
+            default -> null;
+        };
     }
 }

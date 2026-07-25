@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.5.0
+
+- Added optional Jade support. Looking at any ME machine (Smelter, Blast Furnace, Smoker, Crucible, all tiers) now shows its status, current item, progress, and fuel level right in the Jade tooltip - no need to open the machine or terminal to check on it.
+- Fixed the ME Crucible's fallback molten iron/copper/gold fluids (used when no other mod provides a `c:molten_<metal>` fluid) rendering as a missing-texture placeholder instead of a proper lava-styled, metal-tinted fluid.
+- Reduced ME Smelting Terminal server load: recipe lookups for queue/output previews now only recompute when the queue or selection actually changes, instead of every tick for every open terminal.
+
+## 0.4.6
+
+- The ME Crucible's molten metal output now works with any mod's fluid tagged `c:molten_<metal>`, not just Productive Metalworks specifically - no extra setup needed, it's picked up automatically.
+
+## 0.4.5
+
+- The ME Smelting Terminal now has a fourth tab for the ME Crucible, with its own queue - ore goes in on the left, and the terminal shows what molten metal it'll produce on the right, rendered as a fluid instead of an item.
+- The Crucible tab also shows any molten metal already sitting in your ME network's fluid storage, so you can see - and pull out with a bucket - what you've made.
+
+## 0.4.4
+
+- Added optional JEI support. The ME Crucible's ore-to-molten-metal recipes now show up in JEI's recipe book, and every machine (ME Smelter, ME Blast Furnace, ME Smoker, ME Crucible, all tiers) can be clicked in JEI to jump straight to its recipes. Vanilla smelting/blasting/smoking recipes - including the Sky Stone ones - already appeared in JEI automatically and needed no changes.
+
+## 0.4.3
+
+- Added Mk1, Mk2, and Mk3 tiers for the ME Crucible, upgradeable in place the same way as the other three machines.
+- Every machine in the mod (ME Smelter, ME Blast Furnace, ME Smoker, ME Crucible) now has the full Mk1-3 tier progression.
+
+## 0.4.2
+
+- Added Mk1, Mk2, and Mk3 tiers for the ME Smoker, upgradeable in place the same way as the ME Smelter and ME Blast Furnace.
+
+## 0.4.1
+
+- Added Mk1, Mk2, and Mk3 tiers for the ME Blast Furnace, upgradeable in place the same way as the ME Smelter (craft an ME Machine Upgrade Template, then Mk1/Mk2/Mk3 Upgrade Kits, shift-right-click to apply).
+- The Upgrade Template and Mk1-3 Upgrade Kits are now universal - the same items work on any upgradeable machine, not just the ME Smelter.
+- Rebalanced the ME Smelter and ME Blast Furnace tier progression so Mk1 is a real step up in speed/efficiency instead of matching the base tier's stats.
+
 ## 0.4.0
 
 - Added the ME Blast Furnace, a Blast Furnace-recipe machine with its own independent network queue — twice as fast as the ME Smelter for ore-style recipes.

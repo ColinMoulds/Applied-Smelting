@@ -6,14 +6,26 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import dev.excal1bur.appliedsmelting.core.AppliedSmeltingConfig;
+import dev.excal1bur.appliedsmelting.block.MEBlastFurnaceBlock;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
+import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
 import dev.excal1bur.appliedsmelting.service.BlastingService;
 
 public final class MEBlastFurnaceBlockEntity extends AbstractCookingFurnaceBlockEntity {
+    private final BlastFurnaceTier tier;
+
     public MEBlastFurnaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state, AppliedSmeltingConfig.BLAST_FURNACE.upgradeSlots().get());
+        super(type, pos, state, tierOf(state).upgradeSlots());
+        tier = tierOf(state);
         updateIdlePowerUsage();
+    }
+
+    private static BlastFurnaceTier tierOf(BlockState state) {
+        return state.getBlock() instanceof MEBlastFurnaceBlock block ? block.getTier() : BlastFurnaceTier.DEFAULT;
+    }
+
+    public BlastFurnaceTier getTier() {
+        return tier;
     }
 
     @Override
@@ -27,42 +39,51 @@ public final class MEBlastFurnaceBlockEntity extends AbstractCookingFurnaceBlock
     }
 
     @Override
+    public float getGlowIntensity() {
+        return switch (tier) {
+            case DEFAULT, MK1 -> 1.0F;
+            case MK2 -> 1.15F;
+            case MK3 -> 1.35F;
+        };
+    }
+
+    @Override
     protected double baseSpeedMultiplier() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.baseSpeedMultiplier().get();
+        return tier.baseSpeedMultiplier();
     }
 
     @Override
     protected double accelerationCap() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.accelerationCap().get();
+        return tier.accelerationCap();
     }
 
     @Override
     protected double idleDrawMultiplier() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.idleDrawMultiplier().get();
+        return tier.idleDrawMultiplier();
     }
 
     @Override
     protected double aeFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.aeFuelDrawMultiplier().get();
+        return tier.aeFuelDrawMultiplier();
     }
 
     @Override
     protected double lavaFuelDrawMultiplier() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.lavaFuelDrawMultiplier().get();
+        return tier.lavaFuelDrawMultiplier();
     }
 
     @Override
     protected double fuelEfficiencyMultiplier() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.fuelEfficiencyMultiplier().get();
+        return tier.fuelEfficiencyMultiplier();
     }
 
     @Override
     public int baseQueueCapacity() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.baseQueueCapacity().get();
+        return tier.baseQueueCapacity();
     }
 
     @Override
     public int capacityCardCap() {
-        return AppliedSmeltingConfig.BLAST_FURNACE.capacityCardCap().get();
+        return tier.capacityCardCap();
     }
 }

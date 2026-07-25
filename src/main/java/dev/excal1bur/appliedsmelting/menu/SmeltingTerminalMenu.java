@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 
 import org.jetbrains.annotations.Nullable;
 
+import appeng.api.stacks.AEFluidKey;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.GenericStack;
@@ -20,6 +21,7 @@ import appeng.menu.guisync.GuiSync;
 import appeng.menu.me.common.MEStorageMenu;
 
 import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.core.ModRecipes;
 import dev.excal1bur.appliedsmelting.service.FurnaceType;
 
 public final class SmeltingTerminalMenu extends MEStorageMenu {
@@ -30,6 +32,15 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
     private static final ClientActionKey<Integer> SET_ACTIVE_TYPE = new ClientActionKey<>("setActiveType");
 
     private final SmeltingTerminalHost terminal;
+
+    // Recipe lookups are only re-run when the type/input/queue actually changes, since
+    // broadcastChanges() runs every tick for every open terminal.
+    private FurnaceType cachedOutputType;
+    private AEItemKey cachedOutputInput;
+    private GenericStack cachedOutputPreview;
+    private FurnaceType cachedQueueOutputType;
+    private java.util.List<AEItemKey> cachedQueueOutputQueue = java.util.List.of();
+    private final GenericStack[] cachedQueueOutputs = new GenericStack[9];
 
     @GuiSync(1)
     public int smelterCount;
@@ -148,7 +159,12 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             var fuel = service == null ? null : service.getSelectedFuel();
             selectedInput = input == null ? null : new GenericStack(input, 1);
             selectedFuel = fuel == null ? null : new GenericStack(fuel, 1);
-            outputPreview = getOutputPreview(type, input);
+            if (type != cachedOutputType || !java.util.Objects.equals(input, cachedOutputInput)) {
+                cachedOutputPreview = getOutputPreview(type, input);
+                cachedOutputType = type;
+                cachedOutputInput = input;
+            }
+            outputPreview = cachedOutputPreview;
             storedOutputAmount = outputPreview == null || storage == null
                     ? 0
                     : storage.getAvailableStacks().get(outputPreview.what());
@@ -181,15 +197,22 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
                 }
             }
             activeQueueMask = mask;
-            queueOutput0 = queueOutputPreview(type, queue, 0);
-            queueOutput1 = queueOutputPreview(type, queue, 1);
-            queueOutput2 = queueOutputPreview(type, queue, 2);
-            queueOutput3 = queueOutputPreview(type, queue, 3);
-            queueOutput4 = queueOutputPreview(type, queue, 4);
-            queueOutput5 = queueOutputPreview(type, queue, 5);
-            queueOutput6 = queueOutputPreview(type, queue, 6);
-            queueOutput7 = queueOutputPreview(type, queue, 7);
-            queueOutput8 = queueOutputPreview(type, queue, 8);
+            if (type != cachedQueueOutputType || !queue.equals(cachedQueueOutputQueue)) {
+                for (int i = 0; i < 9; i++) {
+                    cachedQueueOutputs[i] = queueOutputPreview(type, queue, i);
+                }
+                cachedQueueOutputType = type;
+                cachedQueueOutputQueue = queue;
+            }
+            queueOutput0 = cachedQueueOutputs[0];
+            queueOutput1 = cachedQueueOutputs[1];
+            queueOutput2 = cachedQueueOutputs[2];
+            queueOutput3 = cachedQueueOutputs[3];
+            queueOutput4 = cachedQueueOutputs[4];
+            queueOutput5 = cachedQueueOutputs[5];
+            queueOutput6 = cachedQueueOutputs[6];
+            queueOutput7 = cachedQueueOutputs[7];
+            queueOutput8 = cachedQueueOutputs[8];
             activeTypeOrdinal = type.ordinal();
         }
         super.broadcastChanges();
@@ -207,6 +230,11 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
 
     @Override
     public boolean isKeyVisible(AEKey key) {
+        // On the Crucible tab, also show fluids already in network storage (read-only view - AE2's
+        // own default network interaction already handles bucket extraction for a clicked fluid).
+        if (key instanceof AEFluidKey && getActiveType() == FurnaceType.CRUCIBLE) {
+            return true;
+        }
         if (!(key instanceof AEItemKey itemKey)) {
             return false;
         }
@@ -258,6 +286,14 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
     }
 
     private boolean isSmeltable(FurnaceType type, AEItemKey itemKey) {
+        if (type == FurnaceType.CRUCIBLE) {
+            if (!(getPlayer().level() instanceof ServerLevel level)) {
+                return false;
+            }
+            return level.recipeAccess()
+                    .getRecipeFor(ModRecipes.CRUCIBLE_MELTING.get(), new SingleRecipeInput(itemKey.toStack()), level)
+                    .isPresent();
+        }
         var level = getPlayer().level();
         return level.recipeAccess().propertySet(type.recipePropertySet()).test(itemKey.toStack());
     }
@@ -270,6 +306,18 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             return null;
         }
         var recipeInput = new SingleRecipeInput(input.toStack());
+        if (type == FurnaceType.CRUCIBLE) {
+            var recipe = level.recipeAccess().getRecipeFor(ModRecipes.CRUCIBLE_MELTING.get(), recipeInput, level);
+            if (recipe.isEmpty()) {
+                return null;
+            }
+            var value = recipe.get().value();
+            var fluid = value.resolveFluid();
+            if (fluid == net.minecraft.world.level.material.Fluids.EMPTY) {
+                return null;
+            }
+            return new GenericStack(AEFluidKey.of(fluid), value.amount());
+        }
         var recipe = level.recipeAccess().getRecipeFor(type.recipeType(), recipeInput, level);
         if (recipe.isEmpty()) {
             return null;
