@@ -33,6 +33,15 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
 
     private final SmeltingTerminalHost terminal;
 
+    // Recipe lookups are only re-run when the type/input/queue actually changes, since
+    // broadcastChanges() runs every tick for every open terminal.
+    private FurnaceType cachedOutputType;
+    private AEItemKey cachedOutputInput;
+    private GenericStack cachedOutputPreview;
+    private FurnaceType cachedQueueOutputType;
+    private java.util.List<AEItemKey> cachedQueueOutputQueue = java.util.List.of();
+    private final GenericStack[] cachedQueueOutputs = new GenericStack[9];
+
     @GuiSync(1)
     public int smelterCount;
 
@@ -150,7 +159,12 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             var fuel = service == null ? null : service.getSelectedFuel();
             selectedInput = input == null ? null : new GenericStack(input, 1);
             selectedFuel = fuel == null ? null : new GenericStack(fuel, 1);
-            outputPreview = getOutputPreview(type, input);
+            if (type != cachedOutputType || !java.util.Objects.equals(input, cachedOutputInput)) {
+                cachedOutputPreview = getOutputPreview(type, input);
+                cachedOutputType = type;
+                cachedOutputInput = input;
+            }
+            outputPreview = cachedOutputPreview;
             storedOutputAmount = outputPreview == null || storage == null
                     ? 0
                     : storage.getAvailableStacks().get(outputPreview.what());
@@ -183,15 +197,22 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
                 }
             }
             activeQueueMask = mask;
-            queueOutput0 = queueOutputPreview(type, queue, 0);
-            queueOutput1 = queueOutputPreview(type, queue, 1);
-            queueOutput2 = queueOutputPreview(type, queue, 2);
-            queueOutput3 = queueOutputPreview(type, queue, 3);
-            queueOutput4 = queueOutputPreview(type, queue, 4);
-            queueOutput5 = queueOutputPreview(type, queue, 5);
-            queueOutput6 = queueOutputPreview(type, queue, 6);
-            queueOutput7 = queueOutputPreview(type, queue, 7);
-            queueOutput8 = queueOutputPreview(type, queue, 8);
+            if (type != cachedQueueOutputType || !queue.equals(cachedQueueOutputQueue)) {
+                for (int i = 0; i < 9; i++) {
+                    cachedQueueOutputs[i] = queueOutputPreview(type, queue, i);
+                }
+                cachedQueueOutputType = type;
+                cachedQueueOutputQueue = queue;
+            }
+            queueOutput0 = cachedQueueOutputs[0];
+            queueOutput1 = cachedQueueOutputs[1];
+            queueOutput2 = cachedQueueOutputs[2];
+            queueOutput3 = cachedQueueOutputs[3];
+            queueOutput4 = cachedQueueOutputs[4];
+            queueOutput5 = cachedQueueOutputs[5];
+            queueOutput6 = cachedQueueOutputs[6];
+            queueOutput7 = cachedQueueOutputs[7];
+            queueOutput8 = cachedQueueOutputs[8];
             activeTypeOrdinal = type.ordinal();
         }
         super.broadcastChanges();

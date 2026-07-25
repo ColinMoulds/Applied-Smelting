@@ -22,6 +22,20 @@ import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
 
 /** Per-machine-type network queue/assignment/distribution logic. One instance per registered machine type. */
 public abstract class AbstractFurnaceNetworkService implements IGridService, IGridServiceProvider {
+    private static final SmelterStatus[] STATUS_PRIORITY = {
+        SmelterStatus.SMELTING,
+        SmelterStatus.OUTPUT_FULL,
+        SmelterStatus.MISSING_POWER,
+        SmelterStatus.MISSING_FUEL,
+        SmelterStatus.MISSING_INPUT,
+        SmelterStatus.INVALID_RECIPE,
+        SmelterStatus.TARGET_REACHED,
+        SmelterStatus.WAITING_FOR_SELECTION,
+        SmelterStatus.REDSTONE_PAUSED,
+        SmelterStatus.PAUSED,
+        SmelterStatus.OFFLINE
+    };
+
     private final Set<AbstractMENetworkFurnaceBlockEntity> smelters = new LinkedHashSet<>();
     private final Set<SmeltingTerminalHost> terminals = new LinkedHashSet<>();
     private final List<AEItemKey> queuedInputs = new ArrayList<>();
@@ -95,20 +109,7 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
             return SmelterStatus.NO_SMELTERS;
         }
 
-        var priority = new SmelterStatus[] {
-            SmelterStatus.SMELTING,
-            SmelterStatus.OUTPUT_FULL,
-            SmelterStatus.MISSING_POWER,
-            SmelterStatus.MISSING_FUEL,
-            SmelterStatus.MISSING_INPUT,
-            SmelterStatus.INVALID_RECIPE,
-            SmelterStatus.TARGET_REACHED,
-            SmelterStatus.WAITING_FOR_SELECTION,
-            SmelterStatus.REDSTONE_PAUSED,
-            SmelterStatus.PAUSED,
-            SmelterStatus.OFFLINE
-        };
-        for (var candidate : priority) {
+        for (var candidate : STATUS_PRIORITY) {
             if (smelters.stream().anyMatch(smelter -> smelter.getMachineStatus() == candidate)) {
                 return candidate;
             }

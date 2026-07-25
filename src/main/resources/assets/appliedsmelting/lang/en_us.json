@@ -83,6 +83,8 @@
   "gui.appliedsmelting.network_idle_ae": "Machine idle: %s AE/t",
   "gui.appliedsmelting.network_ae_fuel": "AE heating (maximum): %s AE/t",
   "gui.appliedsmelting.fuel_efficiency": "Fuel duration: %s%%",
+  "gui.appliedsmelting.jade.fuel_percent": "Fuel: %s%%",
+  "config.jade.plugin_appliedsmelting.machine_status": "Applied Smelting Machine Status",
   "gui.appliedsmelting.redstone_ignored": "Redstone: Ignored",
   "gui.appliedsmelting.redstone_signal_required": "Redstone: High signal required",
   "gui.appliedsmelting.remove_from_queue": "Click to remove from the smelting queue",
