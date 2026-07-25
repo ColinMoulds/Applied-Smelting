@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+- Added optional Jade support. Looking at any ME machine (Smelter, Blast Furnace, Smoker, Crucible, all tiers) now shows its status, current item, progress, and fuel level right in the Jade tooltip - no need to open the machine or terminal to check on it.
+- Fixed the ME Crucible's fallback molten iron/copper/gold fluids (used when no other mod provides a `c:molten_<metal>` fluid) rendering as a missing-texture placeholder instead of a proper lava-styled, metal-tinted fluid.
+- Reduced ME Smelting Terminal server load: recipe lookups for queue/output previews now only recompute when the queue or selection actually changes, instead of every tick for every open terminal.
+
 ## 0.4.6
 
 - The ME Crucible's molten metal output now works with any mod's fluid tagged `c:molten_<metal>`, not just Productive Metalworks specifically - no extra setup needed, it's picked up automatically.
