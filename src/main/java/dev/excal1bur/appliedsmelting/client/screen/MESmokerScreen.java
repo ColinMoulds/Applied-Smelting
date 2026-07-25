@@ -10,6 +10,7 @@ import appeng.client.api.AEKeyRendering;
 
 import dev.excal1bur.appliedsmelting.client.widget.PowerModeButton;
 import dev.excal1bur.appliedsmelting.menu.MESmokerMenu;
+import dev.excal1bur.appliedsmelting.service.SmokerTier;
 
 public final class MESmokerScreen extends UpgradeableScreen<MESmokerMenu> {
     private final PowerModeButton powerModeButton;
@@ -23,6 +24,7 @@ public final class MESmokerScreen extends UpgradeableScreen<MESmokerMenu> {
     @Override
     protected void updateBeforeRender() {
         super.updateBeforeRender();
+        setTextContent("dialog_title", Component.translatable(titleKey(menu.getTier())));
         setTextContent(
                 "cards",
                 Component.translatable(
@@ -108,5 +110,14 @@ public final class MESmokerScreen extends UpgradeableScreen<MESmokerMenu> {
         graphics.fill(x, y, x + 18, y + 18, 0xff686c81);
         graphics.fill(x + 1, y + 1, x + 18, y + 18, 0xffd4d8ea);
         graphics.fill(x + 2, y + 2, x + 17, y + 17, 0xffaeb2c8);
+    }
+
+    private static String titleKey(SmokerTier tier) {
+        return switch (tier) {
+            case DEFAULT -> "block.appliedsmelting.me_smoker";
+            case MK1 -> "block.appliedsmelting.me_smoker_mk1";
+            case MK2 -> "block.appliedsmelting.me_smoker_mk2";
+            case MK3 -> "block.appliedsmelting.me_smoker_mk3";
+        };
     }
 }

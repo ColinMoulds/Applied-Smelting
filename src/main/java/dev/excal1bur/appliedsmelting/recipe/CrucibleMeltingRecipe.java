@@ -54,6 +54,10 @@ public final class CrucibleMeltingRecipe implements Recipe<SingleRecipeInput> {
         this.cookingTime = cookingTime;
     }
 
+    public Ingredient ingredient() {
+        return ingredient;
+    }
+
     public int amount() {
         return amount;
     }

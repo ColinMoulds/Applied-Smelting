@@ -19,7 +19,10 @@ import dev.excal1bur.appliedsmelting.block.MESmelterBlock;
 import dev.excal1bur.appliedsmelting.block.MESmokerBlock;
 import dev.excal1bur.appliedsmelting.block.SmeltingTerminalBlock;
 import dev.excal1bur.appliedsmelting.part.SmeltingTerminalPart;
+import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
+import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
+import dev.excal1bur.appliedsmelting.service.SmokerTier;
 
 public final class ModBlocks {
     public static final DeferredRegister.Blocks REGISTER = DeferredRegister.createBlocks(AppliedSmelting.MOD_ID);
@@ -45,20 +48,98 @@ public final class ModBlocks {
             "me_smelter_mk3", properties -> new AEBaseBlockItem(ME_SMELTER_MK3.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MEBlastFurnaceBlock> ME_BLAST_FURNACE = REGISTER.registerBlock(
-            "me_blast_furnace", MEBlastFurnaceBlock::new, ModBlocks::machineProperties);
+            "me_blast_furnace",
+            properties -> new MEBlastFurnaceBlock(properties, BlastFurnaceTier.DEFAULT),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_BLAST_FURNACE_ITEM = ModItems.REGISTER.registerItem(
             "me_blast_furnace",
             properties -> new AEBaseBlockItem(ME_BLAST_FURNACE.get(), properties.useBlockDescriptionPrefix()));
 
+    public static final DeferredBlock<MEBlastFurnaceBlock> ME_BLAST_FURNACE_MK1 = REGISTER.registerBlock(
+            "me_blast_furnace_mk1",
+            properties -> new MEBlastFurnaceBlock(properties, BlastFurnaceTier.MK1),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_BLAST_FURNACE_MK1_ITEM = ModItems.REGISTER.registerItem(
+            "me_blast_furnace_mk1",
+            properties -> new AEBaseBlockItem(ME_BLAST_FURNACE_MK1.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MEBlastFurnaceBlock> ME_BLAST_FURNACE_MK2 = REGISTER.registerBlock(
+            "me_blast_furnace_mk2",
+            properties -> new MEBlastFurnaceBlock(properties, BlastFurnaceTier.MK2),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_BLAST_FURNACE_MK2_ITEM = ModItems.REGISTER.registerItem(
+            "me_blast_furnace_mk2",
+            properties -> new AEBaseBlockItem(ME_BLAST_FURNACE_MK2.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MEBlastFurnaceBlock> ME_BLAST_FURNACE_MK3 = REGISTER.registerBlock(
+            "me_blast_furnace_mk3",
+            properties -> new MEBlastFurnaceBlock(properties, BlastFurnaceTier.MK3),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_BLAST_FURNACE_MK3_ITEM = ModItems.REGISTER.registerItem(
+            "me_blast_furnace_mk3",
+            properties -> new AEBaseBlockItem(ME_BLAST_FURNACE_MK3.get(), properties.useBlockDescriptionPrefix()));
+
     public static final DeferredBlock<MESmokerBlock> ME_SMOKER = REGISTER.registerBlock(
-            "me_smoker", MESmokerBlock::new, ModBlocks::machineProperties);
+            "me_smoker",
+            properties -> new MESmokerBlock(properties, SmokerTier.DEFAULT),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMOKER_ITEM = ModItems.REGISTER.registerItem(
             "me_smoker", properties -> new AEBaseBlockItem(ME_SMOKER.get(), properties.useBlockDescriptionPrefix()));
 
+    public static final DeferredBlock<MESmokerBlock> ME_SMOKER_MK1 = REGISTER.registerBlock(
+            "me_smoker_mk1",
+            properties -> new MESmokerBlock(properties, SmokerTier.MK1),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_SMOKER_MK1_ITEM = ModItems.REGISTER.registerItem(
+            "me_smoker_mk1",
+            properties -> new AEBaseBlockItem(ME_SMOKER_MK1.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MESmokerBlock> ME_SMOKER_MK2 = REGISTER.registerBlock(
+            "me_smoker_mk2",
+            properties -> new MESmokerBlock(properties, SmokerTier.MK2),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_SMOKER_MK2_ITEM = ModItems.REGISTER.registerItem(
+            "me_smoker_mk2",
+            properties -> new AEBaseBlockItem(ME_SMOKER_MK2.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MESmokerBlock> ME_SMOKER_MK3 = REGISTER.registerBlock(
+            "me_smoker_mk3",
+            properties -> new MESmokerBlock(properties, SmokerTier.MK3),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_SMOKER_MK3_ITEM = ModItems.REGISTER.registerItem(
+            "me_smoker_mk3",
+            properties -> new AEBaseBlockItem(ME_SMOKER_MK3.get(), properties.useBlockDescriptionPrefix()));
+
     public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE = REGISTER.registerBlock(
-            "me_crucible", MECrucibleBlock::new, ModBlocks::machineProperties);
+            "me_crucible",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.DEFAULT),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_CRUCIBLE_ITEM = ModItems.REGISTER.registerItem(
             "me_crucible", properties -> new AEBaseBlockItem(ME_CRUCIBLE.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE_MK1 = REGISTER.registerBlock(
+            "me_crucible_mk1",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.MK1),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_CRUCIBLE_MK1_ITEM = ModItems.REGISTER.registerItem(
+            "me_crucible_mk1",
+            properties -> new AEBaseBlockItem(ME_CRUCIBLE_MK1.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE_MK2 = REGISTER.registerBlock(
+            "me_crucible_mk2",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.MK2),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_CRUCIBLE_MK2_ITEM = ModItems.REGISTER.registerItem(
+            "me_crucible_mk2",
+            properties -> new AEBaseBlockItem(ME_CRUCIBLE_MK2.get(), properties.useBlockDescriptionPrefix()));
+
+    public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE_MK3 = REGISTER.registerBlock(
+            "me_crucible_mk3",
+            properties -> new MECrucibleBlock(properties, CrucibleTier.MK3),
+            ModBlocks::machineProperties);
+    public static final DeferredItem<BlockItem> ME_CRUCIBLE_MK3_ITEM = ModItems.REGISTER.registerItem(
+            "me_crucible_mk3",
+            properties -> new AEBaseBlockItem(ME_CRUCIBLE_MK3.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<SmeltingTerminalBlock> SMELTING_TERMINAL = REGISTER.registerBlock(
             "me_smelting_terminal", SmeltingTerminalBlock::new, ModBlocks::machineProperties);
@@ -75,6 +156,33 @@ public final class ModBlocks {
             case MK1 -> ME_SMELTER_MK1;
             case MK2 -> ME_SMELTER_MK2;
             case MK3 -> ME_SMELTER_MK3;
+        };
+    }
+
+    public static DeferredBlock<MEBlastFurnaceBlock> blockForBlastFurnaceTier(BlastFurnaceTier tier) {
+        return switch (tier) {
+            case DEFAULT -> ME_BLAST_FURNACE;
+            case MK1 -> ME_BLAST_FURNACE_MK1;
+            case MK2 -> ME_BLAST_FURNACE_MK2;
+            case MK3 -> ME_BLAST_FURNACE_MK3;
+        };
+    }
+
+    public static DeferredBlock<MESmokerBlock> blockForSmokerTier(SmokerTier tier) {
+        return switch (tier) {
+            case DEFAULT -> ME_SMOKER;
+            case MK1 -> ME_SMOKER_MK1;
+            case MK2 -> ME_SMOKER_MK2;
+            case MK3 -> ME_SMOKER_MK3;
+        };
+    }
+
+    public static DeferredBlock<MECrucibleBlock> blockForCrucibleTier(CrucibleTier tier) {
+        return switch (tier) {
+            case DEFAULT -> ME_CRUCIBLE;
+            case MK1 -> ME_CRUCIBLE_MK1;
+            case MK2 -> ME_CRUCIBLE_MK2;
+            case MK3 -> ME_CRUCIBLE_MK3;
         };
     }
 

@@ -72,8 +72,17 @@ public final class AppliedSmelting {
                     ModBlocks.ME_SMELTER_MK2_ITEM,
                     ModBlocks.ME_SMELTER_MK3_ITEM,
                     ModBlocks.ME_BLAST_FURNACE_ITEM,
+                    ModBlocks.ME_BLAST_FURNACE_MK1_ITEM,
+                    ModBlocks.ME_BLAST_FURNACE_MK2_ITEM,
+                    ModBlocks.ME_BLAST_FURNACE_MK3_ITEM,
                     ModBlocks.ME_SMOKER_ITEM,
-                    ModBlocks.ME_CRUCIBLE_ITEM)) {
+                    ModBlocks.ME_SMOKER_MK1_ITEM,
+                    ModBlocks.ME_SMOKER_MK2_ITEM,
+                    ModBlocks.ME_SMOKER_MK3_ITEM,
+                    ModBlocks.ME_CRUCIBLE_ITEM,
+                    ModBlocks.ME_CRUCIBLE_MK1_ITEM,
+                    ModBlocks.ME_CRUCIBLE_MK2_ITEM,
+                    ModBlocks.ME_CRUCIBLE_MK3_ITEM)) {
                 var item = machine.get();
                 Upgrades.add(AEItems.SPEED_CARD, item, 4, "upgrade.appliedsmelting.acceleration");
                 Upgrades.add(AEItems.ENERGY_CARD, item, 4, "upgrade.appliedsmelting.energy");

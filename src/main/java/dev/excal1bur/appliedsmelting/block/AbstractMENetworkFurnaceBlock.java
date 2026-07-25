@@ -9,6 +9,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 
 import appeng.api.orientation.IOrientationStrategy;
@@ -82,5 +83,21 @@ public abstract class AbstractMENetworkFurnaceBlock<T extends AbstractMENetworkF
             return InteractionResult.SUCCESS;
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    /** Copies every property {@code newState} also has from {@code oldState} - used when swapping tiers in place. */
+    protected static BlockState copyProperties(BlockState oldState, BlockState newState) {
+        var result = newState;
+        for (var property : oldState.getProperties()) {
+            if (result.hasProperty(property)) {
+                result = copyProperty(oldState, result, property);
+            }
+        }
+        return result;
+    }
+
+    private static <T extends Comparable<T>> BlockState copyProperty(
+            BlockState oldState, BlockState newState, Property<T> property) {
+        return newState.setValue(property, oldState.getValue(property));
     }
 }

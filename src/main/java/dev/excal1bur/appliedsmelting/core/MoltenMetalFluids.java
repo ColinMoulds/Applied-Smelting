@@ -3,19 +3,19 @@ package dev.excal1bur.appliedsmelting.core;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 /**
- * Resolves a molten-metal fluid for the Crucible: prefers Productive Metalworks's own
- * {@code productivemetalworks:molten_<metal>} fluid (runtime lookup, no compile dependency),
- * falling back to this mod's own fluid when PMW isn't installed or doesn't have that metal.
+ * Resolves a molten-metal fluid for the Crucible via the common {@code c:molten_<metal>} fluid
+ * tag, so any mod that tags its own molten-metal fluid that way (Productive Metalworks included)
+ * is picked up automatically with no per-mod hardcoding. Falls back to this mod's own fluid
+ * (also tagged the same way) when nothing else provides one.
  */
 public final class MoltenMetalFluids {
-    private static final String PMW_MOD_ID = "productivemetalworks";
-
     public static Fluid iron() {
         return resolve("iron", ModFluids.MOLTEN_IRON);
     }
@@ -29,10 +29,15 @@ public final class MoltenMetalFluids {
     }
 
     private static Fluid resolve(String metal, Supplier<Fluid> fallback) {
-        return BuiltInRegistries.FLUID
-                .get(Identifier.fromNamespaceAndPath(PMW_MOD_ID, "molten_" + metal.toLowerCase(Locale.ROOT)))
-                .map(Holder::value)
-                .orElseGet(fallback);
+        var fallbackFluid = fallback.get();
+        var tag = FluidTags.create(Identifier.fromNamespaceAndPath("c", "molten_" + metal.toLowerCase(Locale.ROOT)));
+        for (var holder : BuiltInRegistries.FLUID.getTagOrEmpty(tag)) {
+            var fluid = holder.value();
+            if (fluid != fallbackFluid && fluid != Fluids.EMPTY) {
+                return fluid;
+            }
+        }
+        return fallbackFluid;
     }
 
     private MoltenMetalFluids() {

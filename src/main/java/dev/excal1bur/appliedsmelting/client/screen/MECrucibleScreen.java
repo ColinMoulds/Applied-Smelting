@@ -10,6 +10,7 @@ import appeng.client.api.AEKeyRendering;
 
 import dev.excal1bur.appliedsmelting.client.widget.PowerModeButton;
 import dev.excal1bur.appliedsmelting.menu.MECrucibleMenu;
+import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 
 public final class MECrucibleScreen extends UpgradeableScreen<MECrucibleMenu> {
     private final PowerModeButton powerModeButton;
@@ -23,6 +24,7 @@ public final class MECrucibleScreen extends UpgradeableScreen<MECrucibleMenu> {
     @Override
     protected void updateBeforeRender() {
         super.updateBeforeRender();
+        setTextContent("dialog_title", Component.translatable(titleKey(menu.getTier())));
         setTextContent(
                 "cards",
                 Component.translatable(
@@ -108,5 +110,14 @@ public final class MECrucibleScreen extends UpgradeableScreen<MECrucibleMenu> {
         graphics.fill(x, y, x + 18, y + 18, 0xff686c81);
         graphics.fill(x + 1, y + 1, x + 18, y + 18, 0xffd4d8ea);
         graphics.fill(x + 2, y + 2, x + 17, y + 17, 0xffaeb2c8);
+    }
+
+    private static String titleKey(CrucibleTier tier) {
+        return switch (tier) {
+            case DEFAULT -> "block.appliedsmelting.me_crucible";
+            case MK1 -> "block.appliedsmelting.me_crucible_mk1";
+            case MK2 -> "block.appliedsmelting.me_crucible_mk2";
+            case MK3 -> "block.appliedsmelting.me_crucible_mk3";
+        };
     }
 }

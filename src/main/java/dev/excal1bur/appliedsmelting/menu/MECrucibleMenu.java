@@ -10,6 +10,7 @@ import appeng.menu.implementations.UpgradeableMenu;
 
 import dev.excal1bur.appliedsmelting.blockentity.MECrucibleBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
+import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 
 public final class MECrucibleMenu extends UpgradeableMenu<MECrucibleBlockEntity> {
@@ -51,6 +52,9 @@ public final class MECrucibleMenu extends UpgradeableMenu<MECrucibleBlockEntity>
     @GuiSync(21)
     public int lavaFuelTimes100;
 
+    @GuiSync(22)
+    public int tierOrdinal;
+
     public MECrucibleMenu(int id, Inventory playerInventory, MECrucibleBlockEntity machine) {
         super(ModMenus.ME_CRUCIBLE.get(), id, playerInventory, machine);
         registerClientAction(
@@ -75,12 +79,18 @@ public final class MECrucibleMenu extends UpgradeableMenu<MECrucibleBlockEntity>
             var pinned = getHost().getPinnedInput();
             pinnedInput = pinned == null ? null : new GenericStack(pinned, 1);
             speedMultiplier = getHost().getSpeedMultiplier();
+            tierOrdinal = getHost().getTier().ordinal();
         }
         super.broadcastChanges();
     }
 
     public int getSpeedMultiplier() {
         return speedMultiplier;
+    }
+
+    public CrucibleTier getTier() {
+        var tiers = CrucibleTier.values();
+        return tiers[Math.max(0, Math.min(tiers.length - 1, tierOrdinal))];
     }
 
     public SmeltingPowerMode getPowerMode() {
