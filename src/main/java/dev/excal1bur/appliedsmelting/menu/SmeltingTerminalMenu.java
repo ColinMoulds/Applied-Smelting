@@ -152,10 +152,13 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
         if (isServerSide()) {
             var type = getActiveType();
             var service = terminal.getService(type);
-            smelterCount = service == null ? 0 : service.getSmelterCount();
-            workingCount = service == null ? 0 : service.getWorkingCount();
-            enabled = service != null && service.isEnabled();
-            var input = service == null ? null : service.getDisplayInput();
+            var snapshot = service == null
+                    ? null
+                    : service.getTerminalSnapshot(getPlayer().level().getGameTime());
+            smelterCount = snapshot == null ? 0 : snapshot.smelterCount();
+            workingCount = snapshot == null ? 0 : snapshot.workingCount();
+            enabled = snapshot != null && snapshot.enabled();
+            var input = snapshot == null ? null : snapshot.displayInput();
             var fuel = service == null ? null : service.getSelectedFuel();
             selectedInput = input == null ? null : new GenericStack(input, 1);
             selectedFuel = fuel == null ? null : new GenericStack(fuel, 1);
@@ -169,16 +172,17 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
                     ? 0
                     : storage.getAvailableStacks().get(outputPreview.what());
             targetAmount = service == null ? 0 : service.getTargetAmount();
-            statusId = service == null ? 0 : service.getOverallStatus().id();
-            progressPercent = service == null ? 0 : service.getAverageProgressPercent();
-            fuelPercent = service == null ? 0 : service.getAverageFuelPercent();
-            fuelInUse = service != null && service.getItemFuelSmelterCount() > 0;
+            statusId = snapshot == null ? 0 : snapshot.overallStatus().id();
+            progressPercent = snapshot == null ? 0 : snapshot.averageProgressPercent();
+            fuelPercent = snapshot == null ? 0 : snapshot.averageFuelPercent();
+            fuelInUse = snapshot != null && snapshot.itemFuelSmelterCount() > 0;
             queueSize = service == null ? 0 : service.getQueuedInputs().size();
             queueCapacity = service == null ? 1 : service.getQueueCapacity();
-            combinedSpeedMultiplier = service == null ? 0 : service.getCombinedSpeedMultiplier();
-            combinedIdleAeTimes100 = service == null ? 0 : (int) Math.round(service.getCombinedIdleAePerTick() * 100);
+            combinedSpeedMultiplier = snapshot == null ? 0 : snapshot.combinedSpeedMultiplier();
+            combinedIdleAeTimes100 =
+                    snapshot == null ? 0 : (int) Math.round(snapshot.combinedIdleAePerTick() * 100);
             combinedAeFuelTimes100 =
-                    service == null ? 0 : (int) Math.round(service.getCombinedMaximumAeFuelPerTick() * 100);
+                    snapshot == null ? 0 : (int) Math.round(snapshot.combinedMaximumAeFuelPerTick() * 100);
             var queue = service == null ? java.util.List.<AEItemKey>of() : service.getQueuedInputs();
             queuePreview0 = queuePreview(queue, 0);
             queuePreview1 = queuePreview(queue, 1);
@@ -189,7 +193,7 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             queuePreview6 = queuePreview(queue, 6);
             queuePreview7 = queuePreview(queue, 7);
             queuePreview8 = queuePreview(queue, 8);
-            var activeInputs = service == null ? java.util.Set.<AEItemKey>of() : service.getActiveInputs();
+            var activeInputs = snapshot == null ? java.util.Set.<AEItemKey>of() : snapshot.activeInputs();
             int mask = 0;
             for (int i = 0; i < queue.size() && i < 9; i++) {
                 if (activeInputs.contains(queue.get(i))) {

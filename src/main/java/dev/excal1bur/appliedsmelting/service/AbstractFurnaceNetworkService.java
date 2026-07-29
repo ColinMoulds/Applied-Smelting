@@ -44,6 +44,24 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
     private AEItemKey selectedFuel;
     private long targetAmount = -1;
     private int assignmentCursor;
+    private int cachedQueueCapacity = -1;
+    private long terminalSnapshotTick = Long.MIN_VALUE;
+    private TerminalSnapshot terminalSnapshot;
+
+    public record TerminalSnapshot(
+            int smelterCount,
+            int workingCount,
+            int itemFuelSmelterCount,
+            int averageProgressPercent,
+            int averageFuelPercent,
+            SmelterStatus overallStatus,
+            boolean enabled,
+            @Nullable AEItemKey displayInput,
+            Set<AEItemKey> activeInputs,
+            int combinedSpeedMultiplier,
+            double combinedIdleAePerTick,
+            double combinedMaximumAeFuelPerTick) {
+    }
 
     /** Which concrete block entity class this service tracks, so machine types don't share a queue. */
     protected abstract Class<? extends AbstractMENetworkFurnaceBlockEntity> machineClass();
@@ -54,7 +72,9 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
     @Override
     public void addNode(IGridNode node, @Nullable CompoundTag savedData) {
         if (machineClass().isInstance(node.getOwner())) {
-            smelters.add(machineClass().cast(node.getOwner()));
+            if (smelters.add(machineClass().cast(node.getOwner()))) {
+                invalidateQueueCapacity();
+            }
         }
         if (node.getOwner() instanceof SmeltingTerminalHost terminal) {
             terminals.add(terminal);
@@ -65,7 +85,9 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
     public void removeNode(IGridNode node) {
         if (machineClass().isInstance(node.getOwner())) {
             var smelter = machineClass().cast(node.getOwner());
-            smelters.remove(smelter);
+            if (smelters.remove(smelter)) {
+                invalidateQueueCapacity();
+            }
             assignments.remove(smelter);
             deferredAssignments.remove(smelter);
         }
@@ -76,6 +98,87 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
 
     public int getSmelterCount() {
         return smelters.size();
+    }
+
+    /**
+     * Aggregates every terminal-facing machine metric in one pass and shares it among terminals
+     * viewing this service during the same server tick.
+     */
+    public TerminalSnapshot getTerminalSnapshot(long gameTime) {
+        if (terminalSnapshot != null && terminalSnapshotTick == gameTime) {
+            return terminalSnapshot;
+        }
+
+        var activeInputCounts = new HashMap<AEItemKey, Integer>();
+        var workingCount = 0;
+        var itemFuelSmelterCount = 0;
+        var progressTotal = 0;
+        var progressCount = 0;
+        var fuelTotal = 0;
+        var fuelCount = 0;
+        var enabled = false;
+        var combinedSpeedMultiplier = 0;
+        var combinedIdleAePerTick = 0.0;
+        var combinedMaximumAeFuelPerTick = 0.0;
+        var highestPriorityStatus = smelters.isEmpty() ? SmelterStatus.NO_SMELTERS : SmelterStatus.OFFLINE;
+        var highestPriorityIndex = STATUS_PRIORITY.length;
+
+        for (var smelter : smelters) {
+            if (smelter.isActivelySmelting()) {
+                workingCount++;
+                var item = smelter.getPinnedInput();
+                if (item == null) {
+                    item = assignments.get(smelter);
+                }
+                if (item != null) {
+                    activeInputCounts.merge(item, 1, Integer::sum);
+                }
+            }
+            if (smelter.getPowerMode() == SmeltingPowerMode.ITEM_FUEL) {
+                itemFuelSmelterCount++;
+            }
+            if (smelter.isWorking()) {
+                progressTotal += smelter.getProgressPercent();
+                progressCount++;
+            }
+            var fuelPercent = smelter.getFuelPercent();
+            if (fuelPercent > 0) {
+                fuelTotal += fuelPercent;
+                fuelCount++;
+            }
+            var machineStatus = smelter.getMachineStatus();
+            for (int i = 0; i < highestPriorityIndex; i++) {
+                if (STATUS_PRIORITY[i] == machineStatus) {
+                    highestPriorityStatus = machineStatus;
+                    highestPriorityIndex = i;
+                    break;
+                }
+            }
+            enabled |= smelter.isEnabled();
+            combinedSpeedMultiplier += smelter.getSpeedMultiplier();
+            combinedIdleAePerTick += smelter.getIdleAePerTick();
+            combinedMaximumAeFuelPerTick += smelter.getMaximumAeFuelPerTick();
+        }
+
+        var displayInput = activeInputCounts.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElseGet(this::getSelectedInput);
+        terminalSnapshot = new TerminalSnapshot(
+                smelters.size(),
+                workingCount,
+                itemFuelSmelterCount,
+                progressCount == 0 ? 0 : (int) Math.round((double) progressTotal / progressCount),
+                fuelCount == 0 ? 0 : (int) Math.round((double) fuelTotal / fuelCount),
+                highestPriorityStatus,
+                enabled,
+                displayInput,
+                Set.copyOf(activeInputCounts.keySet()),
+                combinedSpeedMultiplier,
+                combinedIdleAePerTick,
+                combinedMaximumAeFuelPerTick);
+        terminalSnapshotTick = gameTime;
+        return terminalSnapshot;
     }
 
     public int getWorkingCount() {
@@ -231,13 +334,20 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
     }
 
     public int getQueueCapacity() {
+        if (cachedQueueCapacity >= 0) {
+            return cachedQueueCapacity;
+        }
         if (smelters.isEmpty()) {
-            return 1;
+            return cachedQueueCapacity = 1;
         }
         var baseCapacity = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::baseQueueCapacity).max().orElse(1);
         var capCeiling = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::capacityCardCap).max().orElse(9);
         var capacityCards = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::getCapacityCardCount).sum();
-        return Math.min(capCeiling, baseCapacity + capacityCards);
+        return cachedQueueCapacity = Math.min(capCeiling, baseCapacity + capacityCards);
+    }
+
+    public void invalidateQueueCapacity() {
+        cachedQueueCapacity = -1;
     }
 
     /** Current network-queue assignment for a smelter, if any. Used to carry work over a tier upgrade. */
@@ -357,11 +467,14 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
             return true;
         }
 
-        long pendingAmount = smelters.stream()
-                .filter(smelter -> smelter != requester)
-                .mapToLong(smelter -> smelter.getPendingOutputAmount(output))
-                .sum();
-        return storedAmount + pendingAmount + outputAmount <= target;
+        long pendingAmount = 0;
+        for (var smelter : smelters) {
+            if (smelter != requester) {
+                pendingAmount = ProcessingMath.saturatedAddNonNegative(
+                        pendingAmount, smelter.getPendingOutputAmount(output));
+            }
+        }
+        return ProcessingMath.canStartTargetJob(target, storedAmount, pendingAmount, outputAmount);
     }
 
     private void wakeSmelters() {

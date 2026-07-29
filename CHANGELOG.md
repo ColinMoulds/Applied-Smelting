@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.0
+
+- Added survival crafting recipes and recipe-book advancements for every tier of the ME Blast Furnace, ME Smoker, and ME Crucible.
+- Added automated processing-math tests for fractional lava consumption and output-target limits.
+- Active processing jobs now cache and persist their resolved output, amount, and duration instead of repeating recipe lookups every tick.
+- Reduced active-machine chunk save pressure by checkpointing progress and remaining fuel every 20 ticks while still saving immediately at job and configuration boundaries.
+- Fixed Fuel Efficiency Cards over-consuming lava at fractional rates by tracking sub-millibucket consumption with a persistent fixed-point accumulator.
+- Fixed completed jobs requiring additional fuel, lava, or AE power before their output could be inserted.
+- Fixed completed jobs being cancelled when their queue selection changed before output insertion.
+- Fixed unusual storage providers potentially duplicating partially accepted outputs; machines now persist and retry only the remaining amount.
+- Added strict positive-value validation for recipe output amounts and processing times.
+- Made output-target arithmetic overflow-safe and included all pending machine outputs in the calculation.
+- Cached shared queue capacity until machine membership or upgrade cards change.
+- Consolidated terminal statistics into one per-service snapshot per server tick instead of repeatedly scanning every connected machine.
+- Centralized tier-upgrade state capture and the full in-place upgrade transaction across all four machine families.
+- Updated the README to cover all machines, power modes, terminal queues, and optional integrations, and enabled the Modrinth project link.
+
 ## 0.5.0
 
 - Added optional Jade support. Looking at any ME machine (Smelter, Blast Furnace, Smoker, Crucible, all tiers) now shows its status, current item, progress, and fuel level right in the Jade tooltip - no need to open the machine or terminal to check on it.

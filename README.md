@@ -5,13 +5,12 @@
 ![Minecraft](https://img.shields.io/badge/Minecraft-26.1.2-blue)
 ![NeoForge](https://img.shields.io/badge/NeoForge-26.1.2.80%2B-orange)
 ![Applied Energistics 2](https://img.shields.io/badge/AE2-26.1.10--beta%2B-8A2BE2)
+[![Modrinth](https://img.shields.io/modrinth/dt/WF9YE7g7?logo=modrinth&label=Modrinth)](https://modrinth.com/mod/WF9YE7g7)
 [![License](https://img.shields.io/badge/license-LGPL--3.0-informational)](LICENSE)
-<!-- [![Modrinth](https://img.shields.io/modrinth/dt/PROJECT_ID?logo=modrinth&label=Modrinth)](https://modrinth.com/mod/PROJECT_ID) -->
-[![CurseForge](https://cf.way2muchnoise.eu/PROJECT_ID.svg)](https://www.curseforge.com/minecraft/mc-mods/applied-smelting)
 
-Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds an **ME Smelter** that processes furnace recipes directly from ME storage and an **ME Smelting Terminal** for network-wide control and status.
+Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds network-connected machines for smelting, blasting, smoking, and melting metals directly from ME storage, plus an **ME Smelting Terminal** for network-wide control and status.
 
-> Smelt items directly from your ME network with a dedicated network-powered smelter and control terminal.
+> Turn your ME network into a configurable, tiered processing system without managing machine input and output inventories.
 
 ## Table of Contents
 
@@ -24,12 +23,16 @@ Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds
 
 ## Features
 
-- **ME Smelter** — a network-connected machine that pulls furnace-recipe inputs from ME storage and returns the results, in four tiers (Default, Mk1, Mk2, Mk3) with increasing speed, efficiency, and queue capacity.
-- **In-place tier upgrades** — upgrade a placed smelter with a craftable kit chain (Template → Mk1 → Mk2 → Mk3). Upgrading keeps everything the machine was doing: pinned recipe, progress, fuel, cards, and its place in the network queue.
-- **ME Smelting Terminal** — network-wide control with a shared recipe queue, live progress, fuel selection from the network or your own inventory, and per-machine status.
-- **Flexible power** — each smelter runs on conventional furnace fuel or AE power, your choice per machine.
+- **Four machine families** — the ME Smelter processes furnace recipes, the ME Blast Furnace handles blasting recipes, the ME Smoker cooks smoking recipes, and the ME Crucible turns supported ores and raw metals into molten fluids.
+- **Four tiers per machine** — Default, Mk1, Mk2, and Mk3 variants provide increasing speed, efficiency, and queue capacity.
+- **In-place tier upgrades** — use the universal upgrade-kit chain (Template → Mk1 → Mk2 → Mk3) on a placed machine. Pinned recipes, progress, fuel, cards, power mode, and network assignment are preserved.
+- **ME Smelting Terminal** — control four independent Smelting, Blasting, Smoking, and Crucible queues from one terminal, with live progress, output targets, fuel selection, and aggregate machine status.
+- **Three power modes** — each machine can use conventional furnace fuel, AE power, or lava drawn from ME fluid storage.
 - **Upgrade cards** — Acceleration, Energy, Fuel Efficiency, Capacity, and Redstone cards, using AE2's standard upgrade slot system.
-- **Status glow** — smelters show a live status light, styled after AE2's own machines, so you can see at a glance which are running, idle, blocked, or offline.
+- **Pinned processing** — right-click a machine with a valid input to dedicate it to that recipe instead of the shared queue.
+- **Status glow and Jade support** — machines show an AE2-style status light, while optional Jade tooltips expose status, input, progress, and fuel without opening a menu.
+- **JEI integration** — optional JEI support exposes Crucible recipes and registers every machine tier as a recipe catalyst.
+- **Molten-metal compatibility** — the Crucible uses fluids from common `c:molten_<metal>` tags when another mod provides them and falls back to its own network-only fluids.
 - **Configurable balance** — tier stats (speed, power draw, fuel efficiency, upgrade slots, queue capacity) are adjustable through the mod config.
 
 See the [wiki](https://github.com/ColinMoulds/Applied-Smelting/wiki) for detailed usage guides.
@@ -42,6 +45,7 @@ See the [wiki](https://github.com/ColinMoulds/Applied-Smelting/wiki) for detaile
 | NeoForge | 26.1.2.80 or newer compatible 26.1 build |
 | Applied Energistics 2 | 26.1.10-beta or newer compatible 26.1 build |
 | Java | 25 |
+| Optional integrations | JEI 29.16.0.47+, Jade 26.1.0+ |
 
 ## Building
 
@@ -53,9 +57,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, cod
 
 ## Links
 
-<!-- Fill in and uncomment as these become available. -->
-<!-- - [Modrinth](https://modrinth.com/mod/PROJECT_ID) -->
-- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/applied-smelting)
+- [Modrinth](https://modrinth.com/mod/WF9YE7g7)
 - [Changelog](CHANGELOG.md)
 - [Issues](https://github.com/ColinMoulds/Applied-Smelting/issues)
 - [Contributing](CONTRIBUTING.md)

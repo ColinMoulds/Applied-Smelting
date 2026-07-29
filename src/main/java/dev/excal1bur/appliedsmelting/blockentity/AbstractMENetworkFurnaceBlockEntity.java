@@ -1,6 +1,7 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import net.minecraft.core.BlockPos;
@@ -43,6 +44,7 @@ import dev.excal1bur.appliedsmelting.core.ModItems;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
+import dev.excal1bur.appliedsmelting.service.ProcessingMath;
 
 /** Shared network/queue/upgrade-card/power logic for every ME network furnace-style machine. */
 public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInvBlockEntity
@@ -54,6 +56,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     private static final double ENERGY_CARD_REDUCTION = 0.15;
     private static final double MINIMUM_ENERGY_MULTIPLIER = 0.4;
     private static final int FUEL_EFFICIENCY_PER_CARD_PERCENT = 25;
+    private static final int PROCESSING_CHECKPOINT_INTERVAL_TICKS = 20;
 
     private final AppEngInternalInventory inventory = new AppEngInternalInventory(this, 1);
     private final IUpgradeInventory upgrades;
@@ -62,12 +65,14 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     private int processingTicksRequired = DEFAULT_PROCESSING_TICKS;
     private int fuelTicksRemaining;
     private int fuelTicksTotal;
+    private long lavaFractionUnits;
     private boolean enabled = true;
     private SmeltingPowerMode powerMode = SmeltingPowerMode.ITEM_FUEL;
     private AEItemKey pinnedInput;
     private SmelterStatus status = SmelterStatus.WAITING_FOR_SELECTION;
     private AEKey pendingOutputKey;
     private long pendingOutputAmount;
+    private int ticksSinceProcessingCheckpoint;
 
     protected AbstractMENetworkFurnaceBlockEntity(
             BlockEntityType<?> type, BlockPos pos, BlockState state, int upgradeSlots) {
@@ -86,6 +91,32 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
 
     /** A resolved recipe: what network key/amount the buffered input will produce, and how long it takes. */
     protected record ResolvedRecipe(AEKey outputKey, long outputAmount, int processingTicks) {
+        protected ResolvedRecipe {
+            Objects.requireNonNull(outputKey, "outputKey");
+            if (outputAmount <= 0) {
+                throw new IllegalArgumentException("Recipe output amount must be positive");
+            }
+            if (processingTicks <= 0) {
+                throw new IllegalArgumentException("Recipe processing time must be positive");
+            }
+        }
+    }
+
+    public record ProcessingState(
+            ItemStack bufferedInput,
+            int progress,
+            int processingTicksRequired,
+            int fuelTicksRemaining,
+            int fuelTicksTotal,
+            long lavaFractionUnits,
+            AEKey pendingOutputKey,
+            long pendingOutputAmount,
+            boolean enabled,
+            SmeltingPowerMode powerMode,
+            AEItemKey pinnedInput) {
+        public ProcessingState {
+            bufferedInput = bufferedInput.copy();
+        }
     }
 
     /** Resolves what {@code input} produces for this machine type; empty if there's no matching recipe. */
@@ -117,30 +148,38 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         return getBlockState().getBlock().asItem();
     }
 
-    /** Restores in-flight processing state captured from a machine this one just replaced (e.g. a tier upgrade). */
-    public void restoreProcessingState(
-            ItemStack bufferedInput,
-            int progress,
-            int processingTicksRequired,
-            int fuelTicksRemaining,
-            int fuelTicksTotal,
-            AEKey pendingOutputKey,
-            long pendingOutputAmount,
-            boolean enabled,
-            SmeltingPowerMode powerMode,
-            AEItemKey pinnedInput) {
-        inventory.setItemDirect(0, bufferedInput);
-        this.progress = progress;
-        this.processingTicksRequired = processingTicksRequired;
-        this.fuelTicksRemaining = fuelTicksRemaining;
-        this.fuelTicksTotal = fuelTicksTotal;
-        this.pendingOutputKey = pendingOutputKey;
-        this.pendingOutputAmount = pendingOutputAmount;
-        this.enabled = enabled;
-        this.powerMode = powerMode;
-        this.pinnedInput = pinnedInput;
+    /** Captures every processing field that must survive an in-place tier upgrade. */
+    public ProcessingState captureProcessingState() {
+        return new ProcessingState(
+                inventory.getStackInSlot(0),
+                progress,
+                processingTicksRequired,
+                fuelTicksRemaining,
+                fuelTicksTotal,
+                lavaFractionUnits,
+                pendingOutputKey,
+                pendingOutputAmount,
+                enabled,
+                powerMode,
+                pinnedInput);
+    }
+
+    /** Restores in-flight processing state captured from a machine this one just replaced. */
+    public void restoreProcessingState(ProcessingState state) {
+        inventory.setItemDirect(0, state.bufferedInput().copy());
+        progress = state.progress();
+        processingTicksRequired = state.processingTicksRequired();
+        fuelTicksRemaining = state.fuelTicksRemaining();
+        fuelTicksTotal = state.fuelTicksTotal();
+        lavaFractionUnits =
+                Math.max(0, Math.min(ProcessingMath.LAVA_UNITS_PER_MB - 1, state.lavaFractionUnits()));
+        pendingOutputKey = state.pendingOutputKey();
+        pendingOutputAmount = state.pendingOutputAmount();
+        enabled = state.enabled();
+        powerMode = state.powerMode();
+        pinnedInput = state.pinnedInput();
         updateIdlePowerUsage();
-        saveChanges();
+        saveProcessingState();
     }
 
     @Override
@@ -188,10 +227,12 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         output.putInt("processingTicksRequired", processingTicksRequired);
         output.putInt("fuelTicksRemaining", fuelTicksRemaining);
         output.putInt("fuelTicksTotal", fuelTicksTotal);
+        output.putLong("lavaFractionUnits", lavaFractionUnits);
         output.putBoolean("enabled", enabled);
         output.putString("powerMode", powerMode.serializedName());
         output.putInt("status", status.id());
         writeItemKey(output.child("pinnedInput"), pinnedInput);
+        writeGenericStack(output.child("pendingOutput"), pendingOutputKey, pendingOutputAmount);
         upgrades.writeToNBT(output, "upgrades");
     }
 
@@ -202,10 +243,19 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         processingTicksRequired = input.getIntOr("processingTicksRequired", DEFAULT_PROCESSING_TICKS);
         fuelTicksRemaining = input.getIntOr("fuelTicksRemaining", 0);
         fuelTicksTotal = input.getIntOr("fuelTicksTotal", fuelTicksRemaining);
+        lavaFractionUnits =
+                Math.max(
+                        0,
+                        Math.min(
+                                ProcessingMath.LAVA_UNITS_PER_MB - 1,
+                                input.getLongOr("lavaFractionUnits", 0)));
         enabled = input.getBooleanOr("enabled", true);
         powerMode = SmeltingPowerMode.fromSerializedName(input.getStringOr("powerMode", "item_fuel"));
         status = SmelterStatus.fromId(input.getIntOr("status", SmelterStatus.WAITING_FOR_SELECTION.id()));
         pinnedInput = readItemKey(input.childOrEmpty("pinnedInput"));
+        var pendingOutput = GenericStack.readTag(input.childOrEmpty("pendingOutput"));
+        pendingOutputKey = pendingOutput == null ? null : pendingOutput.what();
+        pendingOutputAmount = pendingOutput == null ? 0 : pendingOutput.amount();
         upgrades.readFromNBT(input, "upgrades");
         updateIdlePowerUsage();
     }
@@ -251,9 +301,28 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         var level = node.getLevel();
         var grid = node.getGrid();
         var service = grid.getService(serviceClass());
+        var storage = grid.getStorageService().getInventory();
+
+        // A finished job has already paid its full processing cost. Commit it before checking
+        // current queue selection or fuel availability so it cannot be stranded or cancelled.
+        var bufferedInput = inventory.getStackInSlot(0);
+        if (!bufferedInput.isEmpty()) {
+            if (!ensureActiveJob(level)) {
+                var invalidInput = AEItemKey.of(bufferedInput);
+                returnInputToNetwork(storage);
+                setStatus(SmelterStatus.INVALID_RECIPE);
+                if (invalidInput != null) {
+                    service.deferAssignment(this, invalidInput);
+                }
+                return TickRateModulation.SLOWER;
+            }
+            if (progress >= processingTicksRequired) {
+                return commitCompletedJob(storage);
+            }
+        }
+
         var selectedInput = service.assignInput(this);
         var selectedFuel = service.getSelectedFuel();
-        var storage = grid.getStorageService().getInventory();
 
         // Checked before selection so a player who queued an item but has no fuel/power sees
         // "missing fuel", not the more ambiguous "waiting for selection".
@@ -274,8 +343,8 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
             return TickRateModulation.SLOWER;
         }
 
-        var bufferedInput = AEItemKey.of(inventory.getStackInSlot(0));
-        if (bufferedInput != null && !bufferedInput.equals(selectedInput)) {
+        var bufferedInputKey = AEItemKey.of(inventory.getStackInSlot(0));
+        if (bufferedInputKey != null && !bufferedInputKey.equals(selectedInput)) {
             if (!returnInputToNetwork(storage)) {
                 setStatus(SmelterStatus.OUTPUT_FULL);
                 return TickRateModulation.SLOWER;
@@ -287,37 +356,6 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
             return TickRateModulation.SLOWER;
         }
 
-        var input = inventory.getStackInSlot(0);
-        var resolved = resolveRecipe(level, input);
-        if (resolved.isEmpty()) {
-            returnInputToNetwork(storage);
-            setStatus(SmelterStatus.INVALID_RECIPE);
-            service.deferAssignment(this, selectedInput);
-            return TickRateModulation.SLOWER;
-        }
-
-        var pending = resolved.get();
-        pendingOutputKey = pending.outputKey();
-        pendingOutputAmount = pending.outputAmount();
-
-        if (progress >= processingTicksRequired) {
-            var resultKey = pending.outputKey();
-            var amount = pending.outputAmount();
-            if (resultKey != null) {
-                if (storage.insert(resultKey, amount, Actionable.SIMULATE, actionSource) == amount) {
-                    storage.insert(resultKey, amount, Actionable.MODULATE, actionSource);
-                    inventory.setItemDirect(0, ItemStack.EMPTY);
-                    progress = 0;
-                    clearPendingOutput();
-                    saveChanges();
-                    setStatus(SmelterStatus.SMELTING);
-                    return TickRateModulation.URGENT;
-                }
-            }
-            setStatus(SmelterStatus.OUTPUT_FULL);
-            return TickRateModulation.SLOWER;
-        }
-
         var workTicks = Math.min(ticksSinceLastCall * getSpeedMultiplier(), processingTicksRequired - progress);
         if (powerMode == SmeltingPowerMode.ITEM_FUEL) {
             if (fuelTicksRemaining <= 0 && !consumeFuel(level, storage, selectedFuel)) {
@@ -326,13 +364,9 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
             workTicks = Math.min(workTicks, fuelTicksRemaining);
             fuelTicksRemaining -= workTicks;
         } else if (powerMode == SmeltingPowerMode.LAVA_FUEL) {
-            var lavaNeeded = (long) Math.ceil(getLavaMbPerWorkTick() * workTicks);
-            var lavaKey = AEFluidKey.of(Fluids.LAVA);
-            if (storage.extract(lavaKey, lavaNeeded, Actionable.SIMULATE, actionSource) < lavaNeeded) {
-                setStatus(SmelterStatus.MISSING_FUEL);
+            if (!consumeLava(storage, workTicks)) {
                 return TickRateModulation.SLOWER;
             }
-            storage.extract(lavaKey, lavaNeeded, Actionable.MODULATE, actionSource);
         } else {
             var energyNeeded = getAeFuelPerWorkTick() * workTicks;
             var energy = grid.getEnergyService();
@@ -346,8 +380,59 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
 
         progress += workTicks;
         setStatus(SmelterStatus.SMELTING);
-        saveChanges();
+        checkpointProcessingState(ticksSinceLastCall);
         return TickRateModulation.URGENT;
+    }
+
+    private TickRateModulation commitCompletedJob(MEStorage storage) {
+        var amount = pendingOutputAmount;
+        if (storage.insert(pendingOutputKey, amount, Actionable.SIMULATE, actionSource) != amount) {
+            setStatus(SmelterStatus.OUTPUT_FULL);
+            return TickRateModulation.SLOWER;
+        }
+
+        var inserted = Math.max(
+                0, Math.min(amount, storage.insert(pendingOutputKey, amount, Actionable.MODULATE, actionSource)));
+        if (inserted < amount) {
+            // A non-standard storage provider may accept less than it simulated. Remember exactly
+            // what remains so the accepted portion cannot be duplicated on the next attempt.
+            pendingOutputAmount = amount - inserted;
+            saveProcessingState();
+            setStatus(SmelterStatus.OUTPUT_FULL);
+            return TickRateModulation.SLOWER;
+        }
+
+        inventory.setItemDirect(0, ItemStack.EMPTY);
+        progress = 0;
+        clearPendingOutput();
+        saveProcessingState();
+        setStatus(SmelterStatus.SMELTING);
+        return TickRateModulation.URGENT;
+    }
+
+    private boolean ensureActiveJob(ServerLevel level) {
+        if (pendingOutputKey != null && pendingOutputAmount > 0 && processingTicksRequired > 0) {
+            return true;
+        }
+
+        var input = inventory.getStackInSlot(0);
+        if (input.isEmpty()) {
+            return false;
+        }
+        var resolved = resolveRecipe(level, input);
+        if (resolved.isEmpty()) {
+            return false;
+        }
+
+        var job = resolved.get();
+        if (job.outputKey() == null || job.outputAmount() <= 0 || job.processingTicks() <= 0) {
+            return false;
+        }
+        pendingOutputKey = job.outputKey();
+        pendingOutputAmount = job.outputAmount();
+        processingTicksRequired = job.processingTicks();
+        saveProcessingState();
+        return true;
     }
 
     private boolean pullSelectedInput(
@@ -386,7 +471,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
             pendingOutputKey = resultKey;
             pendingOutputAmount = amount;
             setStatus(SmelterStatus.SMELTING);
-            saveChanges();
+            saveProcessingState();
             return true;
         }
         setStatus(SmelterStatus.MISSING_INPUT);
@@ -405,10 +490,35 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
                         >= needed;
             }
             case LAVA_FUEL -> {
-                var needed = (long) Math.ceil(getLavaMbPerWorkTick());
-                yield storage.extract(AEFluidKey.of(Fluids.LAVA), needed, Actionable.SIMULATE, actionSource) >= needed;
+                yield storage.extract(AEFluidKey.of(Fluids.LAVA), 1, Actionable.SIMULATE, actionSource) >= 1;
             }
         };
+    }
+
+    private boolean consumeLava(MEStorage storage, int workTicks) {
+        var consumption = ProcessingMath.accumulateLava(getLavaMbPerWorkTick(), workTicks, lavaFractionUnits);
+        var lavaNeeded = consumption.wholeMb();
+        var newFractionUnits = consumption.remainderUnits();
+        if (lavaNeeded == 0) {
+            lavaFractionUnits = newFractionUnits;
+            return true;
+        }
+
+        var lavaKey = AEFluidKey.of(Fluids.LAVA);
+        if (storage.extract(lavaKey, lavaNeeded, Actionable.SIMULATE, actionSource) < lavaNeeded) {
+            setStatus(SmelterStatus.MISSING_FUEL);
+            return false;
+        }
+        var extracted = storage.extract(lavaKey, lavaNeeded, Actionable.MODULATE, actionSource);
+        if (extracted != lavaNeeded) {
+            if (extracted > 0) {
+                storage.insert(lavaKey, extracted, Actionable.MODULATE, actionSource);
+            }
+            setStatus(SmelterStatus.MISSING_FUEL);
+            return false;
+        }
+        lavaFractionUnits = newFractionUnits;
+        return true;
     }
 
     private boolean consumeFuel(ServerLevel level, appeng.api.storage.MEStorage storage, AEItemKey fuelKey) {
@@ -439,7 +549,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         var adjustedBurnDuration = Math.max(1, (int) ((long) burnDuration * getFuelEfficiencyPercent() / 100));
         fuelTicksRemaining = adjustedBurnDuration;
         fuelTicksTotal = adjustedBurnDuration;
-        saveChanges();
+        saveProcessingState();
         return true;
     }
 
@@ -454,7 +564,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
             inventory.setItemDirect(0, ItemStack.EMPTY);
             progress = 0;
             clearPendingOutput();
-            saveChanges();
+            saveProcessingState();
             return true;
         }
         return false;
@@ -463,6 +573,18 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     private void clearPendingOutput() {
         pendingOutputKey = null;
         pendingOutputAmount = 0;
+    }
+
+    private void checkpointProcessingState(int elapsedTicks) {
+        ticksSinceProcessingCheckpoint += Math.max(1, elapsedTicks);
+        if (ticksSinceProcessingCheckpoint >= PROCESSING_CHECKPOINT_INTERVAL_TICKS) {
+            saveProcessingState();
+        }
+    }
+
+    private void saveProcessingState() {
+        ticksSinceProcessingCheckpoint = 0;
+        saveChanges();
     }
 
     public long getPendingOutputAmount(AEKey output) {
@@ -483,6 +605,10 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
 
     public int getFuelTicksTotal() {
         return fuelTicksTotal;
+    }
+
+    public long getLavaFractionUnits() {
+        return lavaFractionUnits;
     }
 
     public AEKey getPendingOutputKey() {
@@ -514,6 +640,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
 
     private void onUpgradesChanged() {
         updateIdlePowerUsage();
+        getMainNode().ifPresent((grid, node) -> grid.getService(serviceClass()).invalidateQueueCapacity());
         saveChanges();
         wakeForSelectionChange();
     }
@@ -615,6 +742,12 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     private static void writeItemKey(ValueOutput output, AEItemKey key) {
         if (key != null) {
             GenericStack.writeTag(output, new GenericStack(key, 1));
+        }
+    }
+
+    private static void writeGenericStack(ValueOutput output, AEKey key, long amount) {
+        if (key != null && amount > 0) {
+            GenericStack.writeTag(output, new GenericStack(key, amount));
         }
     }
 
