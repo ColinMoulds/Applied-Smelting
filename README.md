@@ -6,6 +6,7 @@
 ![NeoForge](https://img.shields.io/badge/NeoForge-26.1.2.80%2B-orange)
 ![Applied Energistics 2](https://img.shields.io/badge/AE2-26.1.10--beta%2B-8A2BE2)
 [![Modrinth](https://img.shields.io/modrinth/dt/WF9YE7g7?logo=modrinth&label=Modrinth)](https://modrinth.com/mod/WF9YE7g7)
+[![CurseForge](https://img.shields.io/curseforge/dt/1619570?logo=curseforge&label=CurseForge)](https://www.curseforge.com/minecraft/mc-mods/applied-smelting)
 [![License](https://img.shields.io/badge/license-LGPL--3.0-informational)](LICENSE)
 
 Applied Smelting is an Applied Energistics 2 addon for Minecraft 26.1.2. It adds network-connected machines for smelting, blasting, smoking, and melting metals directly from ME storage, plus an **ME Smelting Terminal** for network-wide control and status.
@@ -58,6 +59,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, cod
 ## Links
 
 - [Modrinth](https://modrinth.com/mod/WF9YE7g7)
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/applied-smelting)
 - [Changelog](CHANGELOG.md)
 - [Issues](https://github.com/ColinMoulds/Applied-Smelting/issues)
 - [Contributing](CONTRIBUTING.md)
