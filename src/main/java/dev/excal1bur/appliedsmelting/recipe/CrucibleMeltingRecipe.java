@@ -27,10 +27,12 @@ import dev.excal1bur.appliedsmelting.core.MoltenMetalFluids;
 public final class CrucibleMeltingRecipe implements Recipe<SingleRecipeInput> {
     public static final MapCodec<CrucibleMeltingRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
-                    Ingredient.CODEC.fieldOf("ingredient").forGetter(r -> r.ingredient),
-                    Codec.STRING.fieldOf("metal").forGetter(r -> r.metal),
-                    Codec.INT.fieldOf("amount").forGetter(r -> r.amount),
-                    Codec.INT.optionalFieldOf("cookingtime", 200).forGetter(r -> r.cookingTime))
+                     Ingredient.CODEC.fieldOf("ingredient").forGetter(r -> r.ingredient),
+                     Codec.STRING.fieldOf("metal").forGetter(r -> r.metal),
+                     Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(r -> r.amount),
+                     Codec.intRange(1, Integer.MAX_VALUE)
+                             .optionalFieldOf("cookingtime", 200)
+                             .forGetter(r -> r.cookingTime))
             .apply(instance, CrucibleMeltingRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, CrucibleMeltingRecipe> STREAM_CODEC = StreamCodec.composite(
@@ -48,6 +50,12 @@ public final class CrucibleMeltingRecipe implements Recipe<SingleRecipeInput> {
     private final int cookingTime;
 
     public CrucibleMeltingRecipe(Ingredient ingredient, String metal, int amount, int cookingTime) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Crucible output amount must be positive");
+        }
+        if (cookingTime <= 0) {
+            throw new IllegalArgumentException("Crucible cooking time must be positive");
+        }
         this.ingredient = ingredient;
         this.metal = metal;
         this.amount = amount;

@@ -21,6 +21,8 @@ dependencies {
     api(libs.ae2)
     compileOnly(libs.jei)
     compileOnly(libs.jade)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 neoForge {
@@ -68,6 +70,10 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = "UTF-8"
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     processResources {

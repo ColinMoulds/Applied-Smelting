@@ -26,8 +26,18 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Publish to Modrinth
+      - name: Verify release tag matches project version
+        shell: bash
+        run: |
+          project_version="$(sed -n 's/^modVersion=//p' gradle.properties)"
+          expected_tag="v${project_version}"
+          if [[ "${GITHUB_REF_NAME}" != "${expected_tag}" ]]; then
+            echo "Release tag '${GITHUB_REF_NAME}' does not match expected tag '${expected_tag}'." >&2
+            exit 1
+          fi
+
+      - name: Build, test, and publish to Modrinth
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           CHANGELOG: ${{ github.event.release.body }}
-        run: ./gradlew modrinth
+        run: ./gradlew clean build modrinth
