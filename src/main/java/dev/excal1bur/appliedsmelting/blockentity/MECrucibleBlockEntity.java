@@ -1,7 +1,12 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
+import appeng.api.stacks.AEFluidKey;
+import dev.excal1bur.appliedsmelting.block.MECrucibleBlock;
+import dev.excal1bur.appliedsmelting.core.ModRecipes;
+import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
+import dev.excal1bur.appliedsmelting.service.CrucibleService;
+import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 import java.util.Optional;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -9,14 +14,6 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-
-import appeng.api.stacks.AEFluidKey;
-
-import dev.excal1bur.appliedsmelting.block.MECrucibleBlock;
-import dev.excal1bur.appliedsmelting.core.ModRecipes;
-import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
-import dev.excal1bur.appliedsmelting.service.CrucibleService;
-import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 
 /** Ore/raw-metal -> molten-metal-fluid machine. Output goes to ME fluid storage, not item storage. */
 public final class MECrucibleBlockEntity extends AbstractMENetworkFurnaceBlockEntity {

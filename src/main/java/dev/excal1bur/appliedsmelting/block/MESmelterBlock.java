@@ -1,16 +1,15 @@
 package dev.excal1bur.appliedsmelting.block;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.crafting.RecipePropertySet;
-import net.minecraft.world.level.block.Block;
-
 import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingService;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipePropertySet;
+import net.minecraft.world.level.block.Block;
 
 public final class MESmelterBlock extends AbstractCookingFurnaceBlock<MESmelterBlockEntity> {
     private final SmelterTier tier;

@@ -17,19 +17,31 @@ dependencyResolutionManagement {
         maven("https://api.modrinth.com/maven") { name = "Modrinth" }
     }
     versionCatalogs {
-        create("libs") {
-            version("neoforge", "26.1.2.80")
+        val neoforgeVersion = "26.1.2.80"
+
+        // Minecraft/NeoForge/AE2 - the mod can't build or run without these.
+        create("core") {
+            version("neoforge", neoforgeVersion)
             version("ae2", "26.1.10-beta")
+            library("ae2", "org.appliedenergistics", "appliedenergistics2").versionRef("ae2")
+        }
+
+        // Optional compat targets (compileOnly) - the mod builds and runs fine without them.
+        create("integration") {
             version("jei", "29.16.0.47")
             version("jade", "26.1.8+neoforge")
-            version("junit", "5.14.4")
-            version("junit-platform", "1.14.4")
-            library("ae2", "org.appliedenergistics", "appliedenergistics2").versionRef("ae2")
             library("jei", "mezz.jei", "jei-26.1.2-neoforge").versionRef("jei")
             library("jade", "maven.modrinth", "jade").versionRef("jade")
+        }
+
+        // Test-only dependencies.
+        create("testlibs") {
+            version("junit", "5.14.4")
+            version("junit-platform", "1.14.4")
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").versionRef("junit")
             library("junit-platform-launcher", "org.junit.platform", "junit-platform-launcher")
                 .versionRef("junit-platform")
+            library("neoforge-test", "net.neoforged", "testframework").version(neoforgeVersion)
         }
     }
 }

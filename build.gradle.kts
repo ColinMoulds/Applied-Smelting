@@ -2,6 +2,8 @@ plugins {
     java
     id("net.neoforged.moddev")
     id("com.modrinth.minotaur") version "2.9.0"
+    id("net.darkhax.curseforgegradle") version "1.3.33"
+    id("com.diffplug.spotless") version "7.0.1"
 }
 
 val modId = "appliedsmelting"
@@ -18,20 +20,26 @@ java {
 }
 
 dependencies {
-    api(libs.ae2)
-    compileOnly(libs.jei)
-    compileOnly(libs.jade)
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+    api(core.ae2)
+    compileOnly(integration.jei)
+    compileOnly(integration.jade)
+    testImplementation(testlibs.junit.jupiter)
+    testRuntimeOnly(testlibs.junit.platform.launcher)
+    testImplementation(testlibs.neoforge.test)
 }
 
 neoForge {
-    version = libs.versions.neoforge.get()
+    version = core.versions.neoforge.get()
 
     mods {
         create(modId) {
             sourceSet(sourceSets.main.get())
         }
+    }
+
+    unitTest {
+        enable()
+        testedMod = mods.getByName(modId)
     }
 
     runs {
@@ -86,8 +94,8 @@ tasks {
 }
 
 // Publishes the release jar to Modrinth. Only runs when explicitly invoked
-// (`./gradlew modrinth`), which the publish-modrinth.yml workflow does on
-// every published GitHub release; local builds are unaffected.
+// (`./gradlew modrinth`), which the publish.yml workflow does on every
+// published GitHub release; local builds are unaffected.
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
     projectId.set("WF9YE7g7")
@@ -101,5 +109,52 @@ modrinth {
 
     dependencies {
         required.project("ae2")
+    }
+}
+
+// Publishes the release jar to CurseForge. Only runs when explicitly invoked
+// (`./gradlew publishCurseForge`), which the publish.yml workflow does on
+// every published GitHub release; local builds are unaffected.
+tasks.register<net.darkhax.curseforgegradle.TaskPublishCurseForge>("publishCurseForge") {
+    apiToken = System.getenv("CURSEFORGE_API_KEY") ?: ""
+
+    val mainFile = upload("1619570", tasks.jar)
+    mainFile.changelog = System.getenv("CHANGELOG") ?: ""
+    mainFile.changelogType = "markdown"
+    mainFile.releaseType = "beta"
+    mainFile.addGameVersion(minecraftVersion)
+    mainFile.addModLoader("NeoForge")
+    mainFile.addRequirement("ae2")
+}
+
+spotless {
+    kotlinGradle {
+        target("*.kts")
+        leadingTabsToSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    java {
+        target("src/**/java/**/*.java")
+        endWithNewline()
+        leadingTabsToSpaces(4)
+        removeUnusedImports()
+        palantirJavaFormat("2.96.0")
+        toggleOffOn()
+        trimTrailingWhitespace()
+
+        // courtesy of diffplug/spotless#240
+        custom("noWildcardImports", object : java.io.Serializable, com.diffplug.spotless.FormatterFunc {
+            override fun apply(input: String): String {
+                if (input.contains("*;\n")) {
+                    throw GradleException("No wildcard imports allowed.")
+                }
+
+                return input
+            }
+        })
+
+        bumpThisNumberIfACustomStepChanges(1)
     }
 }

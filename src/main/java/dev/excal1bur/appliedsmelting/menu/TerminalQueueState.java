@@ -1,23 +1,23 @@
 package dev.excal1bur.appliedsmelting.menu;
 
+import appeng.api.stacks.AEItemKey;
+import appeng.api.stacks.GenericStack;
+import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-
-import appeng.api.stacks.AEItemKey;
-import appeng.api.stacks.GenericStack;
-
-import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
+import org.jetbrains.annotations.Nullable;
 
 /** One machine type's persisted terminal-side selection/queue state, restored into a fresh grid service on demand. */
 public final class TerminalQueueState {
-    @Nullable private AEItemKey selectedInput;
-    @Nullable private AEItemKey selectedFuel;
+    @Nullable
+    private AEItemKey selectedInput;
+
+    @Nullable
+    private AEItemKey selectedFuel;
+
     private final List<AEItemKey> queuedInputs = new ArrayList<>();
     private long targetAmount;
 

@@ -1,14 +1,12 @@
 package dev.excal1bur.appliedsmelting.core;
 
+import dev.excal1bur.appliedsmelting.AppliedSmelting;
+import dev.excal1bur.appliedsmelting.recipe.CrucibleMeltingRecipe;
 import java.util.function.Supplier;
-
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
-import dev.excal1bur.appliedsmelting.AppliedSmelting;
-import dev.excal1bur.appliedsmelting.recipe.CrucibleMeltingRecipe;
 
 public final class ModRecipes {
     public static final DeferredRegister<RecipeSerializer<?>> REGISTER =
@@ -26,6 +24,5 @@ public final class ModRecipes {
                 }
             });
 
-    private ModRecipes() {
-    }
+    private ModRecipes() {}
 }

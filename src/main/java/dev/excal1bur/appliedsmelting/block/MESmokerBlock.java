@@ -1,16 +1,15 @@
 package dev.excal1bur.appliedsmelting.block;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.crafting.RecipePropertySet;
-import net.minecraft.world.level.block.Block;
-
 import dev.excal1bur.appliedsmelting.blockentity.MESmokerBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.SmokerTier;
 import dev.excal1bur.appliedsmelting.service.SmokingService;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipePropertySet;
+import net.minecraft.world.level.block.Block;
 
 public final class MESmokerBlock extends AbstractCookingFurnaceBlock<MESmokerBlockEntity> {
     private final SmokerTier tier;

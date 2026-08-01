@@ -50,8 +50,7 @@ public final class AppliedSmeltingConfig {
         SPEC = builder.build();
     }
 
-    private AppliedSmeltingConfig() {
-    }
+    private AppliedSmeltingConfig() {}
 
     // Same relative curve for every machine type/tier 0-3, loosely modeled on Iron Furnaces'
     // per-tier cook-time steps and Mekanism's tiered power/speed scaling.
@@ -99,15 +98,15 @@ public final class AppliedSmeltingConfig {
                             .defineInRange("idleDrawMultiplier", idleDrawMultiplier, 0.1, 2.0),
                     builder.comment("Maximum AE-fuel draw rate multiplier before Energy Cards (1.0 = no change)")
                             .defineInRange("aeFuelDrawMultiplier", aeFuelDrawMultiplier, 0.1, 4.0),
-                    builder.comment("Network-drawn lava draw rate multiplier (mB per work tick, before Fuel Efficiency Cards)")
+                    builder.comment(
+                                    "Network-drawn lava draw rate multiplier (mB per work tick, before Fuel Efficiency Cards)")
                             .defineInRange("lavaFuelDrawMultiplier", lavaFuelDrawMultiplier, 0.1, 4.0),
                     builder.comment("Base fuel efficiency multiplier before Fuel Efficiency Cards")
                             .defineInRange("fuelEfficiencyMultiplier", fuelEfficiencyMultiplier, 0.1, 4.0),
                     builder.comment("Base network queue capacity contributed while a machine of this tier is connected")
                             .defineInRange("baseQueueCapacity", baseQueueCapacity, 1, 9),
-                    builder.comment(
-                                    "Maximum total network queue capacity contributed via Capacity Cards"
-                                            + " while a machine of this tier is connected")
+                    builder.comment("Maximum total network queue capacity contributed via Capacity Cards"
+                                    + " while a machine of this tier is connected")
                             .defineInRange("capacityCardCap", capacityCardCap, 1, 64));
             builder.pop();
             return values;

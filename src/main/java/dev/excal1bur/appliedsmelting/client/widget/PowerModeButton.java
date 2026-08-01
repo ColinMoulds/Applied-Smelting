@@ -1,17 +1,14 @@
 package dev.excal1bur.appliedsmelting.client.widget;
 
+import appeng.client.gui.widgets.IconButton;
+import appeng.util.Icon;
+import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 import java.util.List;
 import java.util.function.Consumer;
-
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-
-import appeng.client.gui.widgets.IconButton;
-import appeng.util.Icon;
-
-import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 
 /** Cycles through {@link SmeltingPowerMode} on click, showing an icon/overlay/tooltip for the current mode. */
 public final class PowerModeButton extends IconButton {
@@ -19,8 +16,7 @@ public final class PowerModeButton extends IconButton {
     private SmeltingPowerMode mode = SmeltingPowerMode.ITEM_FUEL;
 
     public PowerModeButton(Consumer<SmeltingPowerMode> onCycle) {
-        super(button -> {
-        });
+        super(button -> {});
         this.onCycle = onCycle;
     }
 
@@ -45,10 +41,11 @@ public final class PowerModeButton extends IconButton {
 
     @Override
     public List<Component> getTooltipMessage() {
-        return List.of(Component.translatable(switch (mode) {
-            case ITEM_FUEL -> "gui.appliedsmelting.mode_item_fuel";
-            case AE_POWER -> "gui.appliedsmelting.mode_ae_power";
-            case LAVA_FUEL -> "gui.appliedsmelting.mode_lava_fuel";
-        }));
+        return List.of(Component.translatable(
+                switch (mode) {
+                    case ITEM_FUEL -> "gui.appliedsmelting.mode_item_fuel";
+                    case AE_POWER -> "gui.appliedsmelting.mode_ae_power";
+                    case LAVA_FUEL -> "gui.appliedsmelting.mode_lava_fuel";
+                }));
     }
 }

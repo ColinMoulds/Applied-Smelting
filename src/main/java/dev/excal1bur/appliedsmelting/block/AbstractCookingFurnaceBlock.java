@@ -1,11 +1,10 @@
 package dev.excal1bur.appliedsmelting.block;
 
+import dev.excal1bur.appliedsmelting.blockentity.AbstractCookingFurnaceBlockEntity;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipePropertySet;
 import net.minecraft.world.level.Level;
-
-import dev.excal1bur.appliedsmelting.blockentity.AbstractCookingFurnaceBlockEntity;
 
 /** Base for blocks whose machine processes a vanilla cooking-style recipe type (smelting/blasting/smoking). */
 public abstract class AbstractCookingFurnaceBlock<T extends AbstractCookingFurnaceBlockEntity>

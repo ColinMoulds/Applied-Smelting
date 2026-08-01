@@ -1,9 +1,8 @@
 package dev.excal1bur.appliedsmelting.client.render;
 
+import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.core.Direction;
-
-import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 
 /** Data captured on the main thread for {@link MENetworkFurnaceBlockEntityRenderer#submit}. */
 public final class SmelterRenderState extends BlockEntityRenderState {

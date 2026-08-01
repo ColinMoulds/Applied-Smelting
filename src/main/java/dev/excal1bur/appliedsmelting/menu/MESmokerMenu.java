@@ -1,17 +1,15 @@
 package dev.excal1bur.appliedsmelting.menu;
 
-import net.minecraft.world.entity.player.Inventory;
-
-import appeng.core.definitions.AEItems;
 import appeng.api.stacks.GenericStack;
+import appeng.core.definitions.AEItems;
 import appeng.menu.guisync.ClientActionKey;
 import appeng.menu.guisync.GuiSync;
 import appeng.menu.implementations.UpgradeableMenu;
-
 import dev.excal1bur.appliedsmelting.blockentity.MESmokerBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
 import dev.excal1bur.appliedsmelting.service.SmokerTier;
+import net.minecraft.world.entity.player.Inventory;
 
 public final class MESmokerMenu extends UpgradeableMenu<MESmokerBlockEntity> {
     private static final ClientActionKey<Integer> SET_POWER_MODE = new ClientActionKey<>("setPowerMode");
@@ -57,10 +55,7 @@ public final class MESmokerMenu extends UpgradeableMenu<MESmokerBlockEntity> {
 
     public MESmokerMenu(int id, Inventory playerInventory, MESmokerBlockEntity machine) {
         super(ModMenus.ME_SMOKER.get(), id, playerInventory, machine);
-        registerClientAction(
-                SET_POWER_MODE,
-                net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
-                this::setPowerMode);
+        registerClientAction(SET_POWER_MODE, net.minecraft.network.codec.ByteBufCodecs.VAR_INT, this::setPowerMode);
     }
 
     @Override

@@ -1,9 +1,11 @@
 package dev.excal1bur.appliedsmelting.client.render;
 
+import appeng.api.orientation.IOrientationStrategy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-
+import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
+import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -11,13 +13,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
-
 import org.jspecify.annotations.Nullable;
-
-import appeng.api.orientation.IOrientationStrategy;
-
-import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
-import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 
 /** Recolors an ME network furnace machine's front-face status dot to reflect live machine status. */
 public final class MENetworkFurnaceBlockEntityRenderer
@@ -34,8 +30,7 @@ public final class MENetworkFurnaceBlockEntityRenderer
     private static final float LED_MAX_Y = 3.0F / 16.0F;
     private static final float LED_Z = -5.0E-4F;
 
-    public MENetworkFurnaceBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-    }
+    public MENetworkFurnaceBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
 
     @Override
     public SmelterRenderState createRenderState() {
@@ -58,7 +53,10 @@ public final class MENetworkFurnaceBlockEntityRenderer
 
     @Override
     public void submit(
-            SmelterRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+            SmelterRenderState state,
+            PoseStack poseStack,
+            SubmitNodeCollector submitNodeCollector,
+            CameraRenderState camera) {
         var color = applyIntensity(statusColor(state.status), state.glowIntensity);
 
         poseStack.pushPose();
@@ -67,7 +65,9 @@ public final class MENetworkFurnaceBlockEntityRenderer
         poseStack.translate(-0.5, -0.5, -0.5);
 
         submitNodeCollector.submitCustomGeometry(
-                poseStack, AppliedSmeltingRenderTypes.SMELTER_STATUS_LED, (pose, buffer) -> renderLed(pose, buffer, color));
+                poseStack,
+                AppliedSmeltingRenderTypes.SMELTER_STATUS_LED,
+                (pose, buffer) -> renderLed(pose, buffer, color));
 
         poseStack.popPose();
     }
@@ -86,8 +86,8 @@ public final class MENetworkFurnaceBlockEntityRenderer
             case SMELTING -> COLOR_RUNNING;
             case WAITING_FOR_SELECTION, TARGET_REACHED, PAUSED -> COLOR_IDLE;
             case OFFLINE, NO_SMELTERS -> COLOR_DISCONNECTED;
-            case MISSING_INPUT, MISSING_FUEL, MISSING_POWER, OUTPUT_FULL,
-                    INVALID_RECIPE, REDSTONE_PAUSED -> COLOR_BLOCKED;
+            case MISSING_INPUT, MISSING_FUEL, MISSING_POWER, OUTPUT_FULL, INVALID_RECIPE, REDSTONE_PAUSED ->
+                COLOR_BLOCKED;
         };
     }
 

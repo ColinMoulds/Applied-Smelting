@@ -1,19 +1,10 @@
 package dev.excal1bur.appliedsmelting;
 
-import net.minecraft.resources.Identifier;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-
 import appeng.api.AECapabilities;
 import appeng.api.networking.GridServices;
 import appeng.api.networking.IInWorldGridNodeHost;
 import appeng.api.upgrades.Upgrades;
 import appeng.core.definitions.AEItems;
-
 import dev.excal1bur.appliedsmelting.core.AppliedSmeltingConfig;
 import dev.excal1bur.appliedsmelting.core.ModBlockEntities;
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
@@ -26,6 +17,13 @@ import dev.excal1bur.appliedsmelting.service.BlastingService;
 import dev.excal1bur.appliedsmelting.service.CrucibleService;
 import dev.excal1bur.appliedsmelting.service.SmeltingService;
 import dev.excal1bur.appliedsmelting.service.SmokingService;
+import net.minecraft.resources.Identifier;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 @Mod(AppliedSmelting.MOD_ID)
 public final class AppliedSmelting {
@@ -57,10 +55,8 @@ public final class AppliedSmelting {
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         for (var type : ModBlockEntities.REGISTER.getEntries()) {
-            event.registerBlockEntity(
-                    AECapabilities.IN_WORLD_GRID_NODE_HOST,
-                    type.get(),
-                    (blockEntity, context) -> (IInWorldGridNodeHost) blockEntity);
+            event.registerBlockEntity(AECapabilities.IN_WORLD_GRID_NODE_HOST, type.get(), (blockEntity, context) ->
+                    (IInWorldGridNodeHost) blockEntity);
         }
     }
 

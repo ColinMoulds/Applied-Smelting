@@ -1,16 +1,5 @@
 package dev.excal1bur.appliedsmelting.menu;
 
-import net.minecraft.core.Holder;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
-
-import org.jetbrains.annotations.Nullable;
-
 import appeng.api.stacks.AEFluidKey;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
@@ -19,10 +8,18 @@ import appeng.helpers.InventoryAction;
 import appeng.menu.guisync.ClientActionKey;
 import appeng.menu.guisync.GuiSync;
 import appeng.menu.me.common.MEStorageMenu;
-
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.core.ModRecipes;
 import dev.excal1bur.appliedsmelting.service.FurnaceType;
+import net.minecraft.core.Holder;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import org.jetbrains.annotations.Nullable;
 
 public final class SmeltingTerminalMenu extends MEStorageMenu {
     private static final ClientActionKey<Boolean> SET_ENABLED = new ClientActionKey<>("setEnabled");
@@ -92,20 +89,28 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
 
     @GuiSync(17)
     public GenericStack queuePreview0;
+
     @GuiSync(18)
     public GenericStack queuePreview1;
+
     @GuiSync(19)
     public GenericStack queuePreview2;
+
     @GuiSync(20)
     public GenericStack queuePreview3;
+
     @GuiSync(21)
     public GenericStack queuePreview4;
+
     @GuiSync(22)
     public GenericStack queuePreview5;
+
     @GuiSync(23)
     public GenericStack queuePreview6;
+
     @GuiSync(24)
     public GenericStack queuePreview7;
+
     @GuiSync(25)
     public GenericStack queuePreview8;
 
@@ -117,20 +122,28 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
 
     @GuiSync(28)
     public GenericStack queueOutput0;
+
     @GuiSync(29)
     public GenericStack queueOutput1;
+
     @GuiSync(30)
     public GenericStack queueOutput2;
+
     @GuiSync(31)
     public GenericStack queueOutput3;
+
     @GuiSync(32)
     public GenericStack queueOutput4;
+
     @GuiSync(33)
     public GenericStack queueOutput5;
+
     @GuiSync(34)
     public GenericStack queueOutput6;
+
     @GuiSync(35)
     public GenericStack queueOutput7;
+
     @GuiSync(36)
     public GenericStack queueOutput8;
 
@@ -179,8 +192,7 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
             queueSize = service == null ? 0 : service.getQueuedInputs().size();
             queueCapacity = service == null ? 1 : service.getQueueCapacity();
             combinedSpeedMultiplier = snapshot == null ? 0 : snapshot.combinedSpeedMultiplier();
-            combinedIdleAeTimes100 =
-                    snapshot == null ? 0 : (int) Math.round(snapshot.combinedIdleAePerTick() * 100);
+            combinedIdleAeTimes100 = snapshot == null ? 0 : (int) Math.round(snapshot.combinedIdleAePerTick() * 100);
             combinedAeFuelTimes100 =
                     snapshot == null ? 0 : (int) Math.round(snapshot.combinedMaximumAeFuelPerTick() * 100);
             var queue = service == null ? java.util.List.<AEItemKey>of() : service.getQueuedInputs();
@@ -247,8 +259,7 @@ public final class SmeltingTerminalMenu extends MEStorageMenu {
     }
 
     @Override
-    protected void handleNetworkInteraction(
-            ServerPlayer player, @Nullable AEKey clickedKey, InventoryAction action) {
+    protected void handleNetworkInteraction(ServerPlayer player, @Nullable AEKey clickedKey, InventoryAction action) {
         if (clickedKey instanceof AEItemKey itemKey) {
             var type = getActiveType();
             var service = terminal.getService(type);

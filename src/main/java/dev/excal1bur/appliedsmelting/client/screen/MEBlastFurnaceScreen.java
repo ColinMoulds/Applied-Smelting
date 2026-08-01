@@ -1,21 +1,20 @@
 package dev.excal1bur.appliedsmelting.client.screen;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-
+import appeng.client.api.AEKeyRendering;
 import appeng.client.gui.implementations.UpgradeableScreen;
 import appeng.client.gui.style.ScreenStyle;
-import appeng.client.api.AEKeyRendering;
-
 import dev.excal1bur.appliedsmelting.client.widget.PowerModeButton;
 import dev.excal1bur.appliedsmelting.menu.MEBlastFurnaceMenu;
 import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 public final class MEBlastFurnaceScreen extends UpgradeableScreen<MEBlastFurnaceMenu> {
     private final PowerModeButton powerModeButton;
 
-    public MEBlastFurnaceScreen(MEBlastFurnaceMenu menu, Inventory playerInventory, Component title, ScreenStyle style) {
+    public MEBlastFurnaceScreen(
+            MEBlastFurnaceMenu menu, Inventory playerInventory, Component title, ScreenStyle style) {
         super(menu, playerInventory, title, style);
         powerModeButton = new PowerModeButton(menu::requestPowerMode);
         widgets.add("powerMode", powerModeButton);
@@ -35,20 +34,21 @@ public final class MEBlastFurnaceScreen extends UpgradeableScreen<MEBlastFurnace
                         menu.capacityCards,
                         menu.redstoneCard ? 1 : 0));
         setTextContent(
-                "speed",
-                Component.translatable("gui.appliedsmelting.smelting_speed", menu.getSpeedMultiplier()));
+                "speed", Component.translatable("gui.appliedsmelting.smelting_speed", menu.getSpeedMultiplier()));
         setTextContent(
                 "power_mode",
-                Component.translatable(switch (menu.getPowerMode()) {
-                    case AE_POWER -> "gui.appliedsmelting.mode_ae_power";
-                    case LAVA_FUEL -> "gui.appliedsmelting.mode_lava_fuel";
-                    case ITEM_FUEL -> "gui.appliedsmelting.mode_item_fuel";
-                }));
+                Component.translatable(
+                        switch (menu.getPowerMode()) {
+                            case AE_POWER -> "gui.appliedsmelting.mode_ae_power";
+                            case LAVA_FUEL -> "gui.appliedsmelting.mode_lava_fuel";
+                            case ITEM_FUEL -> "gui.appliedsmelting.mode_item_fuel";
+                        }));
         setTextContent(
                 "recipe",
-                Component.translatable(menu.pinnedInput == null
-                        ? "gui.appliedsmelting.recipe_network_queue"
-                        : "gui.appliedsmelting.recipe_pinned"));
+                Component.translatable(
+                        menu.pinnedInput == null
+                                ? "gui.appliedsmelting.recipe_network_queue"
+                                : "gui.appliedsmelting.recipe_pinned"));
         setTextContent(
                 "power_usage",
                 Component.translatable(
@@ -61,15 +61,15 @@ public final class MEBlastFurnaceScreen extends UpgradeableScreen<MEBlastFurnace
                 Component.translatable("gui.appliedsmelting.fuel_efficiency", menu.fuelEfficiencyPercent));
         setTextContent(
                 "redstone",
-                Component.translatable(menu.redstoneCard
-                        ? "gui.appliedsmelting.redstone_signal_required"
-                        : "gui.appliedsmelting.redstone_ignored"));
+                Component.translatable(
+                        menu.redstoneCard
+                                ? "gui.appliedsmelting.redstone_signal_required"
+                                : "gui.appliedsmelting.redstone_ignored"));
         powerModeButton.setMode(menu.getPowerMode());
     }
 
     @Override
-    public void drawFG(
-            GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY, int mouseX, int mouseY) {
+    public void drawFG(GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY, int mouseX, int mouseY) {
         super.drawFG(guiGraphics, offsetX, offsetY, mouseX, mouseY);
         if (menu.pinnedInput != null) {
             AEKeyRendering.drawInGui(minecraft, guiGraphics, 145, 45, menu.pinnedInput.what());

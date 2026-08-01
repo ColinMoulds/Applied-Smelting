@@ -13,7 +13,8 @@ Thanks for your interest in contributing. Applied Smelting is an early-beta Appl
 - Requires **Java 25**.
 - Build with `./gradlew build` (`gradlew.bat build` on Windows). Artifacts are written to `build/libs`.
 - Launch a client/server test instance with the `client` / `server` Gradle runs (see `build.gradle.kts`), or via your IDE's NeoForge run configurations.
-- There is currently no automated test suite — changes are verified by building and testing in-game. Please describe what you tested (and how) in your PR description.
+- Run `./gradlew test` before opening a PR. Pure logic (tier math, etc.) belongs in a plain JUnit test under `src/test`; anything that needs real registries, a `Level`, or a `RecipeManager` should use NeoForge's test framework (`@ExtendWith(EphemeralTestServerProvider.class)`, see `ModRegistriesTest`) instead of hand-waving it with mocks. Automated tests don't replace in-game testing for anything UI- or timing-related — please still describe what you tested manually (and how) in your PR description.
+- Run `./gradlew spotlessApply` before committing; CI runs `spotlessCheck` and will fail the build on unformatted code.
 
 ## Making changes
 

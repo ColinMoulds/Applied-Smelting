@@ -1,17 +1,8 @@
 package dev.excal1bur.appliedsmelting.core;
 
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
 import appeng.block.AEBaseBlock;
 import appeng.block.AEBaseBlockItem;
 import appeng.items.parts.PartItem;
-
 import dev.excal1bur.appliedsmelting.AppliedSmelting;
 import dev.excal1bur.appliedsmelting.block.MEBlastFurnaceBlock;
 import dev.excal1bur.appliedsmelting.block.MECrucibleBlock;
@@ -23,29 +14,47 @@ import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
 import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 import dev.excal1bur.appliedsmelting.service.SmokerTier;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModBlocks {
     public static final DeferredRegister.Blocks REGISTER = DeferredRegister.createBlocks(AppliedSmelting.MOD_ID);
 
     public static final DeferredBlock<MESmelterBlock> ME_SMELTER = REGISTER.registerBlock(
-            "me_smelter", properties -> new MESmelterBlock(properties, SmelterTier.DEFAULT), ModBlocks::machineProperties);
+            "me_smelter",
+            properties -> new MESmelterBlock(properties, SmelterTier.DEFAULT),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMELTER_ITEM = ModItems.REGISTER.registerItem(
             "me_smelter", properties -> new AEBaseBlockItem(ME_SMELTER.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MESmelterBlock> ME_SMELTER_MK1 = REGISTER.registerBlock(
-            "me_smelter_mk1", properties -> new MESmelterBlock(properties, SmelterTier.MK1), ModBlocks::machineProperties);
+            "me_smelter_mk1",
+            properties -> new MESmelterBlock(properties, SmelterTier.MK1),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMELTER_MK1_ITEM = ModItems.REGISTER.registerItem(
-            "me_smelter_mk1", properties -> new AEBaseBlockItem(ME_SMELTER_MK1.get(), properties.useBlockDescriptionPrefix()));
+            "me_smelter_mk1",
+            properties -> new AEBaseBlockItem(ME_SMELTER_MK1.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MESmelterBlock> ME_SMELTER_MK2 = REGISTER.registerBlock(
-            "me_smelter_mk2", properties -> new MESmelterBlock(properties, SmelterTier.MK2), ModBlocks::machineProperties);
+            "me_smelter_mk2",
+            properties -> new MESmelterBlock(properties, SmelterTier.MK2),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMELTER_MK2_ITEM = ModItems.REGISTER.registerItem(
-            "me_smelter_mk2", properties -> new AEBaseBlockItem(ME_SMELTER_MK2.get(), properties.useBlockDescriptionPrefix()));
+            "me_smelter_mk2",
+            properties -> new AEBaseBlockItem(ME_SMELTER_MK2.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MESmelterBlock> ME_SMELTER_MK3 = REGISTER.registerBlock(
-            "me_smelter_mk3", properties -> new MESmelterBlock(properties, SmelterTier.MK3), ModBlocks::machineProperties);
+            "me_smelter_mk3",
+            properties -> new MESmelterBlock(properties, SmelterTier.MK3),
+            ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMELTER_MK3_ITEM = ModItems.REGISTER.registerItem(
-            "me_smelter_mk3", properties -> new AEBaseBlockItem(ME_SMELTER_MK3.get(), properties.useBlockDescriptionPrefix()));
+            "me_smelter_mk3",
+            properties -> new AEBaseBlockItem(ME_SMELTER_MK3.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MEBlastFurnaceBlock> ME_BLAST_FURNACE = REGISTER.registerBlock(
             "me_blast_furnace",
@@ -80,32 +89,24 @@ public final class ModBlocks {
             properties -> new AEBaseBlockItem(ME_BLAST_FURNACE_MK3.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MESmokerBlock> ME_SMOKER = REGISTER.registerBlock(
-            "me_smoker",
-            properties -> new MESmokerBlock(properties, SmokerTier.DEFAULT),
-            ModBlocks::machineProperties);
+            "me_smoker", properties -> new MESmokerBlock(properties, SmokerTier.DEFAULT), ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMOKER_ITEM = ModItems.REGISTER.registerItem(
             "me_smoker", properties -> new AEBaseBlockItem(ME_SMOKER.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MESmokerBlock> ME_SMOKER_MK1 = REGISTER.registerBlock(
-            "me_smoker_mk1",
-            properties -> new MESmokerBlock(properties, SmokerTier.MK1),
-            ModBlocks::machineProperties);
+            "me_smoker_mk1", properties -> new MESmokerBlock(properties, SmokerTier.MK1), ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMOKER_MK1_ITEM = ModItems.REGISTER.registerItem(
             "me_smoker_mk1",
             properties -> new AEBaseBlockItem(ME_SMOKER_MK1.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MESmokerBlock> ME_SMOKER_MK2 = REGISTER.registerBlock(
-            "me_smoker_mk2",
-            properties -> new MESmokerBlock(properties, SmokerTier.MK2),
-            ModBlocks::machineProperties);
+            "me_smoker_mk2", properties -> new MESmokerBlock(properties, SmokerTier.MK2), ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMOKER_MK2_ITEM = ModItems.REGISTER.registerItem(
             "me_smoker_mk2",
             properties -> new AEBaseBlockItem(ME_SMOKER_MK2.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MESmokerBlock> ME_SMOKER_MK3 = REGISTER.registerBlock(
-            "me_smoker_mk3",
-            properties -> new MESmokerBlock(properties, SmokerTier.MK3),
-            ModBlocks::machineProperties);
+            "me_smoker_mk3", properties -> new MESmokerBlock(properties, SmokerTier.MK3), ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_SMOKER_MK3_ITEM = ModItems.REGISTER.registerItem(
             "me_smoker_mk3",
             properties -> new AEBaseBlockItem(ME_SMOKER_MK3.get(), properties.useBlockDescriptionPrefix()));
@@ -115,7 +116,8 @@ public final class ModBlocks {
             properties -> new MECrucibleBlock(properties, CrucibleTier.DEFAULT),
             ModBlocks::machineProperties);
     public static final DeferredItem<BlockItem> ME_CRUCIBLE_ITEM = ModItems.REGISTER.registerItem(
-            "me_crucible", properties -> new AEBaseBlockItem(ME_CRUCIBLE.get(), properties.useBlockDescriptionPrefix()));
+            "me_crucible",
+            properties -> new AEBaseBlockItem(ME_CRUCIBLE.get(), properties.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<MECrucibleBlock> ME_CRUCIBLE_MK1 = REGISTER.registerBlock(
             "me_crucible_mk1",
@@ -141,14 +143,14 @@ public final class ModBlocks {
             "me_crucible_mk3",
             properties -> new AEBaseBlockItem(ME_CRUCIBLE_MK3.get(), properties.useBlockDescriptionPrefix()));
 
-    public static final DeferredBlock<SmeltingTerminalBlock> SMELTING_TERMINAL = REGISTER.registerBlock(
-            "me_smelting_terminal", SmeltingTerminalBlock::new, ModBlocks::machineProperties);
-    public static final DeferredItem<PartItem<SmeltingTerminalPart>> SMELTING_TERMINAL_ITEM = ModItems.REGISTER.registerItem(
-            "me_smelting_terminal",
-            properties -> new PartItem<>(properties, SmeltingTerminalPart.class, SmeltingTerminalPart::new));
+    public static final DeferredBlock<SmeltingTerminalBlock> SMELTING_TERMINAL =
+            REGISTER.registerBlock("me_smelting_terminal", SmeltingTerminalBlock::new, ModBlocks::machineProperties);
+    public static final DeferredItem<PartItem<SmeltingTerminalPart>> SMELTING_TERMINAL_ITEM =
+            ModItems.REGISTER.registerItem(
+                    "me_smelting_terminal",
+                    properties -> new PartItem<>(properties, SmeltingTerminalPart.class, SmeltingTerminalPart::new));
 
-    private ModBlocks() {
-    }
+    private ModBlocks() {}
 
     public static DeferredBlock<MESmelterBlock> blockForTier(SmelterTier tier) {
         return switch (tier) {

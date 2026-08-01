@@ -7,13 +7,29 @@ import net.minecraft.world.item.crafting.RecipeType;
 
 /** Which machine-type queue the terminal is currently showing. */
 public enum FurnaceType {
-    SMELTING(SmeltingService.class, RecipeType.SMELTING, RecipePropertySet.FURNACE_INPUT, "block.appliedsmelting.me_smelter"),
-    BLASTING(BlastingService.class, RecipeType.BLASTING, RecipePropertySet.BLAST_FURNACE_INPUT, "block.appliedsmelting.me_blast_furnace"),
-    SMOKING(SmokingService.class, RecipeType.SMOKING, RecipePropertySet.SMOKER_INPUT, "block.appliedsmelting.me_smoker"),
+    SMELTING(
+            SmeltingService.class,
+            RecipeType.SMELTING,
+            RecipePropertySet.FURNACE_INPUT,
+            "block.appliedsmelting.me_smelter"),
+    BLASTING(
+            BlastingService.class,
+            RecipeType.BLASTING,
+            RecipePropertySet.BLAST_FURNACE_INPUT,
+            "block.appliedsmelting.me_blast_furnace"),
+    SMOKING(
+            SmokingService.class,
+            RecipeType.SMOKING,
+            RecipePropertySet.SMOKER_INPUT,
+            "block.appliedsmelting.me_smoker"),
     // Not shown in the shared Terminal (fluid output doesn't fit its item-queue UI, see MECrucibleBlockEntity) -
     // the recipeType()/recipePropertySet() values here are unused placeholders, kept only so this enum constant
     // is valid for the generic per-type plumbing in AbstractFurnaceNetworkService.
-    CRUCIBLE(CrucibleService.class, RecipeType.SMELTING, RecipePropertySet.FURNACE_INPUT, "block.appliedsmelting.me_crucible");
+    CRUCIBLE(
+            CrucibleService.class,
+            RecipeType.SMELTING,
+            RecipePropertySet.FURNACE_INPUT,
+            "block.appliedsmelting.me_crucible");
 
     private final Class<? extends AbstractFurnaceNetworkService> serviceClass;
     private final RecipeType<? extends AbstractCookingRecipe> recipeType;

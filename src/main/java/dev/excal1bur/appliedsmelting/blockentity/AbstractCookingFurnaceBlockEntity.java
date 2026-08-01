@@ -1,7 +1,7 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
+import appeng.api.stacks.AEItemKey;
 import java.util.Optional;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -10,8 +10,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
-import appeng.api.stacks.AEItemKey;
 
 /** Base for machines that process a vanilla cooking-style recipe type (smelting/blasting/smoking). */
 public abstract class AbstractCookingFurnaceBlockEntity extends AbstractMENetworkFurnaceBlockEntity {
@@ -35,6 +33,7 @@ public abstract class AbstractCookingFurnaceBlockEntity extends AbstractMENetwor
         if (resultKey == null) {
             return Optional.empty();
         }
-        return Optional.of(new ResolvedRecipe(resultKey, result.getCount(), recipe.get().value().cookingTime()));
+        return Optional.of(new ResolvedRecipe(
+                resultKey, result.getCount(), recipe.get().value().cookingTime()));
     }
 }

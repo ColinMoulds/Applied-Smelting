@@ -1,17 +1,15 @@
 package dev.excal1bur.appliedsmelting.menu;
 
-import net.minecraft.world.entity.player.Inventory;
-
-import appeng.core.definitions.AEItems;
 import appeng.api.stacks.GenericStack;
+import appeng.core.definitions.AEItems;
 import appeng.menu.guisync.ClientActionKey;
 import appeng.menu.guisync.GuiSync;
 import appeng.menu.implementations.UpgradeableMenu;
-
 import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
+import net.minecraft.world.entity.player.Inventory;
 
 public final class MESmelterMenu extends UpgradeableMenu<MESmelterBlockEntity> {
     private static final ClientActionKey<Integer> SET_POWER_MODE = new ClientActionKey<>("setPowerMode");
@@ -54,10 +52,7 @@ public final class MESmelterMenu extends UpgradeableMenu<MESmelterBlockEntity> {
 
     public MESmelterMenu(int id, Inventory playerInventory, MESmelterBlockEntity smelter) {
         super(ModMenus.ME_SMELTER.get(), id, playerInventory, smelter);
-        registerClientAction(
-                SET_POWER_MODE,
-                net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
-                this::setPowerMode);
+        registerClientAction(SET_POWER_MODE, net.minecraft.network.codec.ByteBufCodecs.VAR_INT, this::setPowerMode);
     }
 
     @Override

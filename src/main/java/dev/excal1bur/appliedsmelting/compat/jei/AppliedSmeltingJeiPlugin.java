@@ -1,22 +1,19 @@
 package dev.excal1bur.appliedsmelting.compat.jei;
 
+import dev.excal1bur.appliedsmelting.AppliedSmelting;
+import dev.excal1bur.appliedsmelting.core.ModBlocks;
+import dev.excal1bur.appliedsmelting.recipe.CrucibleMeltingRecipe;
 import java.util.List;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
-
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-
-import dev.excal1bur.appliedsmelting.AppliedSmelting;
-import dev.excal1bur.appliedsmelting.core.ModBlocks;
-import dev.excal1bur.appliedsmelting.recipe.CrucibleMeltingRecipe;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 
 /**
  * Vanilla smelting/blasting/smoking recipes (including the Sky Stone ones) already show up under
@@ -34,7 +31,8 @@ public final class AppliedSmeltingJeiPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        registration.addRecipeCategories(new CrucibleMeltingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(
+                new CrucibleMeltingCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -60,19 +58,27 @@ public final class AppliedSmeltingJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(ModBlocks.ME_SMELTER_MK2_ITEM.get().getDefaultInstance(), RecipeTypes.SMELTING);
         registration.addRecipeCatalyst(ModBlocks.ME_SMELTER_MK3_ITEM.get().getDefaultInstance(), RecipeTypes.SMELTING);
 
-        registration.addRecipeCatalyst(ModBlocks.ME_BLAST_FURNACE_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
-        registration.addRecipeCatalyst(ModBlocks.ME_BLAST_FURNACE_MK1_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
-        registration.addRecipeCatalyst(ModBlocks.ME_BLAST_FURNACE_MK2_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
-        registration.addRecipeCatalyst(ModBlocks.ME_BLAST_FURNACE_MK3_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_BLAST_FURNACE_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_BLAST_FURNACE_MK1_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_BLAST_FURNACE_MK2_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_BLAST_FURNACE_MK3_ITEM.get().getDefaultInstance(), RecipeTypes.BLASTING);
 
         registration.addRecipeCatalyst(ModBlocks.ME_SMOKER_ITEM.get().getDefaultInstance(), RecipeTypes.SMOKING);
         registration.addRecipeCatalyst(ModBlocks.ME_SMOKER_MK1_ITEM.get().getDefaultInstance(), RecipeTypes.SMOKING);
         registration.addRecipeCatalyst(ModBlocks.ME_SMOKER_MK2_ITEM.get().getDefaultInstance(), RecipeTypes.SMOKING);
         registration.addRecipeCatalyst(ModBlocks.ME_SMOKER_MK3_ITEM.get().getDefaultInstance(), RecipeTypes.SMOKING);
 
-        registration.addRecipeCatalyst(ModBlocks.ME_CRUCIBLE_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
-        registration.addRecipeCatalyst(ModBlocks.ME_CRUCIBLE_MK1_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
-        registration.addRecipeCatalyst(ModBlocks.ME_CRUCIBLE_MK2_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
-        registration.addRecipeCatalyst(ModBlocks.ME_CRUCIBLE_MK3_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_CRUCIBLE_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_CRUCIBLE_MK1_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_CRUCIBLE_MK2_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
+        registration.addRecipeCatalyst(
+                ModBlocks.ME_CRUCIBLE_MK3_ITEM.get().getDefaultInstance(), CrucibleMeltingCategory.TYPE);
     }
 }

@@ -1,8 +1,7 @@
 package dev.excal1bur.appliedsmelting.service;
 
-import java.util.Locale;
-
 import dev.excal1bur.appliedsmelting.core.AppliedSmeltingConfig;
+import java.util.Locale;
 
 /** ME Blast Furnace tier. Ordinal order also defines upgrade-kit progression order. */
 public enum BlastFurnaceTier {

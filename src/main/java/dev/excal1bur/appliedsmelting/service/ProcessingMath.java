@@ -28,9 +28,7 @@ public final class ProcessingMath {
 
         var workUnits = Math.max(0, Math.round(mbPerWorkTick * LAVA_UNITS_PER_MB * workTicks));
         var accumulatedUnits = saturatedAddNonNegative(remainderUnits, workUnits);
-        return new LavaConsumption(
-                accumulatedUnits / LAVA_UNITS_PER_MB,
-                accumulatedUnits % LAVA_UNITS_PER_MB);
+        return new LavaConsumption(accumulatedUnits / LAVA_UNITS_PER_MB, accumulatedUnits % LAVA_UNITS_PER_MB);
     }
 
     public static boolean canStartTargetJob(long target, long stored, long pending, long output) {
@@ -52,6 +50,5 @@ public final class ProcessingMath {
         return left > Long.MAX_VALUE - right ? Long.MAX_VALUE : left + right;
     }
 
-    private ProcessingMath() {
-    }
+    private ProcessingMath() {}
 }

@@ -1,25 +1,21 @@
 package dev.excal1bur.appliedsmelting.part;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-
 import appeng.api.parts.IPartItem;
 import appeng.api.stacks.AEItemKey;
 import appeng.parts.reporting.AbstractTerminalPart;
-
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
 import dev.excal1bur.appliedsmelting.menu.TerminalQueueState;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.FurnaceType;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jetbrains.annotations.Nullable;
 
 public final class SmeltingTerminalPart extends AbstractTerminalPart implements SmeltingTerminalHost {
     private final Map<FurnaceType, TerminalQueueState> states = new EnumMap<>(FurnaceType.class);

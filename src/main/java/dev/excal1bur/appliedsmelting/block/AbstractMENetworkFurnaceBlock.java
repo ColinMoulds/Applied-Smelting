@@ -1,7 +1,15 @@
 package dev.excal1bur.appliedsmelting.block;
 
+import appeng.api.orientation.IOrientationStrategy;
+import appeng.api.orientation.OrientationStrategies;
+import appeng.api.stacks.AEItemKey;
+import appeng.block.AEBaseEntityBlock;
+import appeng.menu.MenuOpener;
+import appeng.menu.locator.MenuLocators;
+import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
+import dev.excal1bur.appliedsmelting.core.ModItems;
+import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import java.util.ArrayList;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -14,17 +22,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
-
-import appeng.api.orientation.IOrientationStrategy;
-import appeng.api.orientation.OrientationStrategies;
-import appeng.api.stacks.AEItemKey;
-import appeng.block.AEBaseEntityBlock;
-import appeng.menu.MenuOpener;
-import appeng.menu.locator.MenuLocators;
-
-import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
-import dev.excal1bur.appliedsmelting.core.ModItems;
-import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 
 /** Shared right-click interactions (recipe pin, toggle, open menu) for every ME network furnace-style block. */
 public abstract class AbstractMENetworkFurnaceBlock<T extends AbstractMENetworkFurnaceBlockEntity>
@@ -57,7 +54,7 @@ public abstract class AbstractMENetworkFurnaceBlock<T extends AbstractMENetworkF
             BlockPos pos,
             Player player,
             InteractionHand hand,
-        BlockHitResult hitResult) {
+            BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof AbstractMENetworkFurnaceBlockEntity machine) {
             if (player.isShiftKeyDown()) {
                 return tryApplyUpgradeKit(level, pos, machine, stack, player);
@@ -67,9 +64,11 @@ public abstract class AbstractMENetworkFurnaceBlock<T extends AbstractMENetworkF
                     var input = AEItemKey.of(stack);
                     var clear = input != null && input.equals(machine.getPinnedInput());
                     machine.setPinnedInput(clear ? null : input);
-                    player.sendOverlayMessage(clear
-                            ? Component.translatable("message.appliedsmelting.recipe_unpinned")
-                            : Component.translatable("message.appliedsmelting.recipe_pinned", stack.getHoverName()));
+                    player.sendOverlayMessage(
+                            clear
+                                    ? Component.translatable("message.appliedsmelting.recipe_unpinned")
+                                    : Component.translatable(
+                                            "message.appliedsmelting.recipe_pinned", stack.getHoverName()));
                 }
                 return InteractionResult.SUCCESS;
             }
@@ -78,11 +77,7 @@ public abstract class AbstractMENetworkFurnaceBlock<T extends AbstractMENetworkF
     }
 
     private InteractionResult tryApplyUpgradeKit(
-            Level level,
-            BlockPos pos,
-            AbstractMENetworkFurnaceBlockEntity machine,
-            ItemStack stack,
-            Player player) {
+            Level level, BlockPos pos, AbstractMENetworkFurnaceBlockEntity machine, ItemStack stack, Player player) {
         var targetTierLevel = ModItems.upgradeKitLevel(stack);
         if (targetTierLevel < 1 || targetTierLevel > 3) {
             // Must return a definitive result for upgrade kits, while unrelated held items pass

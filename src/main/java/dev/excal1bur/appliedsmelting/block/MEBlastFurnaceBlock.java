@@ -1,16 +1,15 @@
 package dev.excal1bur.appliedsmelting.block;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.crafting.RecipePropertySet;
-import net.minecraft.world.level.block.Block;
-
 import dev.excal1bur.appliedsmelting.blockentity.MEBlastFurnaceBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
 import dev.excal1bur.appliedsmelting.service.BlastingService;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipePropertySet;
+import net.minecraft.world.level.block.Block;
 
 public final class MEBlastFurnaceBlock extends AbstractCookingFurnaceBlock<MEBlastFurnaceBlockEntity> {
     private final BlastFurnaceTier tier;
@@ -41,7 +40,8 @@ public final class MEBlastFurnaceBlock extends AbstractCookingFurnaceBlock<MEBla
 
     @Override
     protected Block blockForTierLevel(int tierLevel) {
-        return ModBlocks.blockForBlastFurnaceTier(BlastFurnaceTier.values()[tierLevel]).get();
+        return ModBlocks.blockForBlastFurnaceTier(BlastFurnaceTier.values()[tierLevel])
+                .get();
     }
 
     @Override

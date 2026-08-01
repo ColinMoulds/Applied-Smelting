@@ -1,12 +1,11 @@
 package dev.excal1bur.appliedsmelting.compat.jade;
 
+import dev.excal1bur.appliedsmelting.block.AbstractMENetworkFurnaceBlock;
+import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
-
-import dev.excal1bur.appliedsmelting.block.AbstractMENetworkFurnaceBlock;
-import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
 
 /**
  * Every ME machine (Smelter, Blast Furnace, Smoker, Crucible, all tiers) shares

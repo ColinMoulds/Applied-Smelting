@@ -1,14 +1,12 @@
 package dev.excal1bur.appliedsmelting.core;
 
+import appeng.api.upgrades.Upgrades;
+import dev.excal1bur.appliedsmelting.AppliedSmelting;
+import dev.excal1bur.appliedsmelting.item.SmelterUpgradeKitItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
-import appeng.api.upgrades.Upgrades;
-
-import dev.excal1bur.appliedsmelting.AppliedSmelting;
-import dev.excal1bur.appliedsmelting.item.SmelterUpgradeKitItem;
 
 public final class ModItems {
     public static final DeferredRegister.Items REGISTER = DeferredRegister.createItems(AppliedSmelting.MOD_ID);
@@ -26,8 +24,7 @@ public final class ModItems {
     public static final DeferredItem<Item> MK3_UPGRADE_KIT =
             REGISTER.registerItem("mk3_upgrade_kit", SmelterUpgradeKitItem::new);
 
-    private ModItems() {
-    }
+    private ModItems() {}
 
     /** Which mark level a held upgrade kit item applies (1/2/3), or 0 if the stack isn't a kit. */
     public static int upgradeKitLevel(ItemStack stack) {

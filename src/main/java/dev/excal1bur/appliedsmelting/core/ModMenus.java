@@ -1,15 +1,7 @@
 package dev.excal1bur.appliedsmelting.core;
 
-import java.util.function.Supplier;
-
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
 import appeng.menu.implementations.MenuTypeBuilder;
-
 import dev.excal1bur.appliedsmelting.AppliedSmelting;
-import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
 import dev.excal1bur.appliedsmelting.blockentity.MEBlastFurnaceBlockEntity;
 import dev.excal1bur.appliedsmelting.blockentity.MECrucibleBlockEntity;
 import dev.excal1bur.appliedsmelting.blockentity.MESmelterBlockEntity;
@@ -18,7 +10,12 @@ import dev.excal1bur.appliedsmelting.menu.MEBlastFurnaceMenu;
 import dev.excal1bur.appliedsmelting.menu.MECrucibleMenu;
 import dev.excal1bur.appliedsmelting.menu.MESmelterMenu;
 import dev.excal1bur.appliedsmelting.menu.MESmokerMenu;
+import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
+import java.util.function.Supplier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.inventory.MenuType;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModMenus {
     public static final DeferredRegister<MenuType<?>> REGISTER =
@@ -49,6 +46,5 @@ public final class ModMenus {
             () -> MenuTypeBuilder.create(MECrucibleMenu::new, MECrucibleBlockEntity.class)
                     .buildUnregistered(AppliedSmelting.id("me_crucible")));
 
-    private ModMenus() {
-    }
+    private ModMenus() {}
 }

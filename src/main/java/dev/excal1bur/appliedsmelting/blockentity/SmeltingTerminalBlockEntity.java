@@ -1,17 +1,5 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-
 import appeng.api.config.Settings;
 import appeng.api.config.SortDir;
 import appeng.api.config.SortOrder;
@@ -26,13 +14,22 @@ import appeng.blockentity.grid.AENetworkedBlockEntity;
 import appeng.menu.ISubMenu;
 import appeng.menu.MenuOpener;
 import appeng.menu.locator.MenuLocators;
-
 import dev.excal1bur.appliedsmelting.core.ModBlocks;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
 import dev.excal1bur.appliedsmelting.menu.TerminalQueueState;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.FurnaceType;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public final class SmeltingTerminalBlockEntity extends AENetworkedBlockEntity implements SmeltingTerminalHost {
     private final IConfigManager configManager = IConfigManager.builder(this::saveChanges)

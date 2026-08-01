@@ -2,7 +2,6 @@ package dev.excal1bur.appliedsmelting.core;
 
 import java.util.Locale;
 import java.util.function.Supplier;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.FluidTags;
@@ -40,6 +39,5 @@ public final class MoltenMetalFluids {
         return fallbackFluid;
     }
 
-    private MoltenMetalFluids() {
-    }
+    private MoltenMetalFluids() {}
 }

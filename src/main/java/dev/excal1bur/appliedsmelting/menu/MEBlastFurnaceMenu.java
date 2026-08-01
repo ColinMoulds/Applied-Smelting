@@ -1,17 +1,15 @@
 package dev.excal1bur.appliedsmelting.menu;
 
-import net.minecraft.world.entity.player.Inventory;
-
-import appeng.core.definitions.AEItems;
 import appeng.api.stacks.GenericStack;
+import appeng.core.definitions.AEItems;
 import appeng.menu.guisync.ClientActionKey;
 import appeng.menu.guisync.GuiSync;
 import appeng.menu.implementations.UpgradeableMenu;
-
 import dev.excal1bur.appliedsmelting.blockentity.MEBlastFurnaceBlockEntity;
 import dev.excal1bur.appliedsmelting.core.ModMenus;
 import dev.excal1bur.appliedsmelting.service.BlastFurnaceTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
+import net.minecraft.world.entity.player.Inventory;
 
 public final class MEBlastFurnaceMenu extends UpgradeableMenu<MEBlastFurnaceBlockEntity> {
     private static final ClientActionKey<Integer> SET_POWER_MODE = new ClientActionKey<>("setPowerMode");
@@ -57,10 +55,7 @@ public final class MEBlastFurnaceMenu extends UpgradeableMenu<MEBlastFurnaceBloc
 
     public MEBlastFurnaceMenu(int id, Inventory playerInventory, MEBlastFurnaceBlockEntity machine) {
         super(ModMenus.ME_BLAST_FURNACE.get(), id, playerInventory, machine);
-        registerClientAction(
-                SET_POWER_MODE,
-                net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
-                this::setPowerMode);
+        registerClientAction(SET_POWER_MODE, net.minecraft.network.codec.ByteBufCodecs.VAR_INT, this::setPowerMode);
     }
 
     @Override

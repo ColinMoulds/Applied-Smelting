@@ -1,25 +1,9 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
-import appeng.api.inventories.InternalInventory;
 import appeng.api.inventories.ISegmentedInventory;
+import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
@@ -39,12 +23,25 @@ import appeng.blockentity.grid.AENetworkedInvBlockEntity;
 import appeng.core.definitions.AEItems;
 import appeng.me.helpers.MachineSource;
 import appeng.util.inv.AppEngInternalInventory;
-
 import dev.excal1bur.appliedsmelting.core.ModItems;
-import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
-import dev.excal1bur.appliedsmelting.service.SmelterStatus;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.ProcessingMath;
+import dev.excal1bur.appliedsmelting.service.SmelterStatus;
+import dev.excal1bur.appliedsmelting.service.SmeltingPowerMode;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /** Shared network/queue/upgrade-card/power logic for every ME network furnace-style machine. */
 public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInvBlockEntity
@@ -77,9 +74,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     protected AbstractMENetworkFurnaceBlockEntity(
             BlockEntityType<?> type, BlockPos pos, BlockState state, int upgradeSlots) {
         super(type, pos, state);
-        getMainNode()
-                .setFlags(GridFlags.REQUIRE_CHANNEL)
-                .addService(IGridTickable.class, this);
+        getMainNode().setFlags(GridFlags.REQUIRE_CHANNEL).addService(IGridTickable.class, this);
         upgrades = UpgradeInventories.forMachine(state.getBlock().asItem(), upgradeSlots, this::onUpgradesChanged);
         // Not called here: idleDrawMultiplier() etc. are abstract and the subclass's own fields
         // (e.g. tier) aren't initialized until after this constructor returns. Subclasses must call
@@ -171,8 +166,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         processingTicksRequired = state.processingTicksRequired();
         fuelTicksRemaining = state.fuelTicksRemaining();
         fuelTicksTotal = state.fuelTicksTotal();
-        lavaFractionUnits =
-                Math.max(0, Math.min(ProcessingMath.LAVA_UNITS_PER_MB - 1, state.lavaFractionUnits()));
+        lavaFractionUnits = Math.max(0, Math.min(ProcessingMath.LAVA_UNITS_PER_MB - 1, state.lavaFractionUnits()));
         pendingOutputKey = state.pendingOutputKey();
         pendingOutputAmount = state.pendingOutputAmount();
         enabled = state.enabled();
@@ -244,11 +238,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         fuelTicksRemaining = input.getIntOr("fuelTicksRemaining", 0);
         fuelTicksTotal = input.getIntOr("fuelTicksTotal", fuelTicksRemaining);
         lavaFractionUnits =
-                Math.max(
-                        0,
-                        Math.min(
-                                ProcessingMath.LAVA_UNITS_PER_MB - 1,
-                                input.getLongOr("lavaFractionUnits", 0)));
+                Math.max(0, Math.min(ProcessingMath.LAVA_UNITS_PER_MB - 1, input.getLongOr("lavaFractionUnits", 0)));
         enabled = input.getBooleanOr("enabled", true);
         powerMode = SmeltingPowerMode.fromSerializedName(input.getStringOr("powerMode", "item_fuel"));
         status = SmelterStatus.fromId(input.getIntOr("status", SmelterStatus.WAITING_FOR_SELECTION.id()));
@@ -329,7 +319,8 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         if (!hasFuelForCurrentMode(grid, storage, selectedFuel)) {
             service.releaseAssignment(this);
             returnInputToNetwork(storage);
-            setStatus(powerMode == SmeltingPowerMode.AE_POWER ? SmelterStatus.MISSING_POWER : SmelterStatus.MISSING_FUEL);
+            setStatus(
+                    powerMode == SmeltingPowerMode.AE_POWER ? SmelterStatus.MISSING_POWER : SmelterStatus.MISSING_FUEL);
             return TickRateModulation.SLOWER;
         }
 
@@ -351,8 +342,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
             }
         }
 
-        if (inventory.getStackInSlot(0).isEmpty()
-                && !pullSelectedInput(level, storage, selectedInput, service)) {
+        if (inventory.getStackInSlot(0).isEmpty() && !pullSelectedInput(level, storage, selectedInput, service)) {
             return TickRateModulation.SLOWER;
         }
 
@@ -451,8 +441,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
         var pending = resolved.get();
         var resultKey = pending.outputKey();
         var amount = pending.outputAmount();
-        if (resultKey == null
-                || storage.insert(resultKey, amount, Actionable.SIMULATE, actionSource) != amount) {
+        if (resultKey == null || storage.insert(resultKey, amount, Actionable.SIMULATE, actionSource) != amount) {
             setStatus(SmelterStatus.OUTPUT_FULL);
             return false;
         }
@@ -482,11 +471,14 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     /** Whether the network can currently supply this machine's power mode, checked before any item is selected. */
     private boolean hasFuelForCurrentMode(IGrid grid, MEStorage storage, AEItemKey selectedFuel) {
         return switch (powerMode) {
-            case ITEM_FUEL -> fuelTicksRemaining > 0
-                    || selectedFuel != null && storage.extract(selectedFuel, 1, Actionable.SIMULATE, actionSource) == 1;
+            case ITEM_FUEL ->
+                fuelTicksRemaining > 0
+                        || selectedFuel != null
+                                && storage.extract(selectedFuel, 1, Actionable.SIMULATE, actionSource) == 1;
             case AE_POWER -> {
                 var needed = getAeFuelPerWorkTick();
-                yield grid.getEnergyService().extractAEPower(needed, Actionable.SIMULATE, PowerMultiplier.CONFIG) + 0.001
+                yield grid.getEnergyService().extractAEPower(needed, Actionable.SIMULATE, PowerMultiplier.CONFIG)
+                                + 0.001
                         >= needed;
             }
             case LAVA_FUEL -> {
@@ -720,9 +712,7 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     }
 
     private double getEnergyMultiplier() {
-        return Math.max(
-                MINIMUM_ENERGY_MULTIPLIER,
-                1.0 - getEnergyCardCount() * ENERGY_CARD_REDUCTION);
+        return Math.max(MINIMUM_ENERGY_MULTIPLIER, 1.0 - getEnergyCardCount() * ENERGY_CARD_REDUCTION);
     }
 
     protected void updateIdlePowerUsage() {

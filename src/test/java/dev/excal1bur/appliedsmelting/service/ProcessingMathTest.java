@@ -54,8 +54,7 @@ class ProcessingMathTest {
 
     @Test
     void targetArithmeticCannotOverflowIntoAnAllowedResult() {
-        assertFalse(ProcessingMath.canStartTargetJob(
-                Long.MAX_VALUE - 1, Long.MAX_VALUE - 10, 20, 1));
+        assertFalse(ProcessingMath.canStartTargetJob(Long.MAX_VALUE - 1, Long.MAX_VALUE - 10, 20, 1));
         assertEquals(Long.MAX_VALUE, ProcessingMath.saturatedAddNonNegative(Long.MAX_VALUE - 1, 10));
     }
 }

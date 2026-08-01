@@ -1,13 +1,5 @@
 package dev.excal1bur.appliedsmelting.client.screen;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-
 import appeng.api.stacks.AEKey;
 import appeng.client.api.AEKeyRendering;
 import appeng.client.gui.me.common.MEStorageScreen;
@@ -17,9 +9,15 @@ import appeng.client.gui.widgets.TabButton;
 import appeng.helpers.InventoryAction;
 import appeng.util.Icon;
 import appeng.util.prioritylist.IPartitionList;
-
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalMenu;
 import dev.excal1bur.appliedsmelting.service.FurnaceType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * The queue grid (input -> arrow -> output, per column) is the terminal's default view.
@@ -156,8 +154,7 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
     }
 
     @Override
-    public void drawFG(
-            GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY, int mouseX, int mouseY) {
+    public void drawFG(GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY, int mouseX, int mouseY) {
         int top = panelTop();
         super.drawFG(guiGraphics, offsetX, offsetY, mouseX, mouseY);
 
@@ -165,7 +162,10 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
             renderSelection(guiGraphics, menu.selectedFuel, FUEL_PANEL_X + 1, top + FUEL_PANEL_Y + 1);
             if (menu.selectedFuel != null && !menu.fuelInUse) {
                 guiGraphics.fill(
-                        FUEL_PANEL_X + 1, top + FUEL_PANEL_Y + 1, FUEL_PANEL_X + 17, top + FUEL_PANEL_Y + 17,
+                        FUEL_PANEL_X + 1,
+                        top + FUEL_PANEL_Y + 1,
+                        FUEL_PANEL_X + 17,
+                        top + FUEL_PANEL_Y + 17,
                         0x99000000);
             }
             return;
@@ -184,8 +184,7 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
             if (i >= menu.queueCapacity) {
                 // Dim the whole column (icons included) so locked slots read as clearly inactive,
                 // even if a preserved-but-unscheduled item is still sitting in one.
-                guiGraphics.fill(
-                        x, top + QUEUE_INPUT_Y - 1, x + 18, top + QUEUE_OUTPUT_Y + 19, 0xb0202127);
+                guiGraphics.fill(x, top + QUEUE_INPUT_Y - 1, x + 18, top + QUEUE_OUTPUT_Y + 19, 0xb0202127);
             }
         }
 
@@ -222,7 +221,8 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
                 }
             }
             Slot hovered = getHoveredSlot();
-            if (hovered instanceof RepoSlot repoSlot && repoSlot.getEntry() != null
+            if (hovered instanceof RepoSlot repoSlot
+                    && repoSlot.getEntry() != null
                     && repoSlot.getEntry().getWhat() instanceof appeng.api.stacks.AEItemKey itemKey) {
                 draggedSerial = repoSlot.getEntry().getSerial();
                 draggedKey = itemKey;
@@ -373,7 +373,9 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         } else {
             stack = hovered.getItem();
         }
-        if (stack.isEmpty() || minecraft == null || minecraft.level == null
+        if (stack.isEmpty()
+                || minecraft == null
+                || minecraft.level == null
                 || !minecraft.level.fuelValues().isFuel(stack)) {
             return null;
         }
@@ -397,8 +399,7 @@ public final class SmeltingTerminalScreen extends MEStorageScreen<SmeltingTermin
         graphics.fill(x + 2, y + 2, x + 17, y + 17, 0xffaeb2c8);
     }
 
-    private static void drawQueueSlot(
-            GuiGraphicsExtractor graphics, int x, int y, boolean available, boolean active) {
+    private static void drawQueueSlot(GuiGraphicsExtractor graphics, int x, int y, boolean available, boolean active) {
         graphics.fill(x, y, x + 18, y + 18, active ? 0xffe6a728 : 0xff686c81);
         graphics.fill(x + 1, y + 1, x + 18, y + 18, 0xffd4d8ea);
         graphics.fill(x + 2, y + 2, x + 17, y + 17, available ? 0xffaeb2c8 : 0xff7d8195);

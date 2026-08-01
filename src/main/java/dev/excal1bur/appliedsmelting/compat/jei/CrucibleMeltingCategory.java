@@ -1,7 +1,7 @@
 package dev.excal1bur.appliedsmelting.compat.jei;
 
-import net.minecraft.network.chat.Component;
-
+import dev.excal1bur.appliedsmelting.core.ModBlocks;
+import dev.excal1bur.appliedsmelting.recipe.CrucibleMeltingRecipe;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -9,20 +9,19 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
-
-import dev.excal1bur.appliedsmelting.core.ModBlocks;
-import dev.excal1bur.appliedsmelting.recipe.CrucibleMeltingRecipe;
+import net.minecraft.network.chat.Component;
 
 /** Shows ME Crucible recipes (item -> molten metal) in JEI. */
 public final class CrucibleMeltingCategory implements IRecipeCategory<CrucibleMeltingRecipe> {
-    public static final IRecipeType<CrucibleMeltingRecipe> TYPE =
-            IRecipeType.create(net.minecraft.resources.Identifier.fromNamespaceAndPath(
-                    "appliedsmelting", "crucible_melting"), CrucibleMeltingRecipe.class);
+    public static final IRecipeType<CrucibleMeltingRecipe> TYPE = IRecipeType.create(
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("appliedsmelting", "crucible_melting"),
+            CrucibleMeltingRecipe.class);
 
     private final IDrawable icon;
 
     public CrucibleMeltingCategory(IGuiHelper guiHelper) {
-        icon = guiHelper.createDrawableItemStack(ModBlocks.ME_CRUCIBLE_ITEM.get().getDefaultInstance());
+        icon = guiHelper.createDrawableItemStack(
+                ModBlocks.ME_CRUCIBLE_ITEM.get().getDefaultInstance());
     }
 
     @Override

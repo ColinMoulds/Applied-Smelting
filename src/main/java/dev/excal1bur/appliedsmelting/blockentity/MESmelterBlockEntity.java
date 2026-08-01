@@ -1,15 +1,14 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
+import dev.excal1bur.appliedsmelting.block.MESmelterBlock;
+import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
+import dev.excal1bur.appliedsmelting.service.SmelterTier;
+import dev.excal1bur.appliedsmelting.service.SmeltingService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
-import dev.excal1bur.appliedsmelting.block.MESmelterBlock;
-import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
-import dev.excal1bur.appliedsmelting.service.SmelterTier;
-import dev.excal1bur.appliedsmelting.service.SmeltingService;
 
 public final class MESmelterBlockEntity extends AbstractCookingFurnaceBlockEntity {
     private final SmelterTier tier;

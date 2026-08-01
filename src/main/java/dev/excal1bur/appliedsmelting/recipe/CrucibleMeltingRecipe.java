@@ -3,7 +3,8 @@ package dev.excal1bur.appliedsmelting.recipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
+import dev.excal1bur.appliedsmelting.core.ModRecipes;
+import dev.excal1bur.appliedsmelting.core.MoltenMetalFluids;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,29 +21,34 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
-import dev.excal1bur.appliedsmelting.core.ModRecipes;
-import dev.excal1bur.appliedsmelting.core.MoltenMetalFluids;
-
 /** Ore/raw-metal-item -> molten-metal-fluid recipe, processed by the ME Crucible. Never assemble()s an ItemStack. */
 public final class CrucibleMeltingRecipe implements Recipe<SingleRecipeInput> {
-    public static final MapCodec<CrucibleMeltingRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance
-            .group(
-                     Ingredient.CODEC.fieldOf("ingredient").forGetter(r -> r.ingredient),
-                     Codec.STRING.fieldOf("metal").forGetter(r -> r.metal),
-                     Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(r -> r.amount),
-                     Codec.intRange(1, Integer.MAX_VALUE)
-                             .optionalFieldOf("cookingtime", 200)
-                             .forGetter(r -> r.cookingTime))
-            .apply(instance, CrucibleMeltingRecipe::new));
+    public static final MapCodec<CrucibleMeltingRecipe> MAP_CODEC =
+            RecordCodecBuilder.mapCodec(instance -> instance.group(
+                            Ingredient.CODEC.fieldOf("ingredient").forGetter(r -> r.ingredient),
+                            Codec.STRING.fieldOf("metal").forGetter(r -> r.metal),
+                            Codec.intRange(1, Integer.MAX_VALUE)
+                                    .fieldOf("amount")
+                                    .forGetter(r -> r.amount),
+                            Codec.intRange(1, Integer.MAX_VALUE)
+                                    .optionalFieldOf("cookingtime", 200)
+                                    .forGetter(r -> r.cookingTime))
+                    .apply(instance, CrucibleMeltingRecipe::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, CrucibleMeltingRecipe> STREAM_CODEC = StreamCodec.composite(
-            Ingredient.CONTENTS_STREAM_CODEC, r -> r.ingredient,
-            ByteBufCodecs.STRING_UTF8, r -> r.metal,
-            ByteBufCodecs.VAR_INT, r -> r.amount,
-            ByteBufCodecs.VAR_INT, r -> r.cookingTime,
-            CrucibleMeltingRecipe::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CrucibleMeltingRecipe> STREAM_CODEC =
+            StreamCodec.composite(
+                    Ingredient.CONTENTS_STREAM_CODEC,
+                    r -> r.ingredient,
+                    ByteBufCodecs.STRING_UTF8,
+                    r -> r.metal,
+                    ByteBufCodecs.VAR_INT,
+                    r -> r.amount,
+                    ByteBufCodecs.VAR_INT,
+                    r -> r.cookingTime,
+                    CrucibleMeltingRecipe::new);
 
-    public static final RecipeSerializer<CrucibleMeltingRecipe> SERIALIZER = new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
+    public static final RecipeSerializer<CrucibleMeltingRecipe> SERIALIZER =
+            new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
 
     private final Ingredient ingredient;
     private final String metal;

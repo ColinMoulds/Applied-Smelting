@@ -1,24 +1,20 @@
 package dev.excal1bur.appliedsmelting.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.nbt.CompoundTag;
-
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.IGridService;
 import appeng.api.networking.IGridServiceProvider;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
-
 import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
 import dev.excal1bur.appliedsmelting.menu.SmeltingTerminalHost;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.Nullable;
 
 /** Per-machine-type network queue/assignment/distribution logic. One instance per registered machine type. */
 public abstract class AbstractFurnaceNetworkService implements IGridService, IGridServiceProvider {
@@ -60,8 +56,7 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
             Set<AEItemKey> activeInputs,
             int combinedSpeedMultiplier,
             double combinedIdleAePerTick,
-            double combinedMaximumAeFuelPerTick) {
-    }
+            double combinedMaximumAeFuelPerTick) {}
 
     /** Which concrete block entity class this service tracks, so machine types don't share a queue. */
     protected abstract Class<? extends AbstractMENetworkFurnaceBlockEntity> machineClass();
@@ -182,7 +177,9 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
     }
 
     public int getWorkingCount() {
-        return (int) smelters.stream().filter(AbstractMENetworkFurnaceBlockEntity::isActivelySmelting).count();
+        return (int) smelters.stream()
+                .filter(AbstractMENetworkFurnaceBlockEntity::isActivelySmelting)
+                .count();
     }
 
     public int getItemFuelSmelterCount() {
@@ -340,9 +337,17 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
         if (smelters.isEmpty()) {
             return cachedQueueCapacity = 1;
         }
-        var baseCapacity = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::baseQueueCapacity).max().orElse(1);
-        var capCeiling = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::capacityCardCap).max().orElse(9);
-        var capacityCards = smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::getCapacityCardCount).sum();
+        var baseCapacity = smelters.stream()
+                .mapToInt(AbstractMENetworkFurnaceBlockEntity::baseQueueCapacity)
+                .max()
+                .orElse(1);
+        var capCeiling = smelters.stream()
+                .mapToInt(AbstractMENetworkFurnaceBlockEntity::capacityCardCap)
+                .max()
+                .orElse(9);
+        var capacityCards = smelters.stream()
+                .mapToInt(AbstractMENetworkFurnaceBlockEntity::getCapacityCardCount)
+                .sum();
         return cachedQueueCapacity = Math.min(capCeiling, baseCapacity + capacityCards);
     }
 
@@ -362,7 +367,10 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
     }
 
     /** Carries a captured assignment/deferral over to a smelter that just replaced another (e.g. a tier upgrade). */
-    public void transferAssignment(AbstractMENetworkFurnaceBlockEntity newSmelter, @Nullable AEItemKey assignment, @Nullable AEItemKey deferred) {
+    public void transferAssignment(
+            AbstractMENetworkFurnaceBlockEntity newSmelter,
+            @Nullable AEItemKey assignment,
+            @Nullable AEItemKey deferred) {
         if (assignment != null) {
             assignments.put(newSmelter, assignment);
         }
@@ -392,7 +400,10 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
         var assignmentCounts = new HashMap<AEItemKey, Integer>();
         activeInputs.forEach(input -> assignmentCounts.put(input, 0));
         assignments.values().forEach(input -> assignmentCounts.computeIfPresent(input, (key, count) -> count + 1));
-        var leastAssigned = assignmentCounts.values().stream().mapToInt(Integer::intValue).min().orElse(0);
+        var leastAssigned = assignmentCounts.values().stream()
+                .mapToInt(Integer::intValue)
+                .min()
+                .orElse(0);
         for (int offset = 0; offset < activeInputs.size(); offset++) {
             var index = Math.floorMod(assignmentCursor + offset, activeInputs.size());
             var candidate = activeInputs.get(index);
@@ -429,15 +440,21 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
     }
 
     public int getCombinedSpeedMultiplier() {
-        return smelters.stream().mapToInt(AbstractMENetworkFurnaceBlockEntity::getSpeedMultiplier).sum();
+        return smelters.stream()
+                .mapToInt(AbstractMENetworkFurnaceBlockEntity::getSpeedMultiplier)
+                .sum();
     }
 
     public double getCombinedIdleAePerTick() {
-        return smelters.stream().mapToDouble(AbstractMENetworkFurnaceBlockEntity::getIdleAePerTick).sum();
+        return smelters.stream()
+                .mapToDouble(AbstractMENetworkFurnaceBlockEntity::getIdleAePerTick)
+                .sum();
     }
 
     public double getCombinedMaximumAeFuelPerTick() {
-        return smelters.stream().mapToDouble(AbstractMENetworkFurnaceBlockEntity::getMaximumAeFuelPerTick).sum();
+        return smelters.stream()
+                .mapToDouble(AbstractMENetworkFurnaceBlockEntity::getMaximumAeFuelPerTick)
+                .sum();
     }
 
     private List<AEItemKey> getActiveQueuedInputs() {
@@ -470,8 +487,8 @@ public abstract class AbstractFurnaceNetworkService implements IGridService, IGr
         long pendingAmount = 0;
         for (var smelter : smelters) {
             if (smelter != requester) {
-                pendingAmount = ProcessingMath.saturatedAddNonNegative(
-                        pendingAmount, smelter.getPendingOutputAmount(output));
+                pendingAmount =
+                        ProcessingMath.saturatedAddNonNegative(pendingAmount, smelter.getPendingOutputAmount(output));
             }
         }
         return ProcessingMath.canStartTargetJob(target, storedAmount, pendingAmount, outputAmount);

@@ -1,4 +1,4 @@
-name: Publish to Modrinth
+name: Publish
 
 on:
   release:
@@ -36,8 +36,9 @@ jobs:
             exit 1
           fi
 
-      - name: Build, test, and publish to Modrinth
+      - name: Build, test, and publish to Modrinth and CurseForge
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
           CHANGELOG: ${{ github.event.release.body }}
-        run: ./gradlew clean build modrinth
+        run: ./gradlew clean build modrinth publishCurseForge
