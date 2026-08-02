@@ -6,16 +6,20 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.excal1bur.appliedsmelting.blockentity.AbstractMENetworkFurnaceBlockEntity;
 import dev.excal1bur.appliedsmelting.service.SmelterStatus;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/** Recolors an ME network furnace machine's front-face status dot to reflect live machine status. */
+/** Recolors an ME network furnace machine's front-face status dot and fire glow to reflect live machine status. */
 public final class MENetworkFurnaceBlockEntityRenderer
         implements BlockEntityRenderer<AbstractMENetworkFurnaceBlockEntity, SmelterRenderState> {
     private static final int COLOR_RUNNING = 0xFF3CD94A;
@@ -29,6 +33,14 @@ public final class MENetworkFurnaceBlockEntityRenderer
     private static final float LED_MIN_Y = 2.0F / 16.0F;
     private static final float LED_MAX_Y = 3.0F / 16.0F;
     private static final float LED_Z = -5.0E-4F;
+
+    // The fire-glow mask covers the whole front face at the mask texture's own resolution (mostly
+    // transparent outside the glowing shape), so it's rendered as a full corner-to-corner quad -
+    // same as the base cube model's own north face - rather than a hand-picked sub-rectangle. That
+    // keeps this generic across every machine's own glow mask instead of hardcoding one shape/position.
+    private static final float FIRE_Z = -5.0E-4F;
+
+    private static final long RAINBOW_CYCLE_MS = 6000L;
 
     public MENetworkFurnaceBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
 
@@ -47,6 +59,7 @@ public final class MENetworkFurnaceBlockEntityRenderer
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
         state.glowIntensity = blockEntity.getGlowIntensity();
         state.status = blockEntity.getRawStatus();
+        state.fireGlowTexture = blockEntity.getFireGlowTexture();
         var blockState = blockEntity.getBlockState();
         state.facing = IOrientationStrategy.get(blockState).getFacing(blockState);
     }
@@ -68,6 +81,15 @@ public final class MENetworkFurnaceBlockEntityRenderer
                 poseStack,
                 AppliedSmeltingRenderTypes.SMELTER_STATUS_LED,
                 (pose, buffer) -> renderLed(pose, buffer, color));
+
+        if (state.fireGlowTexture != null) {
+            var fireColor = rainbowColor(state.glowIntensity);
+            var fireSprite = fireGlowSprite(state.fireGlowTexture);
+            submitNodeCollector.submitCustomGeometry(
+                    poseStack,
+                    AppliedSmeltingRenderTypes.SMELTER_FIRE_GLOW,
+                    (pose, buffer) -> renderFireGlow(pose, buffer, fireSprite, fireColor));
+        }
 
         poseStack.popPose();
     }
@@ -104,5 +126,76 @@ public final class MENetworkFurnaceBlockEntityRenderer
         buffer.addVertex(pose, LED_MAX_X, LED_MIN_Y, LED_Z).setColor(color);
         buffer.addVertex(pose, LED_MAX_X, LED_MAX_Y, LED_Z).setColor(color);
         buffer.addVertex(pose, LED_MIN_X, LED_MAX_Y, LED_Z).setColor(color);
+    }
+
+    private static TextureAtlasSprite fireGlowSprite(Identifier texture) {
+        var atlas = (TextureAtlas) Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
+        return atlas.getSprite(texture);
+    }
+
+    /** AE2 Controller-style cycling rainbow hue, faded by the same glowIntensity as the status LED. */
+    private static int rainbowColor(float intensity) {
+        float hue = (System.currentTimeMillis() % RAINBOW_CYCLE_MS) / (float) RAINBOW_CYCLE_MS;
+        int alpha = Math.round(255 * Math.max(0.0F, Math.min(1.0F, intensity)));
+        return alpha << 24 | hsvToRgb(hue, 1.0F, 1.0F);
+    }
+
+    private static int hsvToRgb(float hue, float saturation, float value) {
+        float h = hue * 6.0F;
+        int sector = (int) h;
+        float f = h - sector;
+        float p = value * (1.0F - saturation);
+        float q = value * (1.0F - saturation * f);
+        float t = value * (1.0F - saturation * (1.0F - f));
+        float r;
+        float g;
+        float b;
+        switch (sector % 6) {
+            case 0 -> {
+                r = value;
+                g = t;
+                b = p;
+            }
+            case 1 -> {
+                r = q;
+                g = value;
+                b = p;
+            }
+            case 2 -> {
+                r = p;
+                g = value;
+                b = t;
+            }
+            case 3 -> {
+                r = p;
+                g = q;
+                b = value;
+            }
+            case 4 -> {
+                r = t;
+                g = p;
+                b = value;
+            }
+            default -> {
+                r = value;
+                g = p;
+                b = q;
+            }
+        }
+        return Math.round(r * 255) << 16 | Math.round(g * 255) << 8 | Math.round(b * 255);
+    }
+
+    private static void renderFireGlow(
+            PoseStack.Pose pose, VertexConsumer buffer, TextureAtlasSprite sprite, int color) {
+        float u0 = sprite.getU0();
+        float u1 = sprite.getU1();
+        float v0 = sprite.getV0();
+        float v1 = sprite.getV1();
+
+        // Full corner-to-corner face quad; the north face bakes u = 1 - localX (same as the LED above).
+        buffer.addVertex(pose, 0.0F, 0.0F, FIRE_Z).setUv(u1, v1).setColor(color);
+        buffer.addVertex(pose, 1.0F, 0.0F, FIRE_Z).setUv(u0, v1).setColor(color);
+        buffer.addVertex(pose, 1.0F, 1.0F, FIRE_Z).setUv(u0, v0).setColor(color);
+        buffer.addVertex(pose, 0.0F, 1.0F, FIRE_Z).setUv(u1, v0).setColor(color);
     }
 }

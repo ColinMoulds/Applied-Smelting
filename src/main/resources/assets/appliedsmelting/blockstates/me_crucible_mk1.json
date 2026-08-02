@@ -1,19 +1,8 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "appliedsmelting:block/me_crucible"
-    },
-    "facing=east": {
-      "model": "appliedsmelting:block/me_crucible",
-      "y": 90
-    },
-    "facing=south": {
-      "model": "appliedsmelting:block/me_crucible",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "appliedsmelting:block/me_crucible",
-      "y": 270
-    }
+    "facing=north": { "model": "appliedsmelting:block/me_crucible_mk1" },
+    "facing=east":  { "model": "appliedsmelting:block/me_crucible_mk1", "y": 90 },
+    "facing=south": { "model": "appliedsmelting:block/me_crucible_mk1", "y": 180 },
+    "facing=west":  { "model": "appliedsmelting:block/me_crucible_mk1", "y": 270 }
   }
 }

@@ -42,6 +42,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 /** Shared network/queue/upgrade-card/power logic for every ME network furnace-style machine. */
 public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInvBlockEntity
@@ -120,6 +121,11 @@ public abstract class AbstractMENetworkFurnaceBlockEntity extends AENetworkedInv
     /** Status LED glow intensity multiplier; 1.0 for machines with no tier-based variation. */
     public float getGlowIntensity() {
         return 1.0F;
+    }
+
+    /** Resource location of this machine's front-face emissive glow mask texture; null for none. */
+    public @Nullable Identifier getFireGlowTexture() {
+        return null;
     }
 
     protected abstract double baseSpeedMultiplier();

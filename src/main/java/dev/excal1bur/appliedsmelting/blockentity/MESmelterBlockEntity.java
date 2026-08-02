@@ -1,10 +1,12 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
+import dev.excal1bur.appliedsmelting.AppliedSmelting;
 import dev.excal1bur.appliedsmelting.block.MESmelterBlock;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
 import dev.excal1bur.appliedsmelting.service.SmelterTier;
 import dev.excal1bur.appliedsmelting.service.SmeltingService;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -44,6 +46,13 @@ public final class MESmelterBlockEntity extends AbstractCookingFurnaceBlockEntit
             case MK2 -> 1.15F;
             case MK3 -> 1.35F;
         };
+    }
+
+    private static final Identifier FIRE_GLOW_TEXTURE = AppliedSmelting.id("block/me_smelter_fire_glow");
+
+    @Override
+    public Identifier getFireGlowTexture() {
+        return FIRE_GLOW_TEXTURE;
     }
 
     @Override

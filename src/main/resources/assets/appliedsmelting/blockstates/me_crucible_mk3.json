@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=north": {
-      "model": "appliedsmelting:block/me_crucible"
+      "model": "appliedsmelting:block/me_crucible_mk3"
     },
     "facing=east": {
-      "model": "appliedsmelting:block/me_crucible",
+      "model": "appliedsmelting:block/me_crucible_mk3",
       "y": 90
     },
     "facing=south": {
-      "model": "appliedsmelting:block/me_crucible",
+      "model": "appliedsmelting:block/me_crucible_mk3",
       "y": 180
     },
     "facing=west": {
-      "model": "appliedsmelting:block/me_crucible",
+      "model": "appliedsmelting:block/me_crucible_mk3",
       "y": 270
     }
   }

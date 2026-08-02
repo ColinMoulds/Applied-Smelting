@@ -1,6 +1,7 @@
 package dev.excal1bur.appliedsmelting.blockentity;
 
 import appeng.api.stacks.AEFluidKey;
+import dev.excal1bur.appliedsmelting.AppliedSmelting;
 import dev.excal1bur.appliedsmelting.block.MECrucibleBlock;
 import dev.excal1bur.appliedsmelting.core.ModRecipes;
 import dev.excal1bur.appliedsmelting.service.AbstractFurnaceNetworkService;
@@ -8,6 +9,7 @@ import dev.excal1bur.appliedsmelting.service.CrucibleService;
 import dev.excal1bur.appliedsmelting.service.CrucibleTier;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
@@ -45,6 +47,13 @@ public final class MECrucibleBlockEntity extends AbstractMENetworkFurnaceBlockEn
             case MK2 -> 1.15F;
             case MK3 -> 1.35F;
         };
+    }
+
+    private static final Identifier FIRE_GLOW_TEXTURE = AppliedSmelting.id("block/me_crucible_fire_glow");
+
+    @Override
+    public Identifier getFireGlowTexture() {
+        return FIRE_GLOW_TEXTURE;
     }
 
     @Override
