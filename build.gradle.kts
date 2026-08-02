@@ -124,7 +124,7 @@ tasks.register<net.darkhax.curseforgegradle.TaskPublishCurseForge>("publishCurse
     mainFile.releaseType = "beta"
     mainFile.addGameVersion(minecraftVersion)
     mainFile.addModLoader("NeoForge")
-    mainFile.addRequirement("ae2")
+    mainFile.addRequirement("applied-energistics-2")
 }
 
 spotless {
