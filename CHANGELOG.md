@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.1
+
+- Redesigned the ME Smelter, ME Blast Furnace, ME Smoker, and ME Crucible with new AE2-styled textures, each with its own distinctive front (a rounded viewport, a vertical grill, a bubbling molten basin, and a robotic face).
+- Every machine tier (Mk1/Mk2/Mk3) now has its own Iron/Gold/Diamond-themed texture instead of silently reusing a single shared model across all tiers.
+- Added a status-reactive rainbow emissive glow to every machine's front, cycling color while active and fading with machine status, in the same style as AE2's own ME Controller.
+- Refreshed the ME Smelting Terminal screen to show live status indicators for all four queues (Smelting/Blasting/Smoking/Crucible).
+- Rebuilt the Fuel Efficiency Card to match AE2's own upgrade-card look, and recolored the upgrade kit icons to the same Iron/Gold/Diamond tiers as the machines.
+- Replaced the mod's logo with a render built directly from the in-game textures.
+
 ## 0.6.0
 
 - Added survival crafting recipes and recipe-book advancements for every tier of the ME Blast Furnace, ME Smoker, and ME Crucible.
