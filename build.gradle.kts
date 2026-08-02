@@ -116,7 +116,7 @@ modrinth {
 // (`./gradlew publishCurseForge`), which the publish.yml workflow does on
 // every published GitHub release; local builds are unaffected.
 tasks.register<net.darkhax.curseforgegradle.TaskPublishCurseForge>("publishCurseForge") {
-    apiToken = System.getenv("CURSEFORGE_API_KEY") ?: ""
+    apiToken = System.getenv("CURSEFORGE_TOKEN") ?: ""
 
     val mainFile = upload("1619570", tasks.jar)
     mainFile.changelog = System.getenv("CHANGELOG") ?: ""
