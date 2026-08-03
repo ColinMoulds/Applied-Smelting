@@ -101,7 +101,7 @@ modrinth {
     projectId.set("WF9YE7g7")
     versionNumber.set(modVersion)
     versionName.set("Applied Smelting $modVersion")
-    versionType.set("beta")
+    versionType.set("release")
     uploadFile.set(tasks.jar.get())
     changelog.set(System.getenv("CHANGELOG") ?: "")
     gameVersions.addAll(minecraftVersion)
@@ -119,9 +119,10 @@ tasks.register<net.darkhax.curseforgegradle.TaskPublishCurseForge>("publishCurse
     apiToken = System.getenv("CURSEFORGE_TOKEN") ?: ""
 
     val mainFile = upload("1619570", tasks.jar)
+    mainFile.displayName = "AppliedSmelting-$minecraftVersion v$modVersion"
     mainFile.changelog = System.getenv("CHANGELOG") ?: ""
     mainFile.changelogType = "markdown"
-    mainFile.releaseType = "beta"
+    mainFile.releaseType = "release"
     mainFile.addGameVersion(minecraftVersion)
     mainFile.addModLoader("NeoForge")
     mainFile.addRequirement("applied-energistics-2")
